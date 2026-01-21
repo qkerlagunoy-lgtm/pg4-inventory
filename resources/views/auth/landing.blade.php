@@ -2,40 +2,35 @@
 @extends('layouts.guest')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-slate-900 to-blue-950">
 
-    <div class="w-full max-w-md bg-slate-900 text-white rounded-2xl shadow-2xl p-8">
-=========
-<x-guest-layout>
+<div class="min-h-screen bg-gradient-to-br from-black via-slate-900 to-blue-950 flex items-start py-12">
 
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-slate-900 to-blue-950">
+    <!-- MAIN CONTAINER -->
+    <div class="w-full mx-auto bg-slate-900 shadow-2xl grid grid-cols-1 md:grid-cols-2 max-w-7xl max-h-[85vh]">
 
-    <div class="w-full max-w-md bg-slate-900 text-gray-100 rounded-2xl shadow-2xl p-8">
->>>>>>>>> Temporary merge branch 2
+        <!-- LEFT SIDE : LOGO + TITLE -->
+        <div class="flex flex-col items-center justify-center p-10 bg-slate-800 h-full">
+            <img src="{{ asset('images/logo.png') }}" class="w-40 mb-6" alt="Logo">
 
-        {{-- Logo --}}
-        <div class="flex justify-center mb-6">
-            <img src="{{ asset('images/logo.png') }}" class="w-20" alt="Logo">
+            <h1 class="text-white text-2xl font-bold text-center tracking-wide">
+                AFPPGMC<br>INVENTORY
+            </h1>
         </div>
 
-        {{-- Tabs --}}
-        <div class="flex mb-6 rounded-lg overflow-hidden border border-slate-700">
-<<<<<<<<< Temporary merge branch 1
-            <button id="loginTab"
-                class="w-1/2 py-2 font-semibold bg-blue-600">
-                Log in
-            </button>
-            <button id="registerTab"
-                class="w-1/2 py-2 font-semibold bg-slate-800">
-=========
-            <button id="loginTab" class="w-1/2 py-2 font-semibold text-white bg-blue-600">
-                Log in
-            </button>
-            <button id="registerTab" class="w-1/2 py-2 font-semibold text-white bg-slate-800">
->>>>>>>>> Temporary merge branch 2
-                Register
-            </button>
-        </div>
+        <!-- RIGHT SIDE : FORMS -->
+        <div class="p-12 text-gray-100 flex flex-col justify-center">
+
+            <!-- TABS -->
+            <div class="flex mb-8 rounded-lg overflow-hidden border border-slate-700">
+                <button id="loginTab"
+                    class="w-1/2 py-3 font-semibold text-white bg-blue-600 transition">
+                    Log in
+                </button>
+                <button id="registerTab"
+                    class="w-1/2 py-3 font-semibold text-gray-300 bg-slate-800 transition">
+                    Register
+                </button>
+            </div>
 
             <!-- LOGIN -->
             <div id="loginForm">
@@ -82,83 +77,43 @@
 
             <!-- REGISTER -->
             <div id="registerForm" class="hidden">
-                <form method="POST" action="{{ route('register') }}">
-                    @csrf
+            <form method="POST" action="{{ route('register') }}">
+                @csrf
 
-                <div class="mb-3">
-<<<<<<<<< Temporary merge branch 1
-                    <label class="text-sm text-gray-300">Name</label>
-                    <input type="text" name="name"
-                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-white">
-                </div>
+                    <div class="mb-4">
+                        <label class="block text-sm mb-1">Name</label>
+                        <input type="text" name="name"
+                            class="w-full rounded-md bg-slate-800 border border-slate-700
+                                   text-gray-100 focus:border-blue-500 focus:ring-blue-500">
+                    </div>
 
-                <div class="mb-3">
-                    <label class="text-sm text-gray-300">Email</label>
-                    <input type="email" name="email"
-                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-white">
-=========
-                    <label class="text-sm text-white">Name</label>
-                    <input type="text" name="name"
-                        class="w-full mt-1 rounded-md
-                        bg-slate-800
-                        border border-slate-700
-                        text-gray-100
-                        placeholder-gray-400
-                        focus:border-blue-500
-                        focus:ring-blue-500
-                        autofill:bg-slate-800
-                        autofill:text-gray-100">
-                </div>
+                    <div class="mb-4">
+                        <label class="block text-sm mb-1">Email</label>
+                        <input type="email" name="email"
+                            class="w-full rounded-md bg-slate-800 border border-slate-700
+                                   text-gray-100 focus:border-blue-500 focus:ring-blue-500">
+                    </div>
 
-                <div class="mb-3">
-                    <label class="text-sm text-white">Email</label>
-                    <input type="email" name="email"
-                        class="w-full mt-1 rounded-md
-                        bg-slate-800
-                        border border-slate-700
-                        text-gray-100
-                        placeholder-gray-400
-                        focus:border-blue-500
-                        focus:ring-blue-500
-                        autofill:bg-slate-800
-                        autofill:text-gray-100">
->>>>>>>>> Temporary merge branch 2
-                </div>
+                    <div class="mb-4">
+                        <label class="block text-sm mb-1">Password</label>
+                        <input type="password" name="password"
+                            class="w-full rounded-md bg-slate-800 border border-slate-700
+                                   text-gray-100 focus:border-blue-500 focus:ring-blue-500">
+                    </div>
 
-                <div class="mb-3">
-                    <label class="text-sm text-gray-300">Password</label>
-                    <input type="password" name="password"
-<<<<<<<<< Temporary merge branch 1
-                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-white">
-=========
-                        class="w-full mt-1 rounded-md
-                        bg-slate-800
-                        border border-slate-700
-                        text-gray-100
-                        placeholder-gray-400
-                        focus:border-blue-500
-                        focus:ring-blue-500
-                        autofill:bg-slate-800
-                        autofill:text-gray-100">
->>>>>>>>> Temporary merge branch 2
-                </div>
+                    <div class="mb-6">
+                        <label class="block text-sm mb-1">Confirm Password</label>
+                        <input type="password" name="password_confirmation"
+                            class="w-full rounded-md bg-slate-800 border border-slate-700
+                                   text-gray-100 focus:border-blue-500 focus:ring-blue-500">
+                    </div>
 
-                <div class="mb-4">
-                    <label class="text-sm text-gray-300">Confirm Password</label>
-                    <input type="password" name="password_confirmation"
-<<<<<<<<< Temporary merge branch 1
-                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-white">
-=========
-                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-gray-100">
->>>>>>>>> Temporary merge branch 2
-                </div>
-
-                    <button
-                        class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold">
-                        SIGN UP
-                    </button>
-                </form>
-            </div>
+                <button
+                    class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold">
+                    SIGN UP
+                </button>
+            </form>
+        </div>
 
         </div>
     </div>

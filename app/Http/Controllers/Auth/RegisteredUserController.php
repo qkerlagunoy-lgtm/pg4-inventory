@@ -30,21 +30,45 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            // Name fields
+            'first_name'  => ['required', 'string', 'max:255'],
+            'middle_name' => ['required', 'string', 'max:255'],
+            'last_name'   => ['required', 'string', 'max:255'],
+            'suffix'      => ['nullable', 'string', 'max:50'],
+
+            // Account info
+            'username' => ['required', 'string', 'max:255', 'unique:users,username'],
+            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+
+            // Profile
+            'sex'         => ['required', 'in:male,female'],
+            'unit'        => ['required', 'string', 'max:50'],
+            'category_id' => ['nullable', 'integer'],
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            // Name fields
+            'first_name'  => $request->first_name,
+            'middle_name' => $request->middle_name,
+            'last_name'   => $request->last_name,
+            'suffix'      => $request->suffix,
+
+            // Account info
+            'username' => $request->username,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
+
+            // Profile
+            'sex'         => $request->sex,
+            'unit'        => $request->unit,
+            'category_id' => $request->category_id,
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('dashboard');
     }
 }
