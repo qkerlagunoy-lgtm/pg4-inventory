@@ -2,10 +2,10 @@
 
 @section('content')
 
-<div class="min-h-screen bg-gradient-to-br from-black via-slate-900 to-blue-950 flex items-center">
+<div class="min-h-screen bg-gradient-to-br from-black via-slate-900 to-blue-950 flex items-start py-12">
 
     <!-- MAIN CONTAINER -->
-    <div class="w-full h-[80vh] mx-auto bg-slate-900 shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2 max-w-7xl">
+    <div class="w-full mx-auto bg-slate-900 shadow-2xl grid grid-cols-1 md:grid-cols-2 max-w-7xl max-h-[85vh]">
 
         <!-- LEFT SIDE : LOGO + TITLE -->
         <div class="flex flex-col items-center justify-center p-10 bg-slate-800 h-full">
@@ -17,7 +17,7 @@
         </div>
 
         <!-- RIGHT SIDE : FORMS -->
-        <div class="p-12 text-gray-100 flex flex-col justify-center">
+        <div class="p-12 text-gray-100 flex flex-col overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
 
             <!-- TABS -->
             <div class="flex mb-8 rounded-lg overflow-hidden border border-slate-700">
@@ -61,43 +61,89 @@
 
             <!-- REGISTER -->
             <div id="registerForm" class="hidden">
-                <form method="POST" action="{{ route('register') }}">
-                    @csrf
+            <form method="POST" action="{{ route('register') }}">
+                @csrf
 
-                    <div class="mb-4">
-                        <label class="block text-sm mb-1">Name</label>
-                        <input type="text" name="name"
-                            class="w-full rounded-md bg-slate-800 border border-slate-700
-                                   text-gray-100 focus:border-blue-500 focus:ring-blue-500">
+                <!-- NAME ROW -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                    <input type="text" name="first_name" required
+                        placeholder="First Name"
+                        class="input-dark">
+
+                    <input type="text" name="middle_name" required
+                        placeholder="Middle Name"
+                        class="input-dark">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                    <input type="text" name="last_name" required
+                        placeholder="Last Name"
+                        class="input-dark">
+
+                    <input type="text" name="suffix"
+                        placeholder="Suffix (optional)"
+                        class="input-dark">
+                </div>
+
+                <!-- SEX -->
+                <div class="mb-5">
+                    <label class="block text-sm mb-2">Sex</label>
+                    <div class="flex gap-8">
+                        <label class="flex items-center gap-2 text-sm">
+                            <input type="radio" name="sex" value="female" required>
+                            Female
+                        </label>
+                        <label class="flex items-center gap-2 text-sm">
+                            <input type="radio" name="sex" value="male" required>
+                            Male
+                        </label>
                     </div>
+                </div>
 
-                    <div class="mb-4">
-                        <label class="block text-sm mb-1">Email</label>
-                        <input type="email" name="email"
-                            class="w-full rounded-md bg-slate-800 border border-slate-700
-                                   text-gray-100 focus:border-blue-500 focus:ring-blue-500">
-                    </div>
+                <!-- CATEGORY -->
+                <div class="mb-5">
+                    <select name="category_id" required class="input-dark w-full">
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
 
-                    <div class="mb-4">
-                        <label class="block text-sm mb-1">Password</label>
-                        <input type="password" name="password"
-                            class="w-full rounded-md bg-slate-800 border border-slate-700
-                                   text-gray-100 focus:border-blue-500 focus:ring-blue-500">
-                    </div>
+                <!-- UNIT -->
+                <div class="mb-5">
+                    <select name="unit" required class="input-dark w-full">
+                        <option value="">Select Unit</option>
+                        @foreach (['BDCU','CUI','COMMAND','ISU','LSO','PAU','PG1','PG3','PG4','PG10','PPBU'] as $unit)
+                            <option value="{{ $unit }}">{{ $unit }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-                    <div class="mb-6">
-                        <label class="block text-sm mb-1">Confirm Password</label>
-                        <input type="password" name="password_confirmation"
-                            class="w-full rounded-md bg-slate-800 border border-slate-700
-                                   text-gray-100 focus:border-blue-500 focus:ring-blue-500">
-                    </div>
+                <!-- USERNAME -->
+                <div class="mb-5">
+                    <input type="text" name="username" required
+                        placeholder="Username"
+                        class="input-dark">
+                </div>
 
-                    <button
-                        class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold">
-                        SIGN UP
-                    </button>
-                </form>
-            </div>
+                <!-- EMAIL -->
+                <div class="mb-5">
+                    <input type="email" name="email" required
+                        placeholder="Email"
+                        class="input-dark">
+                </div>
+
+                <!-- PASSWORD -->
+                <div class="mb-6">
+                    <input type="password" name="password" required
+                        placeholder="Password"
+                        class="input-dark">
+                </div>
+
+                <button
+                    class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold">
+                    SIGN UP
+                </button>
+            </form>
+        </div>
 
         </div>
     </div>
