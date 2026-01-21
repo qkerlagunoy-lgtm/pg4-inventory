@@ -27,13 +27,13 @@
                 <div class="mb-4">
                     <label class="text-sm text-gray-300">Email</label>
                     <input type="email" name="email"
-                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-white">
+                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-black">
                 </div>
 
                 <div class="mb-4">
                     <label class="text-sm text-gray-300">Password</label>
                     <input type="password" name="password"
-                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-white">
+                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-black">
                 </div>
 
                 <button class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-semibold">
@@ -50,19 +50,19 @@
                 <div class="mb-3">
                     <label class="text-sm text-gray-300">Name</label>
                     <input type="text" name="name"
-                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-white">
+                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-black">
                 </div>
 
                 <div class="mb-3">
                     <label class="text-sm text-gray-300">Email</label>
                     <input type="email" name="email"
-                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-white">
+                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-black">
                 </div>
 
                 <div class="mb-3">
                     <label class="text-sm text-gray-300">Password</label>
                     <input type="password" name="password"
-                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-white">
+                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-black">
                 </div>
 
                 <div class="mb-4">
