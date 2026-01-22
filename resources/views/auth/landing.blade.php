@@ -49,26 +49,36 @@
                 </form>
             </div>
 
+            @if ($errors->any())
+                <div class="mb-4 text-red-400 text-sm">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>• {{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <!-- REGISTER -->
             <div id="registerForm" class="hidden">
                 <form method="POST" action="{{ route('register') }}">
                     @csrf
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                        <input name="first_name" placeholder="First Name" class="input-dark">
-                        <input name="middle_name" placeholder="Middle Name" class="input-dark">
+                        <input name="first_name" placeholder="First Name" class="input-dark" required>
+                        <input name="middle_name" placeholder="Middle Name" class="input-dark" required>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                        <input name="last_name" placeholder="Last Name" class="input-dark">
+                        <input name="last_name" placeholder="Last Name" class="input-dark" required>
                         <input name="suffix" placeholder="Suffix (optional)" class="input-dark">
                     </div>
 
                     <div class="mb-5">
                         <label class="block text-sm mb-2">Sex</label>
                         <div class="flex gap-8">
-                            <label><input type="radio" name="sex" value="female"> Female</label>
-                            <label><input type="radio" name="sex" value="male"> Male</label>
+                            <label><input type="radio" name="sex" value="female" required> Female</label>
+                            <label><input type="radio" name="sex" value="male" required> Male</label>
                         </div>
                     </div>
 
@@ -83,9 +93,10 @@
                         @endforeach
                     </select>
 
-                    <input name="username" placeholder="Username" class="input-dark mb-5">
-                    <input name="email" placeholder="Email" class="input-dark mb-5">
-                    <input type="password" name="password" placeholder="Password" class="input-dark mb-6">
+                    <input name="username" placeholder="Username" class="input-dark mb-5" required>
+                    <input name="email" placeholder="Email" class="input-dark mb-5" required>
+                    <input type="password" name="password" placeholder="Password" class="input-dark mb-6" required>
+                    <input type="password" name="password_confirmation" placeholder="Confirm Password" class="input-dark mb-6" required>
 
                     <button class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold">
                         SIGN UP

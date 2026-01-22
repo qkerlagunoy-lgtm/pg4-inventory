@@ -35,12 +35,10 @@ class RegisteredUserController extends Controller
             'middle_name' => ['required', 'string', 'max:255'],
             'last_name'   => ['required', 'string', 'max:255'],
             'suffix'      => ['nullable', 'string', 'max:50'],
-
             // Account info
             'username' => ['required', 'string', 'max:255', 'unique:users,username'],
             'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-
             // Profile
             'sex'         => ['required', 'in:male,female'],
             'unit'        => ['required', 'string', 'max:50'],
@@ -57,7 +55,7 @@ class RegisteredUserController extends Controller
             // Account info
             'username' => $request->username,
             'email'    => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => $request->password,
 
             // Profile
             'sex'         => $request->sex,
