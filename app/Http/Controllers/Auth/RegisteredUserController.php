@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -27,26 +26,8 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(RegisterRequest $request): RedirectResponse
     {
-        $request->validate([
-            // Name fields
-            'first_name'  => ['required', 'string', 'max:255'],
-            'middle_name' => ['required', 'string', 'max:255'],
-            'last_name'   => ['required', 'string', 'max:255'],
-            'suffix'      => ['nullable', 'string', 'max:50'],
-
-            // Account info
-            'username' => ['required', 'string', 'max:255', 'unique:users,username'],
-            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-
-            // Profile
-            'sex'         => ['required', 'in:male,female'],
-            'unit'        => ['required', 'string', 'max:50'],
-            'category_id' => ['nullable', 'integer'],
-        ]);
-
         $user = User::create([
             // Name fields
             'first_name'  => $request->first_name,
