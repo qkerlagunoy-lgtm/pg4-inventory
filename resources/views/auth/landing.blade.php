@@ -4,10 +4,8 @@
 
 <div class="min-h-screen bg-gradient-to-br from-black via-slate-900 to-blue-950 flex items-start py-12">
 
-    <!-- MAIN CONTAINER -->
     <div class="mx-auto bg-slate-900 shadow-2xl flex w-[1100px] max-w-[95vw] min-h-[650px] rounded-xl overflow-hidden">
 
-        <!-- LEFT SIDE -->
         <div class="w-[45%] flex flex-col items-center justify-center p-10 bg-slate-800">
             <img src="{{ asset('images/logo.png') }}" class="w-40 mb-6" alt="Logo">
             <h1 class="text-white text-2xl font-bold text-center tracking-wide">
@@ -15,10 +13,8 @@
             </h1>
         </div>
 
-        <!-- RIGHT SIDE -->
         <div class="w-[55%] p-12 text-gray-100 flex flex-col overflow-y-auto">
 
-            <!-- TABS -->
             <div class="flex mb-8 rounded-lg overflow-hidden border border-slate-700">
                 <button id="loginTab" class="w-1/2 py-3 font-semibold text-white bg-blue-600 transition">
                     Log in
@@ -33,37 +29,15 @@
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
 
-                <div class="mb-4">
-<<<<<<<<< Temporary merge branch 1
-                    <label class="text-sm text-gray-300">Email</label>
-                    <input type="email" name="email"
-                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-white focus:ring-blue-500">
-                </div>
+                    <div class="mb-5">
+                        <label class="block text-sm mb-1">Email</label>
+                        <input type="text" name="login" placeholder="Email or Username" class="input-dark w-full" required>
+                    </div>
 
-                <div class="mb-4">
-                    <label class="text-sm text-gray-300">Password</label>
-                    <input type="password" name="password"
-                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-white focus:ring-blue-500">
-=========
-                    <label class="text-sm font-medium text-white">Email</label>
-                    <input type="email" name="email"   
-                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-gray-100 placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500">
-                </div>
-
-                <div class="mb-4">
-                    <label class="text-sm text-white">Password</label>
-                    <input type="password" name="password"
-                        class="w-full mt-1 rounded-md
-                        bg-slate-800
-                        border border-slate-700
-                        text-gray-100
-                        placeholder-gray-400
-                        focus:border-blue-500
-                        focus:ring-blue-500
-                        autofill:bg-slate-800
-                        autofill:text-gray-100">
->>>>>>>>> Temporary merge branch 2
-                </div>
+                    <div class="mb-6">
+                        <label class="block text-sm mb-1">Password</label>
+                        <input type="password" name="password" class="input-dark w-full">
+                    </div>
 
                     <button class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-semibold">
                         LOGIN
@@ -71,29 +45,38 @@
                 </form>
             </div>
 
+            @if ($errors->any())
+                <div class="mb-4 text-red-400 text-sm">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>• {{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <!-- REGISTER -->
             <div id="registerForm" class="hidden">
                 <form method="POST" action="{{ route('register') }}">
                     @csrf
-
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                        <input name="first_name" placeholder="First Name" class="input-dark">
-                        <input name="middle_name" placeholder="Middle Name" class="input-dark">
+                        <input name="first_name" placeholder="First Name" class="input-dark" required>
+                        <input name="middle_name" placeholder="Middle Name" class="input-dark" required>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                        <input name="last_name" placeholder="Last Name" class="input-dark">
+                        <input name="last_name" placeholder="Last Name" class="input-dark" required>
                         <input name="suffix" placeholder="Suffix (optional)" class="input-dark">
                     </div>
 
                     <div class="mb-5">
                         <label class="block text-sm mb-2">Sex</label>
                         <div class="flex gap-8">
-                            <label><input type="radio" name="sex" value="female"> Female</label>
-                            <label><input type="radio" name="sex" value="male"> Male</label>
+                            <label><input type="radio" name="sex" value="female" required> Female</label>
+                            <label><input type="radio" name="sex" value="male" required> Male</label>
                         </div>
                     </div>
-
+                    
                     <select name="category_id" class="input-dark w-full mb-5">
                         <option value="">Select Category</option>
                     </select>
@@ -105,19 +88,18 @@
                         @endforeach
                     </select>
 
-                    <input name="username" placeholder="Username" class="input-dark mb-5">
-                    <input name="email" placeholder="Email" class="input-dark mb-5">
-                    <input type="password" name="password" placeholder="Password" class="input-dark mb-6">
+                    <input name="username" placeholder="Username" class="input-dark mb-5" required>
+                    <input name="email" placeholder="Email" class="input-dark mb-5" required>
+                    <input type="password" name="password" placeholder="Password" class="input-dark mb-6" required>
+                    <input type="password" name="password_confirmation" placeholder="Confirm Password" class="input-dark mb-6" required>
 
-                    <button class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold">
+                    <button
+                        class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold">
                         SIGN UP
                     </button>
                 </form>
             </div>
-
         </div>
-    </div>
-</div>
 
 <script>
     const loginTab = document.getElementById('loginTab');
@@ -135,13 +117,8 @@
     registerTab.onclick = () => {
         registerForm.classList.remove('hidden');
         loginForm.classList.add('hidden');
-
         registerTab.classList.add('bg-blue-600','text-white');
-        registerTab.classList.remove('bg-slate-800','text-gray-300');
-
-        loginTab.classList.add('bg-slate-800','text-gray-300');
         loginTab.classList.remove('bg-blue-600','text-white');
     };
 </script>
-
 @endsection
