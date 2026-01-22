@@ -1,5 +1,4 @@
-<<<<<<<<< Temporary merge branch 1
-@extends('layouts.guest')
+@extends('layouts.landing')
 
 @section('content')
 
@@ -8,54 +7,43 @@
     <!-- MAIN CONTAINER -->
     <div class="mx-auto bg-slate-900 shadow-2xl flex w-[1100px] max-w-[95vw] min-h-[650px] rounded-xl overflow-hidden">
 
-        <!-- LEFT SIDE : LOGO + TITLE -->
+        <!-- LEFT SIDE -->
         <div class="w-[45%] flex flex-col items-center justify-center p-10 bg-slate-800">
             <img src="{{ asset('images/logo.png') }}" class="w-40 mb-6" alt="Logo">
-
             <h1 class="text-white text-2xl font-bold text-center tracking-wide">
                 AFPPGMC<br>INVENTORY
             </h1>
         </div>
 
-        <!-- RIGHT SIDE : FORMS -->
+        <!-- RIGHT SIDE -->
         <div class="w-[55%] p-12 text-gray-100 flex flex-col overflow-y-auto">
-        
+
             <!-- TABS -->
             <div class="flex mb-8 rounded-lg overflow-hidden border border-slate-700">
-                <button id="loginTab"
-                    class="w-1/2 py-3 font-semibold text-white bg-blue-600 transition">
+                <button id="loginTab" class="w-1/2 py-3 font-semibold text-white bg-blue-600 transition">
                     Log in
                 </button>
-                <button id="registerTab"
-                    class="w-1/2 py-3 font-semibold text-gray-300 bg-slate-800 transition">
+                <button id="registerTab" class="w-1/2 py-3 font-semibold text-gray-300 bg-slate-800 transition">
                     Register
                 </button>
             </div>
 
             <!-- LOGIN -->
             <div id="loginForm">
-                <div class="w-full max-w-[420px] mx-auto">
-                    <form method="POST" action="{{ route('login') }}">
-                        @csrf
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
 
                     <div class="mb-5">
                         <label class="block text-sm mb-1">Email</label>
-                        <input type="email" name="email"
-                            class="w-full rounded-md bg-slate-800 border border-slate-700
-                                   text-gray-100 placeholder-gray-400
-                                   focus:border-blue-500 focus:ring-blue-500">
+                        <input type="email" name="email" class="input-dark w-full">
                     </div>
 
                     <div class="mb-6">
                         <label class="block text-sm mb-1">Password</label>
-                        <input type="password" name="password"
-                            class="w-full rounded-md bg-slate-800 border border-slate-700
-                                   text-gray-100 placeholder-gray-400
-                                   focus:border-blue-500 focus:ring-blue-500">
+                        <input type="password" name="password" class="input-dark w-full">
                     </div>
 
-                    <button
-                        class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-semibold">
+                    <button class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-semibold">
                         LOGIN
                     </button>
                 </form>
@@ -63,101 +51,52 @@
 
             <!-- REGISTER -->
             <div id="registerForm" class="hidden">
-                <div class="w-full max-w-[420px] mx-auto">
-                    <form method="POST" action="{{ route('register') }}">
-                        @csrf
+                <form method="POST" action="{{ route('register') }}">
+                    @csrf
 
-                <!-- NAME ROW -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                    <input type="text" name="first_name" required
-                        placeholder="First Name"
-                        class="input-dark">
-
-                    <input type="text" name="middle_name" required
-                        placeholder="Middle Name"
-                        class="input-dark">
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                    <input type="text" name="last_name" required
-                        placeholder="Last Name"
-                        class="input-dark">
-
-                    <input type="text" name="suffix"
-                        placeholder="Suffix (optional)"
-                        class="input-dark">
-                </div>
-
-                <!-- SEX -->
-                <div class="mb-5">
-                    <label class="block text-sm mb-2">Sex</label>
-                    <div class="flex gap-8">
-                        <label class="flex items-center gap-2 text-sm">
-                            <input type="radio" name="sex" value="female" required>
-                            Female
-                        </label>
-                        <label class="flex items-center gap-2 text-sm">
-                            <input type="radio" name="sex" value="male" required>
-                            Male
-                        </label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                        <input name="first_name" placeholder="First Name" class="input-dark">
+                        <input name="middle_name" placeholder="Middle Name" class="input-dark">
                     </div>
-                </div>
 
-                <!-- CATEGORY -->
-                <div class="mb-5">
-                    <select name="category_id" required class="input-dark w-full">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                        <input name="last_name" placeholder="Last Name" class="input-dark">
+                        <input name="suffix" placeholder="Suffix (optional)" class="input-dark">
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="block text-sm mb-2">Sex</label>
+                        <div class="flex gap-8">
+                            <label><input type="radio" name="sex" value="female"> Female</label>
+                            <label><input type="radio" name="sex" value="male"> Male</label>
+                        </div>
+                    </div>
+
+                    <select name="category_id" class="input-dark w-full mb-5">
                         <option value="">Select Category</option>
                     </select>
-                </div>
 
-                <!-- UNIT -->
-                <div class="mb-5">
-                    <select name="unit" required class="input-dark w-full">
+                    <select name="unit" class="input-dark w-full mb-5">
                         <option value="">Select Unit</option>
                         @foreach (['BDCU','CUI','COMMAND','ISU','LSO','PAU','PG1','PG3','PG4','PG10','PPBU'] as $unit)
                             <option value="{{ $unit }}">{{ $unit }}</option>
                         @endforeach
                     </select>
-                </div>
 
-                <!-- USERNAME -->
-                <div class="mb-5">
-                    <input type="text" name="username" required
-                        placeholder="Username"
-                        class="input-dark">
-                </div>
+                    <input name="username" placeholder="Username" class="input-dark mb-5">
+                    <input name="email" placeholder="Email" class="input-dark mb-5">
+                    <input type="password" name="password" placeholder="Password" class="input-dark mb-6">
 
-                <!-- EMAIL -->
-                <div class="mb-5">
-                    <input type="email" name="email" required
-                        placeholder="Email"
-                        class="input-dark">
-                </div>
-
-                <!-- PASSWORD -->
-                <div class="mb-6">
-                    <input type="password" name="password" required
-                        placeholder="Password"
-                        class="input-dark">
-                </div>
-
-                        <button
-                            class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold">
-                            SIGN UP
-                        </button>
-                    </form>
-                </div>
+                    <button class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold">
+                        SIGN UP
+                    </button>
+                </form>
             </div>
 
         </div>
     </div>
 </div>
 
-
-<<<<<<<<< Temporary merge branch 1
-{{-- Tab switch script --}}
-=========
->>>>>>>>> Temporary merge branch 2
 <script>
     const loginTab = document.getElementById('loginTab');
     const registerTab = document.getElementById('registerTab');
@@ -167,11 +106,7 @@
     loginTab.onclick = () => {
         loginForm.classList.remove('hidden');
         registerForm.classList.add('hidden');
-
         loginTab.classList.add('bg-blue-600','text-white');
-        loginTab.classList.remove('bg-slate-800','text-gray-300');
-
-        registerTab.classList.add('bg-slate-800','text-gray-300');
         registerTab.classList.remove('bg-blue-600','text-white');
     };
 
@@ -186,9 +121,5 @@
         loginTab.classList.remove('bg-blue-600','text-white');
     };
 </script>
-<<<<<<<<< Temporary merge branch 1
-@endsection
-=========
 
-</x-guest-layout>
->>>>>>>>> Temporary merge branch 2
+@endsection
