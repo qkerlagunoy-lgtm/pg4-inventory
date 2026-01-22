@@ -4,10 +4,8 @@
 
 <div class="min-h-screen bg-gradient-to-br from-black via-slate-900 to-blue-950 flex items-start py-12">
 
-    <!-- MAIN CONTAINER -->
     <div class="mx-auto bg-slate-900 shadow-2xl flex w-[1100px] max-w-[95vw] min-h-[650px] rounded-xl overflow-hidden">
 
-        <!-- LEFT SIDE -->
         <div class="w-[45%] flex flex-col items-center justify-center p-10 bg-slate-800">
             <img src="{{ asset('images/logo.png') }}" class="w-40 mb-6" alt="Logo">
             <h1 class="text-white text-2xl font-bold text-center tracking-wide">
@@ -15,10 +13,8 @@
             </h1>
         </div>
 
-        <!-- RIGHT SIDE -->
         <div class="w-[55%] p-12 text-gray-100 flex flex-col overflow-y-auto">
 
-            <!-- TABS -->
             <div class="flex mb-8 rounded-lg overflow-hidden border border-slate-700">
                 <button id="loginTab" class="w-1/2 py-3 font-semibold text-white bg-blue-600 transition">
                     Log in
@@ -121,11 +117,7 @@
     registerTab.onclick = () => {
         registerForm.classList.remove('hidden');
         loginForm.classList.add('hidden');
-
         registerTab.classList.add('bg-blue-600','text-white');
-        registerTab.classList.remove('bg-slate-800','text-gray-300');
-
-        loginTab.classList.add('bg-slate-800','text-gray-300');
         loginTab.classList.remove('bg-blue-600','text-white');
     };
 </script>
