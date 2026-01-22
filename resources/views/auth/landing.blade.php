@@ -31,7 +31,7 @@
 
                     <div class="mb-5">
                         <label class="block text-sm mb-1">Email</label>
-                        <input type="email" name="email" class="input-dark w-full">
+                        <input type="text" name="login" placeholder="Email or Username" class="input-dark w-full" required>
                     </div>
 
                     <div class="mb-6">
