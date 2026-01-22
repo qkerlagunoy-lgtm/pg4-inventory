@@ -1,4 +1,3 @@
-<<<<<<<<< Temporary merge branch 1
 @extends('layouts.guest')
 
 @section('content')
@@ -37,93 +36,63 @@
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
 
-                <div class="mb-4">
-<<<<<<<<< Temporary merge branch 1
-                    <label class="text-sm text-gray-300">Email</label>
-                    <input type="email" name="email"
-                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-white focus:ring-blue-500">
-                </div>
+                    <div class="mb-4">
+                        <label class="text-sm font-medium text-white">Email</label>
+                        <input type="email" name="email"   
+                            class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-gray-100 placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500">
+                    </div>
 
-                <div class="mb-4">
-                    <label class="text-sm text-gray-300">Password</label>
-                    <input type="password" name="password"
-                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-white focus:ring-blue-500">
-=========
-                    <label class="text-sm font-medium text-white">Email</label>
-                    <input type="email" name="email"   
-                        class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-gray-100 placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500">
-                </div>
+                    <div class="mb-4">
+                        <label class="text-sm text-white">Password</label>
+                        <input type="password" name="password"
+                            class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-gray-100 placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500">
+                    </div>
 
-                <div class="mb-4">
-                    <label class="text-sm text-white">Password</label>
-                    <input type="password" name="password"
-                        class="w-full mt-1 rounded-md
-                        bg-slate-800
-                        border border-slate-700
-                        text-gray-100
-                        placeholder-gray-400
-                        focus:border-blue-500
-                        focus:ring-blue-500
-                        autofill:bg-slate-800
-                        autofill:text-gray-100">
->>>>>>>>> Temporary merge branch 2
-                </div>
-
-                <button class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-semibold">
-                    LOGIN
-                </button>
-            </form>
-        </div>
+                    <button class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-semibold">
+                        LOGIN
+                    </button>
+                </form>
+            </div>
 
             <!-- REGISTER -->
             <div id="registerForm" class="hidden">
-            <form method="POST" action="{{ route('register') }}">
-                @csrf
+                <form method="POST" action="{{ route('register') }}">
+                    @csrf
 
                     <div class="mb-4">
                         <label class="block text-sm mb-1">Name</label>
                         <input type="text" name="name"
-                            class="w-full rounded-md bg-slate-800 border border-slate-700
-                                   text-gray-100 focus:border-blue-500 focus:ring-blue-500">
+                            class="w-full rounded-md bg-slate-800 border border-slate-700 text-gray-100 focus:border-blue-500 focus:ring-blue-500">
                     </div>
 
                     <div class="mb-4">
                         <label class="block text-sm mb-1">Email</label>
                         <input type="email" name="email"
-                            class="w-full rounded-md bg-slate-800 border border-slate-700
-                                   text-gray-100 focus:border-blue-500 focus:ring-blue-500">
+                            class="w-full rounded-md bg-slate-800 border border-slate-700 text-gray-100 focus:border-blue-500 focus:ring-blue-500">
                     </div>
 
                     <div class="mb-4">
                         <label class="block text-sm mb-1">Password</label>
                         <input type="password" name="password"
-                            class="w-full rounded-md bg-slate-800 border border-slate-700
-                                   text-gray-100 focus:border-blue-500 focus:ring-blue-500">
+                            class="w-full rounded-md bg-slate-800 border border-slate-700 text-gray-100 focus:border-blue-500 focus:ring-blue-500">
                     </div>
 
                     <div class="mb-6">
                         <label class="block text-sm mb-1">Confirm Password</label>
                         <input type="password" name="password_confirmation"
-                            class="w-full rounded-md bg-slate-800 border border-slate-700
-                                   text-gray-100 focus:border-blue-500 focus:ring-blue-500">
+                            class="w-full rounded-md bg-slate-800 border border-slate-700 text-gray-100 focus:border-blue-500 focus:ring-blue-500">
                     </div>
 
-                <button
-                    class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold">
-                    SIGN UP
-                </button>
-            </form>
-        </div>
+                    <button class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold">
+                        SIGN UP
+                    </button>
+                </form>
+            </div>
 
         </div>
     </div>
 </div>
 
-
-<<<<<<<<< Temporary merge branch 1
-{{-- Tab switch script --}}
-=========
->>>>>>>>> Temporary merge branch 2
 <script>
     const loginTab = document.getElementById('loginTab');
     const registerTab = document.getElementById('registerTab');
@@ -152,9 +121,5 @@
         loginTab.classList.remove('bg-blue-600','text-white');
     };
 </script>
-<<<<<<<<< Temporary merge branch 1
-@endsection
-=========
 
-</x-guest-layout>
->>>>>>>>> Temporary merge branch 2
+@endsection
