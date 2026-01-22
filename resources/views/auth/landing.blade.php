@@ -63,7 +63,6 @@
             <div id="registerForm" class="hidden">
                 <form method="POST" action="{{ route('register') }}">
                     @csrf
-
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                         <input name="first_name" placeholder="First Name" class="input-dark" required>
                         <input name="middle_name" placeholder="Middle Name" class="input-dark" required>
@@ -81,7 +80,7 @@
                             <label><input type="radio" name="sex" value="male" required> Male</label>
                         </div>
                     </div>
-
+                    
                     <select name="category_id" class="input-dark w-full mb-5">
                         <option value="">Select Category</option>
                     </select>
