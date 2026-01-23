@@ -39,17 +39,21 @@
                         <input type="password" name="password" class="input-dark w-full">
                     </div>
 
-                    <div class="mb-4">
-                        <label class="text-sm text-white">Password</label>
-                        <input type="password" name="password"
-                            class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-gray-100 placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500">
-                    </div>
-
-                    <button class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-semibold">
+                    <button class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-semibold">
                         LOGIN
                     </button>
                 </form>
             </div>
+
+            @if ($errors->any())
+                <div class="mb-4 text-red-400 text-sm">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>• {{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             <!-- REGISTER -->
             <div id="registerForm" class="hidden">
@@ -60,10 +64,6 @@
                         <input name="middle_name" placeholder="Middle Name" class="input-dark" required>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="block text-sm mb-1">Email</label>
-                        <input type="email" name="email"
-                            class="w-full rounded-md bg-slate-800 border border-slate-700 text-gray-100 focus:border-blue-500 focus:ring-blue-500">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                         <input name="last_name" placeholder="Last Name" class="input-dark" required>
                         <input name="suffix" placeholder="Suffix (optional)" class="input-dark">
@@ -76,6 +76,22 @@
                             <label><input type="radio" name="sex" value="male" required> Male</label>
                         </div>
                     </div>
+                    
+                    <select name="category_id" class="input-dark w-full mb-5">
+                        <option value="">Select Category</option>
+                    </select>
+
+                    <select name="unit" class="input-dark w-full mb-5">
+                        <option value="">Select Unit</option>
+                        @foreach (['BDCU','CUI','COMMAND','ISU','LSO','PAU','PG1','PG3','PG4','PG10','PPBU'] as $unit)
+                            <option value="{{ $unit }}">{{ $unit }}</option>
+                        @endforeach
+                    </select>
+
+                    <input name="username" placeholder="Username" class="input-dark mb-5" required>
+                    <input name="email" placeholder="Email" class="input-dark mb-5" required>
+                    <input type="password" name="password" placeholder="Password" class="input-dark mb-6" required>
+                    <input type="password" name="password_confirmation" placeholder="Confirm Password" class="input-dark mb-6" required>
 
                     <button
                         class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold">

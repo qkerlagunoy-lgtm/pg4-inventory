@@ -6,28 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('item_requests', function (Blueprint $table) {
+        Schema::create('request_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('purpose')->nullable();
-            $table->enum('status', ['pending', 'approved', 'rejected', 'cancelled', 'urgent'])->default('pending');
-            $table->text('remarks')->nullable();
-            $table->timestamp('approved_at')->nullable();
-            $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('item_request_id')->constrained()->onDelete('cascade');
+            $table->foreignId('item_id')->constrained()->onDelete('cascade');
+            $table->integer('quantity');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('item_requests');
+        Schema::dropIfExists('request_items');
     }
 };
