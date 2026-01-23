@@ -40,10 +40,21 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
     public function getFullNameAttribute(): string
     {
-        return trim(
-            "{$this->first_name} {$this->middle_name} {$this->last_name} {$this->suffix}"
-        );
+        $parts = array_filter([
+            $this->first_name,
+            $this->middle_name,
+            $this->last_name,
+            $this->suffix,
+        ]);
+
+        return implode(' ', $parts);
+    }
+
+    public function getNameAttribute(): string
+    {
+        return $this->full_name;
     }
 }
