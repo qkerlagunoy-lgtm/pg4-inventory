@@ -29,5 +29,26 @@ class ItemSeeder extends Seeder
             'description' => 'Wireless optical mouse',
             'available_quantity' => 20,
         ]);
+
+        Item::create([
+            'category' => 'IT Equipment',
+            'item_name' => 'Keyboard',
+            'description' => 'Mechanical keyboard',
+            'available_quantity' => 15,
+        ]);
+
+        Item::create([
+            'category' => 'Office Supplies',
+            'item_name' => 'Ballpen',
+            'description' => 'Blue ink, box of 12',
+            'available_quantity' => 100,
+        ]);
+
+        Item::create([
+            'category' => 'Furniture',
+            'item_name' => 'Office Chair',
+            'description' => 'Ergonomic office chair',
+            'available_quantity' => 8,
+        ]);
     }
 }

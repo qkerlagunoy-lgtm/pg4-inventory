@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('category');
             $table->string('item_name');
             $table->text('description')->nullable();
-            $table->integer('available_quantity');
+            $table->integer('available_quantity')->default(0);
             $table->timestamps();
         });
     }
