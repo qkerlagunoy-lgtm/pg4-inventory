@@ -39,26 +39,17 @@
                         <input type="password" name="password" class="input-dark w-full">
                     </div>
 
-                <div class="mb-4">
-                    <label class="text-sm text-white">Password</label>
-                    <input type="password" name="password"
-                        class="w-full mt-1 rounded-md
-                        bg-slate-800
-                        border border-slate-700
-                        text-gray-100
-                        placeholder-gray-400
-                        focus:border-blue-500
-                        focus:ring-blue-500
-                        autofill:bg-slate-800
-                        autofill:text-gray-100">
+                    <div class="mb-4">
+                        <label class="text-sm text-white">Password</label>
+                        <input type="password" name="password"
+                            class="w-full mt-1 rounded-md bg-slate-800 border border-slate-700 text-gray-100 placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500">
+                    </div>
 
-                </div>
-
-                <button class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-semibold">
-                    LOGIN
-                </button>
-            </form>
-        </div>
+                    <button class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-semibold">
+                        LOGIN
+                    </button>
+                </form>
+            </div>
 
             <!-- REGISTER -->
             <div id="registerForm" class="hidden">
