@@ -8,11 +8,17 @@ Route::get('/', function () {
     return view('auth.landing');
 });
 
+<<<<<<< Updated upstream
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 
+=======
+use App\Http\Controllers\ItemRequestController;
+
+Route::middleware(['auth'])->group(function () {
+>>>>>>> Stashed changes
     // Item Request Routes
     Route::get('/request-items', [ItemRequestController::class, 'index'])->name('requests.index');
     Route::get('/request-items/cart', [ItemRequestController::class, 'cart'])->name('requests.cart');

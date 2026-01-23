@@ -31,7 +31,11 @@
 
                     <div class="mb-5">
                         <label class="block text-sm mb-1">Email</label>
+<<<<<<< Updated upstream
                         <input type="text" name="login" placeholder="Email or Username" class="input-dark w-full" required>
+=======
+                        <input type="email" name="email" class="input-dark w-full">
+>>>>>>> Stashed changes
                     </div>
 
                     <div class="mb-6">
@@ -101,6 +105,8 @@
             </div>
         </div>
 
+
+
 <script>
     const loginTab = document.getElementById('loginTab');
     const registerTab = document.getElementById('registerTab');
@@ -121,4 +127,8 @@
         loginTab.classList.remove('bg-blue-600','text-white');
     };
 </script>
+<<<<<<< Updated upstream
 @endsection
+=======
+@endsection
+>>>>>>> Stashed changes

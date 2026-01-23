@@ -11,21 +11,11 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        // Name fields
-        'first_name',
-        'middle_name',
-        'last_name',
-        'suffix',
-
-        // Account info
+        'name',
         'username',
         'email',
         'password',
-
-        // Profile
-        'sex',
-        'unit',
-        'category_id',
+        'type',
     ];
 
     protected $hidden = [
@@ -43,6 +33,7 @@ class User extends Authenticatable
 
     public function getFullNameAttribute(): string
     {
+<<<<<<< Updated upstream
         $parts = array_filter([
             $this->first_name,
             $this->middle_name,
@@ -56,5 +47,8 @@ class User extends Authenticatable
     public function getNameAttribute(): string
     {
         return $this->full_name;
+=======
+        return $this->name;
+>>>>>>> Stashed changes
     }
 }
