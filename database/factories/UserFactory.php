@@ -24,23 +24,11 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-<<<<<<< Updated upstream
-            'first_name' => fake()->firstName(),
-            'middle_name' => fake()->optional()->firstName(),
-            'last_name' => fake()->lastName(),
-            'suffix' => fake()->optional()->suffix(),
-=======
             'name' => fake()->name(),
->>>>>>> Stashed changes
-            'username' => fake()->unique()->userName(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
-            'type' => 'user',
             'remember_token' => Str::random(10),
-            'sex' => fake()->randomElement(['male', 'female']),
-            'unit' => fake()->word(),
-            // 'category_id' => null, // commented out until categories table exists
         ];
     }
 
