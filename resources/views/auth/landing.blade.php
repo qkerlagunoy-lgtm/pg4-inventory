@@ -31,7 +31,7 @@
 
                     <div class="mb-5">
                         <label class="block text-sm mb-1">Email</label>
-                        <input type="email" name="email" class="input-dark w-full">
+                        <input type="text" name="login" placeholder="Email or Username" class="input-dark w-full" required>
                     </div>
 
                     <div class="mb-6">
@@ -93,17 +93,13 @@
                     <input type="password" name="password" placeholder="Password" class="input-dark mb-6" required>
                     <input type="password" name="password_confirmation" placeholder="Confirm Password" class="input-dark mb-6" required>
 
-                    <button class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold">
+                    <button
+                        class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold">
                         SIGN UP
                     </button>
                 </form>
             </div>
-
         </div>
-    </div>
-</div>
-
-
 
 <script>
     const loginTab = document.getElementById('loginTab');
