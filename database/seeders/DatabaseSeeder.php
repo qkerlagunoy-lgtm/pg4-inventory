@@ -23,3 +23,14 @@ class DatabaseSeeder extends Seeder
         ]);
     }
 }
+
+
+    User::firstOrCreate(
+        ['email' => 'admin@example.com'],
+        [
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+        ]
+    );
+
+
