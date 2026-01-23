@@ -101,6 +101,8 @@
             </div>
         </div>
 
+
+
 <script>
     const loginTab = document.getElementById('loginTab');
     const registerTab = document.getElementById('registerTab');
@@ -121,4 +123,5 @@
         loginTab.classList.remove('bg-blue-600','text-white');
     };
 </script>
+
 @endsection
