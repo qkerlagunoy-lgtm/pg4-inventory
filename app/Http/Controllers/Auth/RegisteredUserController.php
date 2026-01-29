@@ -51,12 +51,10 @@ class RegisteredUserController extends Controller
             'middle_name' => $request->middle_name,
             'last_name'   => $request->last_name,
             'suffix'      => $request->suffix,
-
             // Account info
             'username' => $request->username,
             'email'    => $request->email,
-            'password' => $request->password,
-
+            'password' => Hash::make($request->password),
             // Profile
             'sex'         => $request->sex,
             'unit'        => $request->unit,

@@ -2,21 +2,21 @@
     <div class="flex min-h-screen bg-gray-100 dark:bg-gray-900">
 
         <!-- Sidebar -->
-        <aside class="w-64 bg-white dark:bg-gray-800 shadow-md flex flex-col">
+        <aside class="w-64 bg-slate-800 shadow-md flex flex-col">
 
             <!-- Logo (Centered & Bigger) -->
-            <div class="flex items-center justify-center py-6 border-b dark:border-gray-700">
+            <div class="flex items-center justify-center py-8 border-b border-gray-700">
                 <a href="{{ route('dashboard') }}">
                     <img
                         src="{{ asset('images/logo.png') }}"
                         alt="App Logo"
-                        class="h-14 w-auto"
+                        class="h-32 w-auto"
                     >
                 </a>
             </div>
 
             <!-- Navigation -->
-            <nav class="mt-4 flex-1">
+            <nav class="mt-6 flex-1">
                 <a href="{{ route('dashboard') }}"
                    class="flex items-center gap-3 px-6 py-3 text-white hover:bg-slate-700 border-l-4 border-blue-500">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -42,6 +42,19 @@
                     Ordered Items
                 </a>
             </nav>
+
+            <!-- Logout Button at Bottom -->
+            <div class="p-4 border-t border-gray-700">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="flex items-center gap-3 w-full px-6 py-3 text-gray-300 hover:bg-slate-700 hover:text-white rounded-lg">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
+                        </svg>
+                        Logout
+                    </button>
+                </form>
+            </div>
 
         </aside>
 
@@ -147,9 +160,62 @@
                         </a>
                     </div>
                 </div>
+
+                <!-- Critical Requests Section -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Critical Requests</h3>
+                        <span class="text-sm text-gray-500">Urgent & Pending</span>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Purpose</th>
+                                    <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Created</th>
+                                    <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="3" class="text-center py-8 text-gray-400 italic">
+                                        No critical requests at this time
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
 
         </main>
 
     </div>
+
+    <!-- Notification Dropdown Script -->
+    <script>
+        const notificationButton = document.getElementById('notificationButton');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+
+        // Toggle dropdown
+        notificationButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notificationDropdown.classList.toggle('hidden');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!notificationButton.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                notificationDropdown.classList.add('hidden');
+            }
+        });
+
+        // Prevent dropdown from closing when clicking inside
+        notificationDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    </script>
 </x-app-layout>

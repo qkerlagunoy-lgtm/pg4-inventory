@@ -9,17 +9,17 @@
         <div class="w-[45%] flex flex-col items-center justify-center p-10 bg-slate-800">
             <img src="{{ asset('images/logo.png') }}" class="w-40 mb-6" alt="Logo">
             <h1 class="text-white text-2xl font-bold text-center tracking-wide">
-                AFPPGMC<br>INVENTORY
+                INVENTORY & LOGISTICS MANAGEMENT SYSTEM
             </h1>
         </div>
 
         <div class="w-[55%] p-12 text-gray-100 flex flex-col overflow-y-auto">
 
             <div class="flex mb-8 rounded-lg overflow-hidden border border-slate-700">
-                <button id="loginTab" class="w-1/2 py-3 font-semibold text-white bg-blue-600 transition">
+                <button id="loginTab" class="w-1/2 py-3 font-semibold text-white bg-blue-600 transition-all duration-300 ease-in-out">
                     Log in
                 </button>
-                <button id="registerTab" class="w-1/2 py-3 font-semibold text-gray-300 bg-slate-800 transition">
+                <button id="registerTab" class="w-1/2 py-3 font-semibold text-gray-300 bg-slate-800 transition-all duration-300 ease-in-out">
                     Register
                 </button>
             </div>
@@ -31,7 +31,7 @@
 
                     <div class="mb-5">
                         <label class="block text-sm mb-1">Email</label>
-                        <input type="email" name="email" class="input-dark w-full">
+                        <input type="text" name="login" placeholder="Email or Username" class="input-dark w-full">
                     </div>
 
                     <div class="mb-6">
