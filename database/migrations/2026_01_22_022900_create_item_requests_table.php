@@ -10,12 +10,26 @@ return new class extends Migration
     {
         Schema::create('item_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
+            $table->foreignId('user_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
             $table->string('purpose')->nullable();
-            $table->enum('status', ['pending', 'approved', 'rejected', 'cancelled', 'urgent'])->default('pending');
+
+            $table->enum('status', [
+                'pending', 'approved', 'rejected', 'cancelled', 'urgent'
+            ])->default('pending');
+
             $table->text('remarks')->nullable();
+
             $table->timestamp('approved_at')->nullable();
-            $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
+
+            $table->foreignId('approved_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
             $table->timestamps();
         });
     }
