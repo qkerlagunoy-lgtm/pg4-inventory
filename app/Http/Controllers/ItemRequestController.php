@@ -19,7 +19,6 @@ class ItemRequestController extends Controller
 
     public function cart()
     {
-        // Get cart items from session
         $cart = session()->get('cart', []);
         return view('requests.cart', compact('cart'));
     }
@@ -33,14 +32,12 @@ class ItemRequestController extends Controller
 
         $item = Item::findOrFail($request->item_id);
 
-        // Check if quantity is available
         if ($item->available_quantity < $request->quantity) {
             return back()->with('error', 'Not enough items available');
         }
 
         $cart = session()->get('cart', []);
 
-        // If item already in cart, update quantity
         if (isset($cart[$item->id])) {
             $cart[$item->id]['quantity'] += $request->quantity;
         } else {
@@ -85,14 +82,12 @@ class ItemRequestController extends Controller
         DB::beginTransaction();
 
         try {
-            // Create item request
             $itemRequest = ItemRequest::create([
                 'user_id' => Auth::id(),
                 'purpose' => $request->purpose,
                 'status' => 'pending',
             ]);
 
-            // Add items to request
             foreach ($cart as $cartItem) {
                 RequestItem::create([
                     'item_request_id' => $itemRequest->id,
@@ -101,7 +96,6 @@ class ItemRequestController extends Controller
                 ]);
             }
 
-            // Clear cart
             session()->forget('cart');
 
             DB::commit();
@@ -113,12 +107,22 @@ class ItemRequestController extends Controller
         }
     }
 
-    public function myRequests()
+    public function myRequests(Request $request)
     {
-        $requests = ItemRequest::with(['requestItems.item'])
-            ->where('user_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = ItemRequest::with(['requestItems.item'])
+            ->where('user_id', Auth::id());
+
+        // Filter by status
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+
+        // Search by purpose
+        if ($request->has('search') && $request->search != '') {
+            $query->where('purpose', 'like', '%' . $request->search . '%');
+        }
+
+        $requests = $query->orderBy('created_at', 'desc')->get();
 
         return view('requests.my-requests', compact('requests'));
     }

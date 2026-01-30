@@ -2,18 +2,71 @@
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
-        <!-- Name -->
+        <!-- First Name -->
         <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+            <x-input-label for="first_name" :value="__('First Name')" />
+            <x-text-input id="first_name" class="block mt-1 w-full" type="text" name="first_name" :value="old('first_name')" required autofocus autocomplete="given-name" />
+            <x-input-error :messages="$errors->get('first_name')" class="mt-2" />
+        </div>
+
+        <!-- Middle Name -->
+        <div class="mt-4">
+            <x-input-label for="middle_name" :value="__('Middle Name')" />
+            <x-text-input id="middle_name" class="block mt-1 w-full" type="text" name="middle_name" :value="old('middle_name')" required autocomplete="additional-name" />
+            <x-input-error :messages="$errors->get('middle_name')" class="mt-2" />
+        </div>
+
+        <!-- Last Name -->
+        <div class="mt-4">
+            <x-input-label for="last_name" :value="__('Last Name')" />
+            <x-text-input id="last_name" class="block mt-1 w-full" type="text" name="last_name" :value="old('last_name')" required autocomplete="family-name" />
+            <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
+        </div>
+
+        <!-- Suffix -->
+        <div class="mt-4">
+            <x-input-label for="suffix" :value="__('Suffix')" />
+            <x-text-input id="suffix" class="block mt-1 w-full" type="text" name="suffix" :value="old('suffix')" autocomplete="honorific-suffix" />
+            <x-input-error :messages="$errors->get('suffix')" class="mt-2" />
+        </div>
+
+        <!-- Username -->
+        <div class="mt-4">
+            <x-input-label for="username" :value="__('Username')" />
+            <x-text-input id="username" class="block mt-1 w-full" type="text" name="username" :value="old('username')" required autocomplete="username" />
+            <x-input-error :messages="$errors->get('username')" class="mt-2" />
         </div>
 
         <!-- Email Address -->
         <div class="mt-4">
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="email" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        </div>
+
+        <!-- Sex -->
+        <div class="mt-4">
+            <x-input-label for="sex" :value="__('Sex')" />
+            <select id="sex" name="sex" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
+                <option value="">Select Sex</option>
+                <option value="male" {{ old('sex') == 'male' ? 'selected' : '' }}>Male</option>
+                <option value="female" {{ old('sex') == 'female' ? 'selected' : '' }}>Female</option>
+            </select>
+            <x-input-error :messages="$errors->get('sex')" class="mt-2" />
+        </div>
+
+        <!-- Unit -->
+        <div class="mt-4">
+            <x-input-label for="unit" :value="__('Unit')" />
+            <x-text-input id="unit" class="block mt-1 w-full" type="text" name="unit" :value="old('unit')" required />
+            <x-input-error :messages="$errors->get('unit')" class="mt-2" />
+        </div>
+
+        <!-- Category ID -->
+        <div class="mt-4">
+            <x-input-label for="category_id" :value="__('Category ID')" />
+            <x-text-input id="category_id" class="block mt-1 w-full" type="number" name="category_id" :value="old('category_id')" />
+            <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
         </div>
 
         <!-- Password -->
