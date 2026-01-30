@@ -36,7 +36,7 @@
 
                     <div class="mb-6">
                         <label class="block text-sm mb-1">Password</label>
-                        <input type="password" name="password" class="input-dark w-full" required>
+                        <input type="password" name="password" class="input-dark w-full">
                     </div>
 
                     <button class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-semibold">
@@ -81,7 +81,7 @@
                         <option value="">Select Category</option>
                     </select>
 
-                    <select name="unit" class="input-dark w-full mb-5" required>
+                    <select name="unit" class="input-dark w-full mb-5">
                         <option value="">Select Unit</option>
                         @foreach (['BDCU','CUI','COMMAND','ISU','LSO','PAU','PG1','PG3','PG4','PG10','PPBU'] as $unit)
                             <option value="{{ $unit }}">{{ $unit }}</option>
@@ -100,8 +100,6 @@
                 </form>
             </div>
         </div>
-
-
 
 <script>
     const loginTab = document.getElementById('loginTab');
@@ -123,5 +121,4 @@
         loginTab.classList.remove('bg-blue-600','text-white');
     };
 </script>
-
 @endsection
