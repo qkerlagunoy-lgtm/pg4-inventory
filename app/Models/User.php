@@ -25,6 +25,7 @@ class User extends Authenticatable
         'unit',
         'category_id',
         'type',
+        'is_active',
     ];
 
     protected $hidden = [
@@ -43,4 +44,13 @@ class User extends Authenticatable
     {
         return $this->name;
     }
+
+protected $casts = [
+    'email_verified_at' => 'datetime',
+    'password' => 'hashed',
+    'is_active' => 'boolean',
+];
+
+// Add
+
 }

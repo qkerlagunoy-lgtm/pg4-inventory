@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\OrderRequestItem;
 
 class Item extends Model
 {
@@ -20,4 +21,8 @@ class Item extends Model
     {
         return $this->hasMany(RequestItem::class);
     }
+    public function orderRequestItems()
+{
+    return $this->hasMany(OrderRequestItem::class);
+}
 }
