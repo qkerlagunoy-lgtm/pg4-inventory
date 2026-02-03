@@ -24,9 +24,22 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        \Log::info('Login attempt started', [
+            'has_csrf_token' => $request->has('_token'),
+            'csrf_token' => $request->input('_token'),
+            'session_token' => csrf_token(),
+            'session_id' => session()->getId(),
+            'ip' => $request->ip(),
+        ]);
+        
         $request->validate([
             'login' => ['required', 'string'],
             'password' => ['required'],
+        ]);
+        
+        \Log::info('Login validation passed', [
+            'login' => $request->login,
+            'login_type' => filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username',
         ]);
 
         $loginType = filter_var($request->login, FILTER_VALIDATE_EMAIL)
@@ -37,13 +50,25 @@ class AuthenticatedSessionController extends Controller
             $loginType => $request->login,
             'password' => $request->password,
         ], $request->boolean('remember'))) {
+            
+            \Log::warning('Login failed - invalid credentials', [
+                'login' => $request->login,
+                'login_type' => $loginType,
+            ]);
 
             throw ValidationException::withMessages([
                 'login' => __('auth.failed'),
             ]);
         }
 
+        \Log::info('Login successful', [
+            'user_id' => Auth::id(),
+            'user_type' => Auth::user()->type,
+            'user_email' => Auth::user()->email,
+        ]);
+
         $request->session()->regenerate();
+        $request->session()->forget('url.intended');
 
         $user = Auth::user();
 

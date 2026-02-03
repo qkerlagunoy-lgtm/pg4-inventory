@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
-class AdminMiddleware
+class UserMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
@@ -17,16 +17,16 @@ class AdminMiddleware
         
         $user = Auth::user();
         
-        // Allow access if user type is 'admin'
-        if ($user->type === 'admin') {
+        // Allow access if user type is 'user' or not set
+        if ($user->type === 'user' || empty($user->type)) {
             return $next($request);
         }
         
-        // If user tries to access admin routes, redirect to user dashboard
-        if ($user->type === 'user') {
-            return redirect()->route('dashboard')->with('error', 'Admin access required.');
+        // If admin tries to access user routes, redirect to admin dashboard
+        if ($user->type === 'admin') {
+            return redirect()->route('admin.dashboard');
         }
         
-        abort(403, 'Access denied. Admin privileges required.');
+        abort(403, 'Access denied. User privileges required.');
     }
 }
