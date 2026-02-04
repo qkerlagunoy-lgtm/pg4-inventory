@@ -26,13 +26,13 @@ class DatabaseSeeder extends Seeder
 
             'sex' => 'male',
             'unit' => 'PG4',
-            'category_id' => null,
             'type' => 'user',
         ]);
 
         // Call ItemSeeder (intentionally empty)
         $this->call([
-            ItemSeeder::class,
+            AdminUserSeeder::class,
+            // ItemSeeder::class,
         ]);
     }
 }

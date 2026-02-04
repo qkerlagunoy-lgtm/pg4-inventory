@@ -39,6 +39,104 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    // ==================== MUTATORS ====================
+    
+    /**
+     * Automatically set the type based on email when creating/updating
+     */
+    public function setTypeAttribute($value)
+    {
+        // If type is explicitly provided, use it
+        if (!empty($value)) {
+            $this->attributes['type'] = $value;
+            return;
+        }
+        // List of emails that should be auto-set as admin
+        $adminEmails = [
+            'superadmin@gmail.com',
+        ];
+        // Auto-set type based on email
+        if (in_array($this->email, $adminEmails)) {
+            $this->attributes['type'] = 'admin';
+        } else {
+            $this->attributes['type'] = 'user'; // Default for all other emails
+        }
+    }
+    /**
+     * Automatically lowercase email and set type
+     */
+    public function setEmailAttribute($value)
+    {
+        $this->attributes['email'] = strtolower($value);
+        
+        // If type hasn't been set yet, auto-set it based on email
+        if (!isset($this->attributes['type'])) {
+            $adminEmails = [
+                'superadmin@gmail.com',
+                'admin@afppgmc.com',
+                'pg4admin@afppgmc.com',
+            ];
+            
+            if (in_array($value, $adminEmails)) {
+                $this->attributes['type'] = 'admin';
+            } else {
+                $this->attributes['type'] = 'user';
+            }
+        }
+    }
+    /**
+     * Automatically generate username from email if not provided
+     */
+    public function setUsernameAttribute($value)
+    {
+        if (empty($value) && isset($this->attributes['email'])) {
+            // Generate username from email (part before @)
+            $username = strtok($this->attributes['email'], '@');
+            $this->attributes['username'] = $username;
+        } else {
+            $this->attributes['username'] = $value;
+        }
+    }
+    /**
+     * Automatically capitalize first names
+     */
+    public function setFirstNameAttribute($value)
+    {
+        $this->attributes['first_name'] = ucwords(strtolower($value));
+    }
+    /**
+     * Automatically capitalize last names
+     */
+    public function setLastNameAttribute($value)
+    {
+        $this->attributes['last_name'] = ucwords(strtolower($value));
+    }
+    /**
+     * Automatically capitalize middle names (if provided)
+     */
+    public function setMiddleNameAttribute($value)
+    {
+        if ($value) {
+            $this->attributes['middle_name'] = ucwords(strtolower($value));
+        } else {
+            $this->attributes['middle_name'] = $value;
+        }
+    }
+    /**
+     * Automatically uppercase unit codes
+     */
+    public function setUnitAttribute($value)
+    {
+        $this->attributes['unit'] = strtoupper($value);
+    }
+    /**
+     * Automatically lowercase sex
+     */
+    public function setSexAttribute($value)
+    {
+        $this->attributes['sex'] = strtolower($value);
+    }
+    // ==================== ACCESSORS ====================
     public function getFullNameAttribute(): string
     {
         return trim(

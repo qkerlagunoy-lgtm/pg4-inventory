@@ -2,7 +2,7 @@
     <div class="flex min-h-screen bg-gray-100 dark:bg-gray-900">
 
         <!-- Sidebar -->
-        <aside class="w-64 bg-slate-800 shadow-md flex flex-col">
+        <aside class="w-64 bg-slate-800 shadow-md flex flex-col sticky top-0 max-h-screen">
 
             <!-- Logo (Centered & Bigger) -->
             <div class="flex items-center justify-center py-8 border-b border-gray-700">
@@ -34,7 +34,8 @@
                     Request Items
                 </a>
 
-                <a href="{{ route('requests.myRequests') }}"
+                <!-- FIXED: Changed requests.myRequests to requests.my-requests -->
+                <a href="{{ route('requests.my-requests') }}"
                    class="flex items-center gap-3 px-6 py-3 text-gray-300 hover:bg-slate-700 border-l-4 border-transparent hover:border-blue-500">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
@@ -124,7 +125,8 @@
                     
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <!-- Cancelled Requests -->
-                        <a href="{{ route('requests.myRequests') }}?status=cancelled" class="text-center p-4 bg-gray-50 rounded-lg hover:bg-yellow-50 hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-yellow-500">
+                        <!-- FIXED: Updated route names in links -->
+                        <a href="{{ route('requests.my-requests') }}?status=cancelled" class="text-center p-4 bg-gray-50 rounded-lg hover:bg-yellow-50 hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-yellow-500">
                             <p class="text-sm text-gray-600 mb-2 font-medium">Cancelled Requests</p>
                             <div class="flex items-center justify-center gap-2">
                                 <span class="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">0</span>
@@ -133,7 +135,7 @@
                         </a>
 
                         <!-- Urgent Requests -->
-                        <a href="{{ route('requests.myRequests') }}?status=urgent" class="text-center p-4 bg-gray-50 rounded-lg hover:bg-red-50 hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-red-500">
+                        <a href="{{ route('requests.my-requests') }}?status=urgent" class="text-center p-4 bg-gray-50 rounded-lg hover:bg-red-50 hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-red-500">
                             <p class="text-sm text-gray-600 mb-2 font-medium">Urgent Requests</p>
                             <div class="flex items-center justify-center gap-2">
                                 <span class="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">0</span>
@@ -142,7 +144,7 @@
                         </a>
 
                         <!-- Approved Requests -->
-                        <a href="{{ route('requests.myRequests') }}?status=approved" class="text-center p-4 bg-gray-50 rounded-lg hover:bg-green-50 hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-green-500">
+                        <a href="{{ route('requests.my-requests') }}?status=approved" class="text-center p-4 bg-gray-50 rounded-lg hover:bg-green-50 hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-green-500">
                             <p class="text-sm text-gray-600 mb-2 font-medium">Approved Requests</p>
                             <div class="flex items-center justify-center gap-2">
                                 <span class="text-3xl">👍</span>
@@ -151,7 +153,7 @@
                         </a>
 
                         <!-- Rejected Requests -->
-                        <a href="{{ route('requests.myRequests') }}?status=rejected" class="text-center p-4 bg-gray-50 rounded-lg hover:bg-red-50 hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-red-500">
+                        <a href="{{ route('requests.my-requests') }}?status=rejected" class="text-center p-4 bg-gray-50 rounded-lg hover:bg-red-50 hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-red-500">
                             <p class="text-sm text-gray-600 mb-2 font-medium">Rejected Requests</p>
                             <div class="flex items-center justify-center gap-2">
                                 <span class="text-3xl">👎</span>

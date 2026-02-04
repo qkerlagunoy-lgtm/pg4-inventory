@@ -10,11 +10,12 @@ class RequestItem extends Model
         'item_request_id',
         'item_id',
         'quantity',
-        'unit_of_measure',
         'remarks',
         'status',
     ];
-
+    protected $casts = [
+        'status' => 'string',
+    ];
     /**
      * Get the parent item request
      */
@@ -29,5 +30,26 @@ class RequestItem extends Model
     public function item()
     {
         return $this->belongsTo(Item::class);
+    }
+    /**
+     * Check if request item is pending
+     */
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+    /**
+     * Check if request item is approved
+     */
+    public function isApproved(): bool
+    {
+        return $this->status === 'approved';
+    }
+    /**
+     * Check if request item is rejected
+     */
+    public function isRejected(): bool
+    {
+        return $this->status === 'rejected';
     }
 }

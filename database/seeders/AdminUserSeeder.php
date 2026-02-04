@@ -44,10 +44,9 @@ class AdminUserSeeder extends Seeder
             Category::create($category);
         }
 
-        // Create super admin
-        $superAdmin = User::create([
+        // 1. SUPER ADMIN - Full access to ALL modules
+         $superAdmin = User::create([
             'first_name' => 'Super',
-            'middle_name' => 'User',
             'last_name' => 'Admin',
             'username' => 'superadmin',
             'email' => 'superadmin@gmail.com',
@@ -55,64 +54,75 @@ class AdminUserSeeder extends Seeder
             'type' => 'admin',
             'sex' => 'male',
             'unit' => 'COMMAND',
-            'category_id' => Category::first()->id,
+            'category_id' => Category::where('code', 'ADMIN')->first()->id,
+            'email_verified_at' => now(),
+        ]);;
+
+        // 2. PG4 ADMIN - Limited admin access (dashboard, ordered items, inventory, users)
+        $pg4Admin = User::create([
+            'first_name' => 'PG4',
+            'last_name' => 'Administrator',
+            'username' => 'pg4admin',
+            'email' => 'pg4admin@afppgmc.com',
+            'password' => Hash::make('pg4admin123'),
+            'type' => 'admin', // Still admin type but with limited access in your middleware/routes
+            'sex' => 'male',
+            'unit' => 'PG4',
+            'category_id' => Category::where('code', 'LOG')->first()->id,
             'email_verified_at' => now(),
         ]);
 
-        // Create sample admin
-        $admin = User::create([
+        // 3. NORMAL USER - Regular user access (user dashboard, request items, ordered items)
+        $normalUser = User::create([
             'first_name' => 'Regular',
-            'middle_name' => 'System',
-            'last_name' => 'Admin',
-            'username' => 'admin',
-            'email' => 'admin@afppgmc.com',
-            'password' => Hash::make('admin123'),
-            'type' => 'admin',
+            'last_name' => 'User',
+            'username' => 'user',
+            'email' => 'user@afppgmc.com',
+            'password' => Hash::make('user123'),
+            'type' => 'user',
             'sex' => 'female',
-            'unit' => 'LSO',
-            'category_id' => Category::skip(1)->first()->id,
+            'unit' => 'PG4',
+            'category_id' => Category::where('code', 'TECH')->first()->id,
             'email_verified_at' => now(),
         ]);
 
-        // Create sample users from different units
-        $units = ['PG1', 'PG3', 'PG4', 'PG10', 'CUI', 'ISU', 'PAU', 'BDCU', 'PPBU'];
-        
-        foreach ($units as $index => $unit) {
-            User::create([
-                'first_name' => 'Sample',
-                'middle_name' => 'User',
-                'last_name' => 'From ' . $unit,
-                'username' => 'user_' . strtolower($unit),
-                'email' => 'user' . ($index + 1) . '@afppgmc.com',
-                'password' => Hash::make('password123'),
-                'type' => 'user',
-                'sex' => $index % 2 == 0 ? 'male' : 'female',
-                'unit' => $unit,
-                'category_id' => Category::inRandomOrder()->first()->id,
-                'email_verified_at' => now(),
-            ]);
-        }
-
-        // Create the existing student user if not exists
-        if (!User::where('email', 'student@gmail.com')->exists()) {
-            User::create([
-                'first_name' => 'Student',
-                'last_name' => 'User',
-                'username' => 'student',
-                'email' => 'student@gmail.com',
-                'password' => Hash::make('password'),
-                'type' => 'user',
-                'sex' => 'male',
-                'unit' => 'PG4',
-                'category_id' => Category::inRandomOrder()->first()->id,
-                'email_verified_at' => now(),
-            ]);
-        }
+        // Optional: Keep the student account for testing if needed
+        $studentUser = User::create([
+            'first_name' => 'Student',
+            'last_name' => 'Demo',
+            'username' => 'student',
+            'email' => 'student@gmail.com',
+            'password' => Hash::make('password'),
+            'type' => 'user',
+            'sex' => 'male',
+            'unit' => 'PG4',
+            'category_id' => Category::where('code', 'MED')->first()->id,
+            'email_verified_at' => now(),
+        ]);
 
         $this->command->info('✓ Categories created successfully!');
-        $this->command->info('✓ Super Admin created: superadmin@gmail.com / admin123');
-        $this->command->info('✓ Admin created: admin@afppgmc.com / admin123');
-        $this->command->info('✓ Sample users created from different units');
+        $this->command->info('');
+        $this->command->info('=== USER ACCOUNTS CREATED ===');
+        $this->command->info('1. SUPER ADMIN (Full Access):');
+        $this->command->info('   Email: superadmin@gmail.com');
+        $this->command->info('   Password: admin123');
+        $this->command->info('   Access: ALL modules');
+        $this->command->info('');
+        $this->command->info('2. PG4 ADMIN (Limited Admin Access):');
+        $this->command->info('   Email: pg4admin@afppgmc.com');
+        $this->command->info('   Password: pg4admin123');
+        $this->command->info('   Access: Dashboard, Ordered Items, Inventory, Users');
+        $this->command->info('');
+        $this->command->info('3. NORMAL USER (Regular User):');
+        $this->command->info('   Email: user@afppgmc.com');
+        $this->command->info('   Password: user123');
+        $this->command->info('   Access: User Dashboard, Request Items, Ordered Items');
+        $this->command->info('');
+        $this->command->info('4. STUDENT DEMO (For Testing):');
+        $this->command->info('   Email: student@gmail.com');
+        $this->command->info('   Password: password');
+        $this->command->info('   Access: Same as Normal User');
+        $this->command->info('');
         $this->command->info('✓ Total users created: ' . User::count());
     }
 }

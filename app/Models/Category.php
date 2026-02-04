@@ -8,8 +8,8 @@ class Category extends Model
 {
     protected $fillable = [
         'name',
-        'description',
         'code',
+        'description',
         'is_active',
         'created_by',
     ];
@@ -28,5 +28,26 @@ class Category extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+    /**
+     * Check if category can be deleted (has no items)
+     */
+    public function canDelete(): bool
+    {
+        return $this->items()->count() === 0;
+    }
+    /**
+     * Get item count in this category
+     */
+    public function getItemCountAttribute(): int
+    {
+        return $this->items()->count();
+    } 
+    /**
+     * Get active item count in this category
+     */
+    public function getActiveItemCountAttribute(): int
+    {
+        return $this->items()->where('is_active', true)->count();
     }
 }

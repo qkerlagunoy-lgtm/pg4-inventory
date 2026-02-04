@@ -10,16 +10,11 @@ return new class extends Migration
     {
         Schema::create('request_items', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('item_request_id')
-                ->constrained()
-                ->cascadeOnDelete();
-
-            $table->foreignId('item_id')
-                ->constrained()
-                ->cascadeOnDelete();
-
+            $table->foreignId('item_request_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('item_id')->constrained()->cascadeOnDelete();
             $table->integer('quantity');
+            $table->text('remarks')->nullable();
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamps();
         });
     }

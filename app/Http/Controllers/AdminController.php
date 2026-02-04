@@ -63,4 +63,7 @@ class AdminController extends Controller
 
         return view('admin.categories', ['categories' => $categories]);
     }
+
+    // Units module
+    // Addreses module
 }

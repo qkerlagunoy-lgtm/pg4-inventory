@@ -13,15 +13,15 @@ class ItemRequest extends Model
         'priority',
         'request_date',
         'required_date',
+        'remarks',
+        'notes',
         'approved_by',
         'approved_at',
         'rejected_by',
         'rejected_at',
         'cancelled_by',
         'cancelled_at',
-        'notes',
-    ];
-
+    ]; 
     protected $casts = [
         'request_date' => 'datetime',
         'required_date' => 'datetime',
@@ -29,7 +29,6 @@ class ItemRequest extends Model
         'rejected_at' => 'datetime',
         'cancelled_at' => 'datetime',
     ];
-
     /**
      * Get the user who made the request
      */
@@ -37,7 +36,6 @@ class ItemRequest extends Model
     {
         return $this->belongsTo(User::class);
     }
-
     /**
      * Get the items requested
      */
@@ -45,7 +43,6 @@ class ItemRequest extends Model
     {
         return $this->hasMany(RequestItem::class);
     }
-
     /**
      * Get the admin who approved the request
      */
@@ -53,7 +50,6 @@ class ItemRequest extends Model
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
-
     /**
      * Get the admin who rejected the request
      */
@@ -61,7 +57,6 @@ class ItemRequest extends Model
     {
         return $this->belongsTo(User::class, 'rejected_by');
     }
-
     /**
      * Get the user who cancelled the request
      */
@@ -69,7 +64,6 @@ class ItemRequest extends Model
     {
         return $this->belongsTo(User::class, 'cancelled_by');
     }
-
     /**
      * Check if request is pending
      */
@@ -77,7 +71,6 @@ class ItemRequest extends Model
     {
         return $this->status === 'pending';
     }
-
     /**
      * Check if request is approved
      */
@@ -85,7 +78,6 @@ class ItemRequest extends Model
     {
         return $this->status === 'approved';
     }
-
     /**
      * Check if request is rejected
      */
@@ -93,7 +85,6 @@ class ItemRequest extends Model
     {
         return $this->status === 'rejected';
     }
-
     /**
      * Check if request is urgent
      */
@@ -101,7 +92,6 @@ class ItemRequest extends Model
     {
         return $this->status === 'urgent';
     }
-
     /**
      * Check if request is cancelled
      */

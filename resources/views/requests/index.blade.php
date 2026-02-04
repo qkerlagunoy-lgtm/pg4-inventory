@@ -27,7 +27,7 @@
                     Request Items
                 </a>
 
-                <a href="{{ route('requests.myRequests') }}"
+                <a href="{{ route('requests.my-requests') }}"
                    class="flex items-center gap-3 px-6 py-3 text-gray-300 hover:bg-slate-700 border-l-4 border-transparent hover:border-blue-500">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
@@ -83,14 +83,18 @@
                         {{ session('error') }}
                     </div>
                 @endif
-
+                
                 <!-- Action Buttons -->
                 <div class="mb-6 flex gap-4">
+                    @php
+                        $cart = session()->get('cart', []);
+                        $cartCount = count($cart);
+                    @endphp
                     <a href="{{ route('requests.cart') }}" class="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg font-semibold flex items-center gap-2">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/>
                         </svg>
-                        View Cart ({{ count(session('cart', [])) }})
+                        View Cart ({{ $cartCount }})
                     </a>
                 </div>
 
@@ -112,22 +116,36 @@
                                 <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Item Name</th>
                                 <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Description</th>
                                 <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Available</th>
+                                <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Status</th>
                                 <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($items as $item)
                                 <tr class="border-b hover:bg-gray-50">
-                                    <td class="py-3 px-4 text-sm text-gray-800">{{ $item->category }}</td>
-                                    <td class="py-3 px-4 text-sm text-gray-800">{{ $item->item_name }}</td>
+                                    <td class="py-3 px-4 text-sm text-gray-800">{{ $item->category->name ?? 'Uncategorized' }}</td>
+                                    <td class="py-3 px-4 text-sm text-gray-800 font-medium">{{ $item->name }}</td>
                                     <td class="py-3 px-4 text-sm text-gray-600">{{ $item->description ?? 'None' }}</td>
-                                    <td class="py-3 px-4 text-sm text-gray-800">{{ $item->available_quantity }}</td>
+                                    <td class="py-3 px-4 text-sm text-gray-800">{{ $item->quantity }}</td>
+                                    <td class="py-3 px-4 text-sm">
+                                        @if($item->isLowStock())
+                                            <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">Low Stock</span>
+                                        @endif
+                                        @if($item->isExpiringSoon(30))
+                                            <span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">Expiring Soon</span>
+                                        @endif
+                                        @if($item->isExpired())
+                                            <span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded">Expired</span>
+                                        @endif
+                                    </td>
                                     <td class="py-3 px-4">
-                                        <form action="{{ route('requests.addToCart') }}" method="POST" class="flex items-center gap-2">
+                                        <form action="{{ route('requests.cart.add') }}" method="POST" class="flex items-center gap-2">
                                             @csrf
                                             <input type="hidden" name="item_id" value="{{ $item->id }}">
-                                            <input type="number" name="quantity" min="1" max="{{ $item->available_quantity }}" value="1" 
+                                            <input type="number" name="quantity" min="1" max="{{ $item->quantity }}" value="1" 
                                                 class="w-20 px-2 py-1 border rounded">
+                                            <input type="text" name="notes" placeholder="Notes" 
+                                                class="w-32 px-2 py-1 border rounded text-sm" style="display: none;">
                                             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded text-sm">
                                                 Add to Cart
                                             </button>
@@ -136,7 +154,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-8 text-gray-400 italic">
+                                    <td colspan="6" class="text-center py-8 text-gray-400 italic">
                                         No items available
                                     </td>
                                 </tr>
