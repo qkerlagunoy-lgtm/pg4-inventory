@@ -59,6 +59,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/inventory', [AdminController::class, 'inventory'])->name('inventory');
     Route::get('/users', [AdminController::class, 'users'])->name('users');
     Route::get('/categories', [AdminController::class, 'categories'])->name('categories');
+    Route::get('/units', [AdminController::class, 'units'])->name('units');
+    Route::get('/addresses', [AdminController::class, 'addresses'])->name('addresses');
 });
 
 /*

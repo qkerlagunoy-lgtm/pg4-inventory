@@ -1,231 +1,454 @@
-<aside class="w-64 bg-slate-800 shadow-md flex flex-col sticky top-0 max-h-screen">
-    <div class="flex items-center justify-center py-8 border-b border-gray-700">
-        <a href="{{ route('admin.dashboard') }}">
-            <img src="{{ asset('images/logo.png') }}" alt="App Logo" class="h-32 w-auto">
-        </a>
+{{-- resources/views/admin/partials/sidebar.blade.php --}}
+<aside id="sidebar" class="bg-slate-800 text-white w-64 flex-shrink-0 sticky top-0 overflow-y-auto transition-all duration-300 ease-in-out h-screen ">
+    <!-- Logo/Brand w-64 bg-slate-800 shadow-md flex flex-col sticky top-0 max-h-screen -->
+    <div class="p-6 border-b border-slate-700">
+        <div class="flex items-center gap-3">
+            <img src="{{ asset('images/logo.png') }}" alt="AFPPGMC Logo" class="h-10 w-10">
+            <div>
+                <h2 class="text-lg font-bold">Logistics Division</h2>
+                <p class="text-xs text-gray-400">Admin Panel</p>
+            </div>
+        </div>
     </div>
 
-    <nav class="mt-6 flex-1">
-        @php
-            $currentRoute = Route::currentRouteName();
-            
-            // Define which routes belong to which sidebar item
-            $activeRoutes = [
-                'dashboard' => [
-                    'active' => in_array($currentRoute, ['admin.dashboard']),
-                    'routes' => ['admin.dashboard'],
-                ],
-                'orders' => [
-                    'active' => str_starts_with($currentRoute, 'admin.orders'),
-                    'routes' => [
-                        'admin.orders.index',
-                        'admin.orders.pending',
-                        'admin.orders.approved',
-                        'admin.orders.rejected',
-                        'admin.orders.review',
-                        'admin.orders.create-issuance',
-                        'admin.orders.issuances',
-                        'admin.orders.issuances.view',
-                        'admin.orders.returns',
-                        'admin.orders.reports',
-                        'admin.orders.export',
-                    ],
-                ],
-                'inventory' => [
-                    'active' => in_array($currentRoute, ['admin.inventory']),
-                    'routes' => ['admin.inventory'],
-                ],
-                'users' => [
-                    'active' => in_array($currentRoute, ['admin.users']),
-                    'routes' => ['admin.users'],
-                ],
-                'categories' => [
-                    'active' => in_array($currentRoute, ['admin.categories']),
-                    'routes' => ['admin.categories'],
-                ],
-            ];
-        @endphp
-
+    <!-- Navigation -->
+    <nav class="p-4 space-y-1">
+        <!-- Dashboard -->
         <a href="{{ route('admin.dashboard') }}"
-            class="flex items-center gap-3 px-6 py-3 {{ $activeRoutes['dashboard']['active'] ? 'text-white bg-slate-700 border-l-4 border-blue-500' : 'text-gray-300 hover:bg-slate-700 border-l-4 border-transparent hover:border-blue-500' }}">
+           class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->routeIs('admin.dashboard') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
             </svg>
-            Dashboard
+            <span class="font-medium">Dashboard</span>
         </a>
 
-        <div class="relative">
-            <a href="{{ route('admin.orders.index') }}"
-                class="flex items-center justify-between px-6 py-3 {{ $activeRoutes['orders']['active'] ? 'text-white bg-slate-700 border-l-4 border-blue-500' : 'text-gray-300 hover:bg-slate-700 border-l-4 border-transparent hover:border-blue-500' }}">
+        <!-- Order Management Accordion -->
+        <div class="space-y-1">
+            <!-- Accordion Header -->
+            <button type="button"
+                    id="ordersAccordionHeader"
+                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg {{ request()->is('admin/orders*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }} transition-all duration-200">
                 <div class="flex items-center gap-3">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
                         <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
                     </svg>
-                    Ordered Items
+                    <span class="font-medium">Ordered Items</span>
                 </div>
-                <!-- Dropdown arrow -->
-                <svg id="ordersDropdownArrow" class="w-4 h-4 transition-transform duration-200 {{ $activeRoutes['orders']['active'] ? 'rotate-90' : '' }}" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                <!-- Chevron Icon -->
+                <svg id="ordersChevron" 
+                     class="w-4 h-4 transition-transform duration-200 {{ request()->is('admin/orders*') ? 'rotate-180' : '' }}" 
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
-            </a>
-            
-            <!-- Order Management Submenu -->
-            <div id="ordersSubmenu" class="{{ $activeRoutes['orders']['active'] ? 'block' : 'hidden' }} bg-slate-900">
-                <!-- Order Dashboard -->
-                <a href="{{ route('admin.orders.index') }}"
-                    class="flex items-center gap-3 px-10 py-2 {{ $currentRoute == 'admin.orders.index' ? 'text-white bg-blue-900/30 border-l-2 border-blue-400' : 'text-gray-300 hover:bg-slate-700' }}">
-                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
-                    </svg>
-                    Dashboard
-                </a>
-                
-                <!-- Pending -->
-                <a href="{{ route('admin.orders.pending') }}"
-                    class="flex items-center gap-3 px-10 py-2 {{ in_array($currentRoute, ['admin.orders.pending', 'admin.orders.review']) ? 'text-white bg-blue-900/30 border-l-2 border-yellow-400' : 'text-gray-300 hover:bg-slate-700' }}">
-                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.414L11 9.586V6z" clip-rule="evenodd"/>
-                    </svg>
-                    Pending
-                    @php
-                        $pendingCount = \App\Models\ItemRequest::where('status', 'pending')->count();
-                    @endphp
-                    @if($pendingCount > 0)
-                        <span class="ml-auto bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                            {{ $pendingCount }}
-                        </span>
-                    @endif
-                </a>
-                
-                <!-- Approved -->
-                <a href="{{ route('admin.orders.approved') }}"
-                    class="flex items-center gap-3 px-10 py-2 {{ $currentRoute == 'admin.orders.approved' ? 'text-white bg-blue-900/30 border-l-2 border-green-400' : 'text-gray-300 hover:bg-slate-700' }}">
-                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                    Approved
-                </a>
-                
-                <!-- Rejected -->
-                <a href="{{ route('admin.orders.rejected') }}"
-                    class="flex items-center gap-3 px-10 py-2 {{ $currentRoute == 'admin.orders.rejected' ? 'text-white bg-blue-900/30 border-l-2 border-red-400' : 'text-gray-300 hover:bg-slate-700' }}">
-                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                    </svg>
-                    Rejected
-                </a>
-                
-                <!-- Issuances -->
-                <a href="{{ route('admin.orders.issuances') }}"
-                    class="flex items-center gap-3 px-10 py-2 {{ in_array($currentRoute, ['admin.orders.issuances', 'admin.orders.create-issuance', 'admin.orders.issuances.view']) ? 'text-white bg-blue-900/30 border-l-2 border-blue-400' : 'text-gray-300 hover:bg-slate-700' }}">
-                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/>
-                        <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/>
-                    </svg>
-                    Issuances
-                </a>
-                
-                <!-- Returns -->
-                <a href="{{ route('admin.orders.returns') }}"
-                    class="flex items-center gap-3 px-10 py-2 {{ $currentRoute == 'admin.orders.returns' ? 'text-white bg-blue-900/30 border-l-2 border-purple-400' : 'text-gray-300 hover:bg-slate-700' }}">
-                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
-                    </svg>
-                    Returns
-                </a>
-                
-                <!-- Reports -->
-                <a href="{{ route('admin.orders.reports') }}"
-                    class="flex items-center gap-3 px-10 py-2 {{ $currentRoute == 'admin.orders.reports' ? 'text-white bg-blue-900/30 border-l-2 border-teal-400' : 'text-gray-300 hover:bg-slate-700' }}">
-                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                    Reports
-                </a>
+            </button>
+
+            <!-- Accordion Content -->
+            <div id="ordersAccordionContent" 
+                 class="overflow-hidden transition-all duration-300 {{ request()->is('admin/orders*') ? 'max-h-96' : 'max-h-0' }}">
+                <div class="ml-10 space-y-1 border-l border-slate-700 pl-3 py-1">
+                    <!-- Order Dashboard -->
+                    <a href="{{ route('admin.orders.index') }}"
+                       class="flex items-center gap-2 px-3 py-2.5 text-sm rounded {{ request()->routeIs('admin.orders.index') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Dashboard
+                    </a>
+
+                    <!-- Pending Requests -->
+                    <a href="{{ route('admin.orders.pending') }}"
+                       class="flex items-center justify-between gap-2 px-3 py-2.5 text-sm rounded {{ request()->routeIs('admin.orders.pending') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Pending Requests</span>
+                        </div>
+                        @php
+                            $pendingCount = \App\Models\ItemRequest::where('status', 'pending')->count();
+                        @endphp
+                        @if($pendingCount > 0)
+                            <span class="px-2 py-0.5 text-xs font-bold bg-yellow-500 text-white rounded-full">
+                                {{ $pendingCount }}
+                            </span>
+                        @endif
+                    </a>
+
+                    <!-- Approved Requests -->
+                    <a href="{{ route('admin.orders.approved') }}"
+                       class="flex items-center gap-2 px-3 py-2.5 text-sm rounded {{ request()->routeIs('admin.orders.approved') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Approved Requests
+                    </a>
+
+                    <!-- Rejected Requests -->
+                    <a href="{{ route('admin.orders.rejected') }}"
+                       class="flex items-center gap-2 px-3 py-2.5 text-sm rounded {{ request()->routeIs('admin.orders.rejected') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                        Rejected Requests
+                    </a>
+
+                    <!-- Issuances -->
+                    <a href="{{ route('admin.orders.issuances') }}"
+                       class="flex items-center gap-2 px-3 py-2.5 text-sm rounded {{ request()->routeIs('admin.orders.issuances') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/>
+                            <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                        Issuances
+                    </a>
+
+                    <!-- Returns -->
+                    <a href="{{ route('admin.orders.returns') }}"
+                       class="flex items-center gap-2 px-3 py-2.5 text-sm rounded {{ request()->routeIs('admin.orders.returns') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                        Returns
+                    </a>
+
+                    <!-- Reports -->
+                    <a href="{{ route('admin.orders.reports') }}"
+                       class="flex items-center gap-2 px-3 py-2.5 text-sm rounded {{ request()->routeIs('admin.orders.reports') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Reports
+                    </a>
+                </div>
             </div>
         </div>
 
+        <!-- Inventory -->
         <a href="{{ route('admin.inventory') }}"
-            class="flex items-center gap-3 px-6 py-3 {{ $activeRoutes['inventory']['active'] ? 'text-white bg-slate-700 border-l-4 border-blue-500' : 'text-gray-300 hover:bg-slate-700 border-l-4 border-transparent hover:border-blue-500' }}">
+           class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->is('admin/inventory*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/>
+                <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/>
+                <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/>
             </svg>
-            Inventory
+            <span class="font-medium">Inventory</span>
         </a>
 
+        <!-- User Management -->
         <a href="{{ route('admin.users') }}"
-            class="flex items-center gap-3 px-6 py-3 {{ $activeRoutes['users']['active'] ? 'text-white bg-slate-700 border-l-4 border-blue-500' : 'text-gray-300 hover:bg-slate-700 border-l-4 border-transparent hover:border-blue-500' }}">
+           class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->is('admin/users*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
             </svg>
-            Users
+            <span class="font-medium">User Management</span>
         </a>
 
-        <a href="#"
-            class="flex items-center gap-3 px-6 py-3 text-gray-300 hover:bg-slate-700 border-l-4 border-transparent hover:border-blue-500">
+        <!-- Categories -->
+        <a href="{{ route('admin.categories') }}"
+           class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->is('admin/categories*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
             </svg>
-            Addresses
+            <span class="font-medium">Categories</span>
         </a>
 
-        <a href="{{ route('admin.categories') }}"
-            class="flex items-center gap-3 px-6 py-3 {{ $activeRoutes['categories']['active'] ? 'text-white bg-slate-700 border-l-4 border-blue-500' : 'text-gray-300 hover:bg-slate-700 border-l-4 border-transparent hover:border-blue-500' }}">
+        <!-- Units -->
+        <a href="{{ route('admin.units') }}"
+           class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->is('admin/units*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
             </svg>
-            Categories
+            <span class="font-medium">Units</span>
         </a>
 
-        <a href="#"
-            class="flex items-center gap-3 px-6 py-3 text-gray-300 hover:bg-slate-700 border-l-4 border-transparent hover:border-blue-500">
+        <!-- Addresses -->
+        <a href="{{ route('admin.addresses') }}"
+           class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->is('admin/addresses*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
             </svg>
-            Units
+            <span class="font-medium">Addresses</span> 
         </a>
-    </nav>
 
-
-    <div class="p-4 border-t border-gray-700">
-        <form method="POST" action="{{ route('logout') }}">
+        <!-- Logout Button -->
+        <form method="POST" action="{{ route('logout') }}" id="logoutForm">
             @csrf
-            <button type="submit" class="flex items-center gap-3 w-full px-6 py-3 text-gray-300 hover:bg-slate-700 hover:text-white rounded-lg">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
+            <button type="button" 
+                    onclick="confirmLogout()"
+                    class="w-full flex items-center gap-3 px-4 py-3 text-red-300 hover:text-white hover:bg-red-500/20 rounded-lg border border-red-500/30 hover:border-red-500/50 transition-all duration-200 group">
+                <div class="p-1.5 bg-red-500/20 rounded-lg group-hover:bg-red-500/30">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                </div>
+                <span class="font-medium">Logout</span>
+                <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </button>
+        </form>
+    </nav>
+</aside>
+
+<!-- Mobile Toggle Button -->
+<button id="sidebarToggle" 
+        class="md:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800 text-white rounded-lg shadow-lg">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>
+</button>
+
+<!-- Overlay for mobile -->
+<div id="sidebarOverlay" class="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+
+<!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+        <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-red-100">
+            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+        </div>
+        
+        <h3 class="text-xl font-bold text-gray-900 text-center mb-2">Confirm Logout</h3>
+        <p class="text-gray-600 text-center mb-6">
+            Are you sure you want to logout from the admin panel?
+        </p>
+        
+        <div class="flex space-x-3">
+            <button type="button" 
+                    onclick="hideLogoutModal()"
+                    class="flex-1 px-4 py-3 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition">
+                Cancel
+            </button>
+            <button type="button" 
+                    onclick="performLogout()"
+                    class="flex-1 px-4 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
                 Logout
             </button>
-        </form>
+        </div>
     </div>
-</aside>
+</div>
 
+<!-- Accordion JavaScript -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const ordersLink = document.querySelector('a[href="{{ route('admin.orders.index') }}"]');
-        const ordersSubmenu = document.getElementById('ordersSubmenu');
-        const ordersDropdownArrow = document.getElementById('ordersDropdownArrow');
-        
-        // Toggle orders submenu
-        if (ordersLink && ordersSubmenu) {
-            ordersLink.addEventListener('click', function(e) {
-                // Only toggle if clicking the main link, not navigating
-                if (e.target.closest('a').getAttribute('href') === '{{ route('admin.orders.index') }}') {
-                    e.preventDefault();
-                    ordersSubmenu.classList.toggle('hidden');
-                    ordersDropdownArrow.classList.toggle('rotate-90');
-                }
-            });
-        }
-        
-        // Keep submenu open if any order route is active
-        const isOrderRouteActive = {{ $activeRoutes['orders']['active'] ? 'true' : 'false' }};
-        if (isOrderRouteActive) {
-            ordersSubmenu.classList.remove('hidden');
-            if (ordersDropdownArrow) {
-                ordersDropdownArrow.classList.add('rotate-90');
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const ordersAccordionHeader = document.getElementById('ordersAccordionHeader');
+    const ordersAccordionContent = document.getElementById('ordersAccordionContent');
+    const ordersChevron = document.getElementById('ordersChevron');
+
+    // Mobile sidebar toggle
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebarOverlay.classList.toggle('hidden');
+        });
+
+        sidebarOverlay.addEventListener('click', function() {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('hidden');
+        });
+    }
+
+    // Orders accordion toggle
+    if (ordersAccordionHeader && ordersAccordionContent && ordersChevron) {
+        ordersAccordionHeader.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const isExpanded = ordersAccordionContent.classList.contains('max-h-96');
+            
+            // Toggle content height
+            if (isExpanded) {
+                ordersAccordionContent.classList.remove('max-h-96');
+                ordersAccordionContent.classList.add('max-h-0');
+            } else {
+                ordersAccordionContent.classList.remove('max-h-0');
+                ordersAccordionContent.classList.add('max-h-96');
             }
+            
+            // Rotate chevron
+            ordersChevron.classList.toggle('rotate-180');
+            
+            // If collapsing on mobile, also close the sidebar
+            if (window.innerWidth < 768 && !isExpanded) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('hidden');
+            }
+        });
+
+        // Auto-expand if on orders page (when page loads)
+        if (window.location.pathname.includes('/admin/orders')) {
+            ordersAccordionContent.classList.remove('max-h-0');
+            ordersAccordionContent.classList.add('max-h-96');
+            ordersChevron.classList.add('rotate-180');
+        }
+    }
+
+    // Close sidebar on link click (mobile)
+    document.querySelectorAll('#sidebar a').forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth < 768) {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            }
+        });
+    });
+
+    // Close accordion when clicking outside (mobile)
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth < 768 && 
+            !sidebar.contains(e.target) && 
+            !sidebarToggle.contains(e.target)) {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('hidden');
         }
     });
+});
+
+// Logout Functions
+function confirmLogout() {
+    const modal = document.getElementById('logoutModal');
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function hideLogoutModal() {
+    const modal = document.getElementById('logoutModal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+function performLogout() {
+    const form = document.getElementById('logoutForm');
+    if (form) {
+        // Show loading state
+        const logoutBtn = document.querySelector('#logoutModal button[onclick="performLogout()"]');
+        const originalText = logoutBtn.innerHTML;
+        logoutBtn.innerHTML = '<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>';
+        logoutBtn.disabled = true;
+        
+        // Submit form after short delay for visual feedback
+        setTimeout(() => {
+            form.submit();
+        }, 500);
+    }
+}
+
+// Close logout modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        hideLogoutModal();
+    }
+});
+
+// Close logout modal when clicking outside
+document.getElementById('logoutModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        hideLogoutModal();
+    }
+});
+
+// Update pending count periodically
+function updatePendingCount() {
+    fetch('{{ route("admin.orders.pending") }}?count_only=true')
+        .then(response => response.json())
+        .then(data => {
+            const countElement = document.getElementById('pendingCount');
+            if (countElement && data.count !== undefined) {
+                if (data.count > 0) {
+                    countElement.textContent = data.count;
+                    countElement.classList.remove('hidden');
+                } else {
+                    countElement.classList.add('hidden');
+                }
+            }
+        })
+        .catch(error => console.error('Error updating count:', error));
+}
+
+// Update every 30 seconds
+setInterval(updatePendingCount, 30000);
 </script>
+
+<style>
+/* Mobile sidebar styles */
+#sidebar {
+    z-index: 40;
+}
+
+@media (max-width: 768px) {
+    #sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 50;
+    }
+    
+    #sidebar:not(.translate-x-0) {
+        transform: translateX(-100%);
+    }
+    
+    #sidebar.translate-x-0 {
+        transform: translateX(0);
+    }
+}
+
+/* Smooth transitions */
+#ordersAccordionContent {
+    transition: max-height 0.3s ease-in-out;
+}
+
+/* Chevron rotation */
+#ordersChevron {
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Custom scrollbar for sidebar */
+#sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+#sidebar::-webkit-scrollbar-track {
+    background: #1e293b;
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 2px;
+}
+
+#sidebar::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* Logout button hover effects */
+#logoutForm button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+/* Logout modal animations */
+#logoutModal {
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+</style>
