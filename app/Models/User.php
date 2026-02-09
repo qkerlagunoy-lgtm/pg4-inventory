@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
 
     protected $fillable = [
         // Name fields
@@ -26,12 +25,10 @@ class User extends Authenticatable
         'category_id',
         'type',
     ];
-
     protected $hidden = [
         'password',
         'remember_token',
     ];
-
     protected function casts(): array
     {
         return [
@@ -41,9 +38,7 @@ class User extends Authenticatable
     }
     // ==================== MUTATORS ====================
     
-    /**
-     * Automatically set the type based on email when creating/updating
-     */
+    // Automatically set the type based on email when creating/updating
     public function setTypeAttribute($value)
     {
         // If type is explicitly provided, use it
@@ -62,9 +57,7 @@ class User extends Authenticatable
             $this->attributes['type'] = 'user'; // Default for all other emails
         }
     }
-    /**
-     * Automatically lowercase email and set type
-     */
+    // Automatically lowercase email and set type
     public function setEmailAttribute($value)
     {
         $this->attributes['email'] = strtolower($value);
@@ -84,9 +77,7 @@ class User extends Authenticatable
             }
         }
     }
-    /**
-     * Automatically generate username from email if not provided
-     */
+    // Automatically generate username from email if not provided
     public function setUsernameAttribute($value)
     {
         if (empty($value) && isset($this->attributes['email'])) {
@@ -97,23 +88,17 @@ class User extends Authenticatable
             $this->attributes['username'] = $value;
         }
     }
-    /**
-     * Automatically capitalize first names
-     */
+    // Automatically capitalize first names
     public function setFirstNameAttribute($value)
     {
         $this->attributes['first_name'] = ucwords(strtolower($value));
     }
-    /**
-     * Automatically capitalize last names
-     */
+    // Automatically capitalize last names
     public function setLastNameAttribute($value)
     {
         $this->attributes['last_name'] = ucwords(strtolower($value));
     }
-    /**
-     * Automatically capitalize middle names (if provided)
-     */
+    // Automatically capitalize middle names (if provided)
     public function setMiddleNameAttribute($value)
     {
         if ($value) {
@@ -122,16 +107,12 @@ class User extends Authenticatable
             $this->attributes['middle_name'] = $value;
         }
     }
-    /**
-     * Automatically uppercase unit codes
-     */
+    // Automatically uppercase unit codes
     public function setUnitAttribute($value)
     {
         $this->attributes['unit'] = strtoupper($value);
     }
-    /**
-     * Automatically lowercase sex
-     */
+    // Automatically lowercase sex
     public function setSexAttribute($value)
     {
         $this->attributes['sex'] = strtolower($value);
@@ -299,5 +280,22 @@ class User extends Authenticatable
             'urgent_requests' => $this->urgentRequests()->count(),
             'cancelled_requests' => $this->cancelledRequests()->count(),
         ];
+    }
+    public function issuances()
+    {
+        return $this->hasMany(Issuance::class, 'issued_by');
+    }
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+    public function unreadNotifications()
+    {
+        return $this->notifications()->unread();
+    }
+    // Add this method
+    public function getUnreadNotificationsCountAttribute(): int
+    {
+        return $this->unreadNotifications()->count();
     }
 }

@@ -389,3 +389,27 @@ textarea.input-dark {
     white-space: nowrap;
     border-width: 0;
 }
+
+/* Add smooth transitions for hover effects */
+.transition {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Custom scrollbar for tables */
+.overflow-x-auto::-webkit-scrollbar {
+    height: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}

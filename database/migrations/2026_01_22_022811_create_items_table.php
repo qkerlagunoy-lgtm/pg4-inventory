@@ -16,6 +16,10 @@ return new class extends Migration {
             $table->foreignId('category_id') ->constrained('categories')->cascadeOnDelete();
             $table->integer('quantity');
             $table->integer('minimum_quantity')->default(10);
+            $table->string('unit_of_measure')->default('pcs'); // e.g., pcs, boxes, liters
+            $table->decimal('unit_cost', 10, 2)->nullable(); // Cost per unit
+            $table->decimal('total_value', 10, 2)->nullable(); // quantity * unit_cost
+            $table->date('last_restocked')->nullable();
             $table->date('expiration_date')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();

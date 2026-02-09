@@ -130,7 +130,6 @@ class ItemRequestController extends Controller
 
         return back()->with('error', 'Item not found in cart');
     }
-
     public function clearCart()
     {
         session()->forget('cart');
@@ -139,7 +138,6 @@ class ItemRequestController extends Controller
 
     public function submitRequest(Request $request)
     {
-        // FIXED: Added correct priority values from your ItemRequest model
         $request->validate([
             'purpose' => 'required|string|max:255',
             'priority' => 'nullable|in:low,medium,high,urgent',
@@ -147,17 +145,12 @@ class ItemRequestController extends Controller
             'remarks' => 'nullable|string|max:500',
             'notes' => 'nullable|string|max:500', // Added notes validation
         ]);
-
         $cart = session()->get('cart', []);
-
         if (empty($cart)) {
             return back()->with('error', 'Cart is empty');
         }
-
         DB::beginTransaction();
-
         try {
-            // FIXED: Correct field assignment based on your model
             $itemRequest = ItemRequest::create([
                 'user_id' => Auth::id(),
                 'purpose' => $request->purpose,
@@ -165,27 +158,23 @@ class ItemRequestController extends Controller
                 'status' => 'pending',
                 'request_date' => now(),
                 'required_date' => $request->required_date,
-                'remarks' => $request->remarks, // This goes to 'remarks' field
-                'notes' => $request->notes,     // This goes to 'notes' field
+                'remarks' => $request->remarks, 
+                'notes' => $request->notes,
             ]);
 
             // Add items to request
             foreach ($cart as $itemId => $cartItem) {
                 $item = Item::find($itemId);
-                
                 if (!$item) {
                     throw new \Exception("Item not found: {$itemId}");
                 }
-
                 // Check if item is still available
                 if (!$item->isAvailable()) {
                     throw new \Exception("Item '{$item->name}' is no longer available");
                 }
-                
                 if ($item->quantity < $cartItem['quantity']) {
                     throw new \Exception("Item '{$item->name}' has insufficient quantity. Only {$item->quantity} available");
                 }
-
                 RequestItem::create([
                     'item_request_id' => $itemRequest->id,
                     'item_id' => $itemId,
@@ -211,22 +200,18 @@ class ItemRequestController extends Controller
     {
         $query = ItemRequest::with(['requestItems.item.category'])
             ->where('user_id', Auth::id());
-        
         // Filter by status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-        
         // Filter by priority
         if ($request->filled('priority')) {
             $query->where('priority', $request->priority);
         }
-        
         // Search by purpose
         if ($request->filled('search')) {
             $query->where('purpose', 'like', '%' . $request->search . '%');
         }
-        
         $requests = $query->orderBy('created_at', 'desc')
             ->paginate(10);
         
@@ -239,7 +224,6 @@ class ItemRequestController extends Controller
             ->where('id', $id)
             ->where('user_id', Auth::id())
             ->firstOrFail();
-
         return view('requests.show', compact('request'));
     }
 
