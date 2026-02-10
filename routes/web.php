@@ -88,6 +88,7 @@ Route::prefix('users')->name('users.')->group(function () {
     Route::get('/addresses', [AdminController::class, 'addresses'])->name('addresses');
 });
 
+  
 /*
 |--------------------------------------------------------------------------
 | USER ROUTES

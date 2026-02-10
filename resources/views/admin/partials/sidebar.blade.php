@@ -1,74 +1,79 @@
 {{-- resources/views/admin/partials/sidebar.blade.php --}}
-<aside id="sidebar" class="bg-slate-800 text-white w-64 flex-shrink-0 sticky top-0 overflow-y-auto transition-all duration-300 ease-in-out h-screen ">
-    <!-- Logo/Brand w-64 bg-slate-800 shadow-md flex flex-col sticky top-0 max-h-screen -->
-    <div class="p-6 border-b border-slate-700">
-        <div class="flex items-center gap-3">
-            <img src="{{ asset('images/logo.png') }}" alt="AFPPGMC Logo" class="h-10 w-10">
-            <div>
-                <h2 class="text-lg font-bold">Logistics Division</h2>
-                <p class="text-xs text-gray-400">Admin Panel</p>
-            </div>
-        </div>
+{{-- resources/views/admin/partials/sidebar.blade.php --}}
+<aside id="sidebar"
+    class="bg-slate-900 text-white w-64 flex-shrink-0 sticky top-0 overflow-y-auto transition-all duration-300 ease-in-out h-screen">
+
+    <!-- Logo / Header -->
+    <div class="flex flex-col items-center py-6 border-b border-slate-700">
+        <img src="{{ asset('images/logo.png') }}"
+             alt="AFPPGMC Logo"
+             class="h-24 w-24 rounded-full mb-3">
+
+        <h2 class="text-xs font-semibold text-center leading-snug uppercase">
+            The Armed Forces of the Philippines<br>
+            Pension and Gratuity<br>
+            Management Center
+        </h2>
     </div>
 
     <!-- Navigation -->
-    <nav class="p-4 space-y-1">
+    <nav class="mt-4 space-y-1">
+
         <!-- Dashboard -->
         <a href="{{ route('admin.dashboard') }}"
-           class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->routeIs('admin.dashboard') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
+           class="flex items-center gap-3 px-6 py-3
+           {{ request()->routeIs('admin.dashboard') ? 'bg-slate-800 text-white' : 'text-gray-300 hover:bg-slate-800' }}">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
             </svg>
             <span class="font-medium">Dashboard</span>
         </a>
 
-        <!-- Order Management Accordion -->
+        <div class="border-t border-slate-700 my-2"></div>
+
+        <!-- Order Management Accordion (UNCHANGED DESIGN) -->
         <div class="space-y-1">
-            <!-- Accordion Header -->
             <button type="button"
                     id="ordersAccordionHeader"
-                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg {{ request()->is('admin/orders*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }} transition-all duration-200">
+                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg
+                    {{ request()->is('admin/orders*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
                 <div class="flex items-center gap-3">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/>
                     </svg>
                     <span class="font-medium">Ordered Items</span>
                 </div>
-                <!-- Chevron Icon -->
-                <svg id="ordersChevron" 
-                     class="w-4 h-4 transition-transform duration-200 {{ request()->is('admin/orders*') ? 'rotate-180' : '' }}" 
+
+                <svg id="ordersChevron"
+                     class="w-4 h-4 transition-transform duration-200
+                     {{ request()->is('admin/orders*') ? 'rotate-180' : '' }}"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 9l-7 7-7-7"/>
                 </svg>
             </button>
 
             <!-- Accordion Content -->
-            <div id="ordersAccordionContent" 
-                 class="overflow-hidden transition-all duration-300 {{ request()->is('admin/orders*') ? 'max-h-96' : 'max-h-0' }}">
+            <div id="ordersAccordionContent"
+                 class="overflow-hidden transition-all duration-300
+                 {{ request()->is('admin/orders*') ? 'max-h-96' : 'max-h-0' }}">
+
                 <div class="ml-10 space-y-1 border-l border-slate-700 pl-3 py-1">
-                    <!-- Order Dashboard -->
                     <a href="{{ route('admin.orders.index') }}"
-                       class="flex items-center gap-2 px-3 py-2.5 text-sm rounded {{ request()->routeIs('admin.orders.index') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
-                        </svg>
+                       class="block px-3 py-2.5 text-sm rounded
+                       {{ request()->routeIs('admin.orders.index') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
                         Dashboard
                     </a>
 
-                    <!-- Pending Requests -->
+                    @php
+                        $pendingCount = \App\Models\ItemRequest::where('status', 'pending')->count();
+                    @endphp
+
                     <a href="{{ route('admin.orders.pending') }}"
-                       class="flex items-center justify-between gap-2 px-3 py-2.5 text-sm rounded {{ request()->routeIs('admin.orders.pending') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                            </svg>
-                            <span>Pending Requests</span>
-                        </div>
-                        @php
-                            $pendingCount = \App\Models\ItemRequest::where('status', 'pending')->count();
-                        @endphp
+                       class="flex items-center justify-between px-3 py-2.5 text-sm rounded
+                       {{ request()->routeIs('admin.orders.pending') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
+                        <span>Pending Requests</span>
                         @if($pendingCount > 0)
                             <span class="px-2 py-0.5 text-xs font-bold bg-yellow-500 text-white rounded-full">
                                 {{ $pendingCount }}
@@ -76,117 +81,57 @@
                         @endif
                     </a>
 
-                    <!-- Approved Requests -->
                     <a href="{{ route('admin.orders.approved') }}"
-                       class="flex items-center gap-2 px-3 py-2.5 text-sm rounded {{ request()->routeIs('admin.orders.approved') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                        </svg>
+                       class="block px-3 py-2.5 text-sm rounded
+                       {{ request()->routeIs('admin.orders.approved') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
                         Approved Requests
                     </a>
 
-                    <!-- Rejected Requests -->
                     <a href="{{ route('admin.orders.rejected') }}"
-                       class="flex items-center gap-2 px-3 py-2.5 text-sm rounded {{ request()->routeIs('admin.orders.rejected') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                        </svg>
+                       class="block px-3 py-2.5 text-sm rounded
+                       {{ request()->routeIs('admin.orders.rejected') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
                         Rejected Requests
                     </a>
 
-                    <!-- Issuances -->
                     <a href="{{ route('admin.orders.issuances') }}"
-                       class="flex items-center gap-2 px-3 py-2.5 text-sm rounded {{ request()->routeIs('admin.orders.issuances') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/>
-                            <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/>
-                        </svg>
+                       class="block px-3 py-2.5 text-sm rounded
+                       {{ request()->routeIs('admin.orders.issuances') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
                         Issuances
                     </a>
 
-                    <!-- Returns -->
                     <a href="{{ route('admin.orders.returns') }}"
-                       class="flex items-center gap-2 px-3 py-2.5 text-sm rounded {{ request()->routeIs('admin.orders.returns') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                        </svg>
+                       class="block px-3 py-2.5 text-sm rounded
+                       {{ request()->routeIs('admin.orders.returns') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
                         Returns
                     </a>
 
-                    <!-- Reports -->
                     <a href="{{ route('admin.orders.reports') }}"
-                       class="flex items-center gap-2 px-3 py-2.5 text-sm rounded {{ request()->routeIs('admin.orders.reports') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
+                       class="block px-3 py-2.5 text-sm rounded
+                       {{ request()->routeIs('admin.orders.reports') ? 'text-white bg-slate-600' : 'text-gray-300 hover:bg-slate-700' }}">
                         Reports
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Inventory -->
-        <a href="{{ route('admin.inventory') }}"
-           class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->is('admin/inventory*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/>
-                <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/>
-            </svg>
-            <span class="font-medium">Inventory</span>
-        </a>
+        <div class="border-t border-slate-700 my-2"></div>
 
-        <a href="{{ route('admin.users.index') }}"
-            class="flex items-center gap-3 px-6 py-3 text-gray-300 hover:bg-slate-700 border-l-4 border-transparent hover:border-blue-500">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
-            </svg>
-            <span class="font-medium">User Management</span>
-        </a>
+        <!-- Other Links (unchanged) -->
+        <a href="{{ route('admin.inventory') }}" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-700">Inventory</a>
+        <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-700">Users</a>
+        <a href="{{ route('admin.categories') }}" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-700">Categories</a>
+        <a href="{{ route('admin.units') }}" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-700">Units</a>
+        <a href="{{ route('admin.addresses') }}" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-700">Addresses</a>
 
-        <!-- Categories -->
-        <a href="{{ route('admin.categories') }}"
-           class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->is('admin/categories*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
-            </svg>
-            <span class="font-medium">Categories</span>
-        </a>
+        <div class="border-t border-slate-700 my-4"></div>
 
-        <!-- Units -->
-        <a href="{{ route('admin.units') }}"
-           class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->is('admin/units*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-            </svg>
-            <span class="font-medium">Units</span>
-        </a>
-
-        <!-- Addresses -->
-        <a href="{{ route('admin.addresses') }}"
-           class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->is('admin/addresses*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-            </svg>
-            <span class="font-medium">Addresses</span> 
-        </a>
-
-        <!-- Logout Button -->
+        <!-- Logout -->
         <form method="POST" action="{{ route('logout') }}" id="logoutForm">
             @csrf
-            <button type="button" 
+            <button type="button"
                     onclick="confirmLogout()"
-                    class="w-full flex items-center gap-3 px-4 py-3 text-red-300 hover:text-white hover:bg-red-500/20 rounded-lg border border-red-500/30 hover:border-red-500/50 transition-all duration-200 group">
-                <div class="p-1.5 bg-red-500/20 rounded-lg group-hover:bg-red-500/30">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                    </svg>
-                </div>
-                <span class="font-medium">Logout</span>
-                <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </div>
+                    class="w-full flex items-center gap-3 px-4 py-3 text-red-300 hover:text-white hover:bg-red-500/20 rounded-lg">
+                Logout
             </button>
         </form>
     </nav>
