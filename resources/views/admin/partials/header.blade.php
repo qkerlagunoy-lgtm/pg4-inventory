@@ -2,7 +2,7 @@
     <div class="px-8 py-4 flex items-center justify-between">
         <div>
             @php
-                // Define module titles based on current route
+                // Module titles
                 $moduleTitles = [
                     'admin.dashboard' => 'Admin Dashboard',
                     'admin.orders.index' => 'Order Management',
@@ -16,7 +16,7 @@
                     'admin.orders.returns' => 'Item Returns',
                     'admin.orders.reports' => 'Reports & Analytics',
                     'admin.inventory' => 'Inventory Management',
-                    'admin.users' => 'User Management',
+                    'admin.users.index' => 'User Management',
                     'admin.categories' => 'Category Management',
                     'profile.edit' => 'My Profile',
                 ];
@@ -26,9 +26,8 @@
             
             <h2 class="font-bold text-2xl text-white">{{ $currentTitle }}</h2>
 
-            
             @php
-                // Optional: Add breadcrumbs
+                // Breadcrumbs
                 $breadcrumbs = [
                     'admin.dashboard' => [['title' => 'Dashboard', 'url' => route('admin.dashboard')]],
                     'admin.orders.index' => [
@@ -80,9 +79,9 @@
                         ['title' => 'Dashboard', 'url' => route('admin.dashboard')],
                         ['title' => 'Inventory', 'url' => route('admin.inventory')]
                     ],
-                    'admin.users' => [
+                    'admin.users.index' => [
                         ['title' => 'Dashboard', 'url' => route('admin.dashboard')],
-                        ['title' => 'User Management', 'url' => route('admin.users')]
+                        ['title' => 'User Management', 'url' => route('admin.users.index')]
                     ],
                     'admin.categories' => [
                         ['title' => 'Dashboard', 'url' => route('admin.dashboard')],
@@ -95,7 +94,7 @@
             
             @if(count($currentBreadcrumbs) > 0)
                 <div class="flex items-center space-x-1 text-xs mt-2">
-                    @foreach($currentBreadcrumbs as $index => $breadcrumb)
+                    @foreach($currentBreadcrumbs as $breadcrumb)
                         @if(!$loop->last)
                             <a href="{{ $breadcrumb['url'] }}" class="text-gray-300 hover:text-white transition">
                                 {{ $breadcrumb['title'] }}
@@ -108,7 +107,9 @@
                 </div>
             @endif
         </div>
+
         <div class="flex items-center gap-3">
+            <!-- User Profile -->
             <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 hover:bg-slate-700 px-4 py-2 rounded-lg transition group">
                 <div class="text-right">
                     <span class="text-white font-medium block group-hover:text-blue-300 transition">
@@ -198,49 +199,44 @@
                     </div>
                 </div>
             </div>
-            
         </div>
     </div>
 </header>
 
-<!-- Notification Script -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const notificationButton = document.getElementById('notificationButton');
-        const notificationDropdown = document.getElementById('notificationDropdown');
+document.addEventListener('DOMContentLoaded', function() {
+    const notificationButton = document.getElementById('notificationButton');
+    const notificationDropdown = document.getElementById('notificationDropdown');
+    
+    if (notificationButton && notificationDropdown) {
+        notificationButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notificationDropdown.classList.toggle('hidden');
+        });
         
-        if (notificationButton && notificationDropdown) {
-            // Toggle dropdown
-            notificationButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                notificationDropdown.classList.toggle('hidden');
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!notificationButton.contains(e.target) && !notificationDropdown.contains(e.target)) {
-                    notificationDropdown.classList.add('hidden');
-                }
-            });
-            
-            // Mark all as read
-            const markAllReadBtn = document.querySelector('.mark-all-read');
-            if (markAllReadBtn) {
-                markAllReadBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    fetch('{{ route("notifications.mark-all-read") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    }).then(response => {
-                        if (response.ok) {
-                            location.reload();
-                        }
-                    });
-                });
+        document.addEventListener('click', (e) => {
+            if (!notificationButton.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                notificationDropdown.classList.add('hidden');
             }
+        });
+        
+        const markAllReadBtn = document.querySelector('.mark-all-read');
+        if (markAllReadBtn) {
+            markAllReadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                fetch('{{ route("notifications.mark-all-read") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    }
+                });
+            });
         }
-    });
+    }
+});
 </script>

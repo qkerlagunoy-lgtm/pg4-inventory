@@ -67,15 +67,44 @@ class AuthenticatedSessionController extends Controller
             'user_email' => Auth::user()->email,
         ]);
 
+        // ============================================
+        // CHECK IF USER IS ACTIVE (NEW CODE)
+        // ============================================
+        $user = Auth::user();
+        
+        // Check if user account is inactive (email_verified_at is null)
+        if (is_null($user->email_verified_at)) {
+            \Log::warning('Login blocked - inactive account', [
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+                'user_type' => $user->type,
+            ]);
+            
+            Auth::logout();
+            
+            throw ValidationException::withMessages([
+                'login' => 'Your account is inactive. Please contact the administrator.',
+            ]);
+        }
+        
+        \Log::info('User account active - proceeding with login', [
+            'user_id' => $user->id,
+            'email_verified_at' => $user->email_verified_at,
+        ]);
+        // ============================================
+        // END OF ACTIVE CHECK
+        // ============================================
+
         $request->session()->regenerate();
         $request->session()->forget('url.intended');
 
-        $user = Auth::user();
-
+        // Redirect based on user type
         if ($user->type === 'admin') {
+            \Log::info('Redirecting to admin dashboard', ['user_id' => $user->id]);
             return redirect()->route('admin.dashboard');
         }
 
+        \Log::info('Redirecting to user dashboard', ['user_id' => $user->id]);
         return redirect()->route('dashboard');
     }
 
@@ -84,6 +113,11 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        \Log::info('User logging out', [
+            'user_id' => Auth::id(),
+            'user_email' => Auth::user()?->email,
+        ]);
+        
         Auth::logout();
 
         $request->session()->invalidate();

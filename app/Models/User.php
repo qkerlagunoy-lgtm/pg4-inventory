@@ -298,4 +298,12 @@ class User extends Authenticatable
     {
         return $this->unreadNotifications()->count();
     }
+    // User belongs to a Unit
+public function unit()
+{
+    return $this->belongsTo(Unit::class);
+    
+}
+
+
 }

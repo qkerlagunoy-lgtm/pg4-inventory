@@ -7,6 +7,11 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| PUBLIC LANDING PAGE
+|--------------------------------------------------------------------------
+*/
 Route::get('/', function () {
     return view('auth.landing');
 });
@@ -20,6 +25,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])
         ->name('notifications.mark-all-read');
 });
+
 /*
 |--------------------------------------------------------------------------
 | PROFILE ROUTES (Common for both admin and users)
@@ -33,11 +39,13 @@ Route::middleware(['auth'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN ROUTES 
+| ADMIN ROUTES
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function (): void {
+    // Dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+
     // Order Management Module
     Route::prefix('orders')->name('orders.')->group(function () {
         Route::get('/', [AdminController::class, 'orderDashboard'])->name('index');
@@ -56,8 +64,25 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
         Route::get('/export', [AdminController::class, 'export'])->name('export');
     });
+
+    // Inventory Module
     Route::get('/inventory', [AdminController::class, 'inventory'])->name('inventory');
-    Route::get('/users', [AdminController::class, 'users'])->name('users');
+
+    // User Management Module
+    Route::get('/admin/users', [AdminController::class, 'index'])
+    ->name('admin.users.index');
+
+
+Route::prefix('users')->name('users.')->group(function () {
+    Route::get('/', [AdminController::class, 'users'])->name('index'); // List users
+    Route::get('/create', [AdminController::class, 'createUser'])->name('create'); // Show create form
+    Route::post('/store', [AdminController::class, 'storeUser'])->name('store'); // Save new user
+    Route::get('/{id}/edit', [AdminController::class, 'usersEdit'])->name('edit'); // Edit form
+    Route::put('/{id}', [AdminController::class, 'usersUpdate'])->name('update'); // Update user
+    Route::delete('/{id}', [AdminController::class, 'usersDestroy'])->name('destroy'); // Delete user
+    Route::get('/pdf', [AdminController::class, 'usersPdf'])->name('pdf'); // Generate PDF
+});
+    // Category Management Module
     Route::get('/categories', [AdminController::class, 'categories'])->name('categories');
 });
 
@@ -68,22 +93,20 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 */
 Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+
     // Item Request Routes
     Route::prefix('requests')->name('requests.')->group(function () {
         Route::get('/', [ItemRequestController::class, 'index'])->name('index');
         Route::get('/cart', [ItemRequestController::class, 'cart'])->name('cart');
-        // Cart operations
         Route::post('/cart/add', [ItemRequestController::class, 'addToCart'])->name('cart.add');
         Route::post('/cart/update/{itemId}', [ItemRequestController::class, 'updateCart'])->name('cart.update');
         Route::delete('/cart/remove/{itemId}', [ItemRequestController::class, 'removeFromCart'])->name('cart.remove');
         Route::delete('/cart/clear', [ItemRequestController::class, 'clearCart'])->name('cart.clear');
-        // Request submission and management
         Route::post('/submit', [ItemRequestController::class, 'submitRequest'])->name('submit');
-        Route::get('/my-requests', [ItemRequestController::class, 'myRequests'])->name('my-requests'); // Correct name
+        Route::get('/my-requests', [ItemRequestController::class, 'myRequests'])->name('my-requests');
         Route::get('/my-requests/{id}', [ItemRequestController::class, 'show'])->name('show');
         Route::post('/my-requests/{id}/cancel', [ItemRequestController::class, 'cancelRequest'])->name('cancel');
     });
-    
 });
 
 require __DIR__.'/auth.php';
