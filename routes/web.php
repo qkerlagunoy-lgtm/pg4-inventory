@@ -84,6 +84,8 @@ Route::prefix('users')->name('users.')->group(function () {
 });
     // Category Management Module
     Route::get('/categories', [AdminController::class, 'categories'])->name('categories');
+    Route::get('/units', [AdminController::class, 'units'])->name('units');
+    Route::get('/addresses', [AdminController::class, 'addresses'])->name('addresses');
 });
 
 /*
