@@ -8,6 +8,12 @@ use Illuminate\Foundation\Configuration\Middleware;
 
 
 return Application::configure(basePath: dirname(__DIR__))
+
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->alias([
+        'active.user' => \App\Http\Middleware\CheckUserActive::class,
+    ]);
+})
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
@@ -18,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
+        
         
         // Add middleware aliases
         $middleware->alias([

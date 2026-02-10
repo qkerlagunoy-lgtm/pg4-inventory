@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ItemRequestController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
@@ -68,27 +69,24 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Inventory Module
     Route::get('/inventory', [AdminController::class, 'inventory'])->name('inventory');
 
-    // User Management Module
-    Route::get('/admin/users', [AdminController::class, 'index'])
-    ->name('admin.users.index');
+    // User Management Module (Refactored to UserManagementController)
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/', [UserManagementController::class, 'index'])->name('index');
+        Route::get('/create', [UserManagementController::class, 'create'])->name('create');
+        Route::post('/', [UserManagementController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [UserManagementController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [UserManagementController::class, 'update'])->name('update');
+        Route::delete('/{id}', [UserManagementController::class, 'destroy'])->name('destroy');
+        Route::get('/export', [UserManagementController::class, 'exportCsv'])->name('export');
+    });
 
-
-Route::prefix('users')->name('users.')->group(function () {
-    Route::get('/', [AdminController::class, 'users'])->name('index'); // List users
-    Route::get('/create', [AdminController::class, 'createUser'])->name('create'); // Show create form
-    Route::post('/store', [AdminController::class, 'storeUser'])->name('store'); // Save new user
-    Route::get('/{id}/edit', [AdminController::class, 'usersEdit'])->name('edit'); // Edit form
-    Route::put('/{id}', [AdminController::class, 'usersUpdate'])->name('update'); // Update user
-    Route::delete('/{id}', [AdminController::class, 'usersDestroy'])->name('destroy'); // Delete user
-    Route::get('/pdf', [AdminController::class, 'usersPdf'])->name('pdf'); // Generate PDF
-});
     // Category Management Module
     Route::get('/categories', [AdminController::class, 'categories'])->name('categories');
     Route::get('/units', [AdminController::class, 'units'])->name('units');
     Route::get('/addresses', [AdminController::class, 'addresses'])->name('addresses');
 });
 
-  
+ 
 /*
 |--------------------------------------------------------------------------
 | USER ROUTES

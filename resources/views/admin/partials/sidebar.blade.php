@@ -1,5 +1,4 @@
 {{-- resources/views/admin/partials/sidebar.blade.php --}}
-{{-- resources/views/admin/partials/sidebar.blade.php --}}
 <aside id="sidebar"
     class="bg-slate-900 text-white w-64 flex-shrink-0 sticky top-0 overflow-y-auto transition-all duration-300 ease-in-out h-screen">
 

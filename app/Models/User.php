@@ -19,6 +19,7 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'email_verified_at', // ADD THIS LINE
         // Profile
         'sex',
         'unit',

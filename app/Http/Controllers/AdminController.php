@@ -1,6 +1,8 @@
 <?php
 
+
 namespace App\Http\Controllers;
+
 
 use App\Models\ItemRequest;
 use App\Models\RequestItem;
@@ -14,6 +16,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+
+
+
 
 
 
@@ -71,6 +76,7 @@ class AdminController extends Controller
             ->limit(5)
             ->get();
 
+
         return view('admin.dashboard', compact('stats', 'mostRequestedItems', 'recentRequests'));
     }
     // ==================== ORDER MANAGEMENT ====================
@@ -97,9 +103,10 @@ class AdminController extends Controller
             ->limit(10)
             ->get();
 
+
         return view('admin.orders.dashboard', compact('stats', 'recentRequests', 'recentIssuances'));
     }
-    // Display all pending requests 
+    // Display all pending requests
     public function pendingOrders(Request $request)
     {
         $query = ItemRequest::with(['user', 'requestItems.item.category'])
@@ -121,6 +128,7 @@ class AdminController extends Controller
         $requests = $query->orderBy('created_at', 'desc')
             ->paginate(15)
             ->withQueryString();
+
 
         return view('admin.orders.pending', compact('requests'));
     }
@@ -144,7 +152,7 @@ class AdminController extends Controller
             ->withQueryString();
         return view('admin.orders.approved', compact('requests'));
     }
-    // Display all rejected requests 
+    // Display all rejected requests
     public function rejectedOrders(Request $request)
     {
         $query = ItemRequest::with(['user', 'requestItems.item'])
@@ -166,7 +174,7 @@ class AdminController extends Controller
         $availabilityIssues = [];
         foreach ($request->requestItems as $requestItem) {
             $item = $requestItem->item;
-            $available = $item->quantity - $item->minimum_quantity;   
+            $available = $item->quantity - $item->minimum_quantity;  
             if ($available < $requestItem->quantity) {
                 $availabilityIssues[] = [
                     'item' => $item,
@@ -186,13 +194,16 @@ class AdminController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
+
         DB::beginTransaction();
         try {
             $itemRequest = ItemRequest::findOrFail($id);
 
+
             if ($itemRequest->status !== 'pending') {
                 return back()->with('error', 'Request has already been processed.');
             }
+
 
             $itemRequest->update([
                 'status' => 'approved',
@@ -202,8 +213,10 @@ class AdminController extends Controller
                 'notes' => $validated['notes'] ?? null,
             ]);
 
+
             RequestItem::where('item_request_id', $id)
                 ->update(['status' => 'approved']);
+
 
             Notification::create([
                 'user_id' => $itemRequest->user_id,
@@ -213,17 +226,20 @@ class AdminController extends Controller
                 'data' => ['request_id' => $itemRequest->id],
             ]);
 
+
             DB::commit();
+
 
             return redirect()->route('admin.orders.pending')
                 ->with('success', 'Request approved successfully.');
+
 
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Failed to approve request: ' . $e->getMessage());
         }
     }
-    // Reject a request 
+    // Reject a request
     public function rejectOrder(Request $request, $id)
     {
         $validated = $request->validate([
@@ -294,7 +310,7 @@ class AdminController extends Controller
                 'remarks' => $validated['remarks'],
             ]);
             $issuedCount = 0;
-            $totalRequested = count($itemRequest->requestItems);
+            $totalRequested = count(value: $itemRequest->requestItems);
             foreach ($validated['issued_items'] as $issuedItem) {
                 $item = Item::find($issuedItem['item_id']);
                 // Validate quantity
@@ -390,6 +406,7 @@ class AdminController extends Controller
             'issuer'
         ])->findOrFail($id);
 
+
         return view('admin.orders.view-issuance', compact('issuance'));
     }
     // Track returns
@@ -418,6 +435,7 @@ class AdminController extends Controller
             ->paginate(15)
             ->withQueryString();
 
+
         return view('admin.orders.returns', compact('issuanceItems'));
     }
     // Process item return
@@ -431,6 +449,7 @@ class AdminController extends Controller
         DB::beginTransaction();
         try {
             $issuanceItem = IssuanceItem::with(['item', 'issuance.itemRequest'])->findOrFail($id);
+
 
             if ($validated['returned_quantity'] > $issuanceItem->quantity_issued) {
                 throw new \Exception('Returned quantity cannot exceed issued quantity.');
@@ -510,6 +529,7 @@ class AdminController extends Controller
             ->where('due_date', '<', now())
             ->count();
 
+
         return view('admin.orders.reports', compact(
             'monthlyStats',
             'topItems',
@@ -567,8 +587,10 @@ class AdminController extends Controller
             fclose($file);
         };
 
+
         return response()->stream($callback, 200, $headers);
     }
+
 
     public function inventory(): \Illuminate\View\View
     {
@@ -576,239 +598,4 @@ class AdminController extends Controller
         return view('admin.inventory', ['items' => $items]);
     }
 
-// ==================== USER MANAGEMENT ====================
-
-// List all users
-public function users(Request $request)
-{
-    $query = User::query();
-
-    // Filter by unit
-    if ($request->filled('unit')) {
-        $query->where('unit', $request->unit);
-    }
-
-    // Filter by status (using email_verified_at for active/inactive)
-    if ($request->filled('status')) {
-        if ($request->status === 'active') {
-            $query->whereNotNull('email_verified_at');
-        } elseif ($request->status === 'inactive') {
-            $query->whereNull('email_verified_at');
-        }
-    }
-
-    // Search
-    if ($request->filled('search')) {
-        $search = $request->search;
-        $query->where(function($q) use ($search) {
-            $q->where('first_name', 'like', "%{$search}%")
-              ->orWhere('last_name', 'like', "%{$search}%")
-              ->orWhere('username', 'like', "%{$search}%")
-              ->orWhere('email', 'like', "%{$search}%");
-        });
-    }
-
-    $users = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
-    
-    // Get distinct units for filter
-    $units = User::select('unit')->distinct()->whereNotNull('unit')->get();
-
-    return view('admin.users.index', compact('users', 'units'));
-}
-
-// Show create user form
-public function createUser()
-{
-    // Get distinct units for the datalist
-    $units = User::select('unit')
-        ->distinct()
-        ->whereNotNull('unit')
-        ->pluck('unit');
-    
-    return view('admin.users.create', compact('units'));
-}
-
-// Store new user
-public function storeUser(Request $request)
-{
-    $validated = $request->validate([
-        'username' => 'required|string|max:255|unique:users,username',
-        'email' => 'required|email|max:255|unique:users,email',
-        'first_name' => 'required|string|max:255',
-        'last_name' => 'required|string|max:255',
-        'password' => 'required|string|min:8|confirmed',
-        'unit' => 'nullable|string|max:255',
-        'role' => 'required|in:admin,user',
-        'status' => 'required|in:active,inactive',
-    ]);
-
-    DB::beginTransaction();
-    try {
-        $user = User::create([
-            'username' => $validated['username'],
-            'email' => $validated['email'],
-            'first_name' => $validated['first_name'],
-            'last_name' => $validated['last_name'],
-            'password' => bcrypt($validated['password']),
-            'unit' => $validated['unit'],
-            'type' => $validated['role'],
-            'email_verified_at' => $validated['status'] === 'active' ? now() : null,
-        ]);
-
-        DB::commit();
-        
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User created successfully.');
-            
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return back()->with('error', 'Failed to create user: ' . $e->getMessage())
-            ->withInput();
-    }
-}
-
-// Show edit user form
-public function usersEdit($id)
-{
-    $user = User::findOrFail($id);
-    
-    $units = User::select('unit')
-        ->distinct()
-        ->whereNotNull('unit')
-        ->pluck('unit');
-    
-    return view('admin.users.edit', compact('user', 'units'));
-}
-
-// Update user
-public function usersUpdate(Request $request, $id)
-{
-    $user = User::findOrFail($id);
-    
-    $validated = $request->validate([
-        'username' => 'required|string|max:255|unique:users,username,' . $id,
-        'email' => 'required|email|max:255|unique:users,email,' . $id,
-        'first_name' => 'required|string|max:255',
-        'last_name' => 'required|string|max:255',
-        'password' => 'nullable|string|min:8|confirmed',
-        'unit' => 'nullable|string|max:255',
-        'role' => 'required|in:admin,user',
-        'status' => 'required|in:active,inactive',
-    ]);
-
-    DB::beginTransaction();
-    try {
-        $updateData = [
-            'username' => $validated['username'],
-            'email' => $validated['email'],
-            'first_name' => $validated['first_name'],
-            'last_name' => $validated['last_name'],
-            'unit' => $validated['unit'],
-            'type' => $validated['role'],
-            'email_verified_at' => $validated['status'] === 'active' 
-                ? ($user->email_verified_at ?? now()) 
-                : null,
-        ];
-
-        if (!empty($validated['password'])) {
-            $updateData['password'] = bcrypt($validated['password']);
-        }
-
-        $user->update($updateData);
-
-        DB::commit();
-        
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User updated successfully.');
-            
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return back()->with('error', 'Failed to update user: ' . $e->getMessage())
-            ->withInput();
-    }
-}
-
-// Delete user
-public function usersDestroy($id)
-{
-    DB::beginTransaction();
-    try {
-        $user = User::findOrFail($id);
-        
-        if ($user->id === auth()->id()) {
-            return back()->with('error', 'You cannot delete your own account.');
-        }
-        
-        $user->delete();
-        
-        DB::commit();
-        
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User deleted successfully.');
-            
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return back()->with('error', 'Failed to delete user: ' . $e->getMessage());
-    }
-}
-
-// Generate PDF/CSV
-public function usersPdf(Request $request)
-{
-    $query = User::query();
-    
-    if ($request->filled('unit')) {
-        $query->where('unit', $request->unit);
-    }
-    
-    if ($request->filled('status')) {
-        if ($request->status === 'active') {
-            $query->whereNotNull('email_verified_at');
-        } elseif ($request->status === 'inactive') {
-            $query->whereNull('email_verified_at');
-        }
-    }
-    
-    if ($request->filled('search')) {
-        $search = $request->search;
-        $query->where(function($q) use ($search) {
-            $q->where('first_name', 'like', "%{$search}%")
-              ->orWhere('last_name', 'like', "%{$search}%")
-              ->orWhere('username', 'like', "%{$search}%")
-              ->orWhere('email', 'like', "%{$search}%");
-        });
-    }
-    
-    $users = $query->orderBy('created_at', 'desc')->get();
-    
-    $headers = [
-        'Content-Type' => 'text/csv',
-        'Content-Disposition' => 'attachment; filename="users_' . date('Y-m-d') . '.csv"',
-    ];
-    
-    $callback = function() use ($users) {
-        $file = fopen('php://output', 'w');
-        
-        fputcsv($file, ['Username', 'Email', 'First Name', 'Last Name', 'Unit', 'Role', 'Status', 'Created At']);
-        
-        foreach ($users as $user) {
-            fputcsv($file, [
-                $user->username,
-                $user->email,
-                $user->first_name,
-                $user->last_name,
-                $user->unit ?? 'N/A',
-                ucfirst($user->type),
-                $user->email_verified_at ? 'Active' : 'Inactive',
-                $user->created_at->format('Y-m-d H:i:s'),
-            ]);
-        }
-        
-        fclose($file);
-    };
-    
-    return response()->stream($callback, 200, $headers);
-}
-    // Units module
-    // Addreses module
 }
