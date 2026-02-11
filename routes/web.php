@@ -6,6 +6,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -67,7 +69,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 
     // Inventory Module
-    Route::get('/inventory', [AdminController::class, 'inventory'])->name('inventory');
+    Route::prefix('inventory')->name('inventory.')->group(function () {
+        Route::get('/', [InventoryController::class, 'index'])->name('index');
+        Route::get('/create', [InventoryController::class, 'create'])->name('create');
+        Route::post('/', [InventoryController::class, 'store'])->name('store');
+        Route::get('/{item}/edit', [InventoryController::class, 'edit'])->name('edit');
+        Route::put('/{item}', [InventoryController::class, 'update'])->name('update');
+        Route::delete('/{item}', [InventoryController::class, 'destroy'])->name('destroy');
+        Route::get('/{item}', [InventoryController::class, 'show'])->name('show');
+        Route::get('/low-stock', [InventoryController::class, 'lowStock'])->name('low-stock');
+        Route::post('/{item}/restock', [InventoryController::class, 'restock'])->name('restock');
+    });
 
     // User Management Module (Refactored to UserManagementController)
     Route::prefix('users')->name('users.')->group(function () {
