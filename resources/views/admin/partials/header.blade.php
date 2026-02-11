@@ -15,9 +15,9 @@
                     'admin.orders.issuances.view' => 'View Issuance',
                     'admin.orders.returns' => 'Item Returns',
                     'admin.orders.reports' => 'Reports & Analytics',
-                    'admin.inventory' => 'Inventory Management',
+                    'admin.inventory.index' => 'Inventory Management',
                     'admin.users.index' => 'User Management',
-                    'admin.categories' => 'Category Management',
+                    'admin.categories.index' => 'Category Management',
                     'profile.edit' => 'My Profile',
                 ];
                 
@@ -75,17 +75,17 @@
                         ['title' => 'Order Management', 'url' => route('admin.orders.index')],
                         ['title' => 'Reports', 'url' => route('admin.orders.reports')]
                     ],
-                    'admin.inventory' => [
+                    'admin.inventory.index' => [
                         ['title' => 'Dashboard', 'url' => route('admin.dashboard')],
-                        ['title' => 'Inventory', 'url' => route('admin.inventory')]
+                        ['title' => 'Inventory', 'url' => route('admin.inventory.index')]
                     ],
                     'admin.users.index' => [
                         ['title' => 'Dashboard', 'url' => route('admin.dashboard')],
                         ['title' => 'User Management', 'url' => route('admin.users.index')]
                     ],
-                    'admin.categories' => [
+                    'admin.categories.index' => [
                         ['title' => 'Dashboard', 'url' => route('admin.dashboard')],
-                        ['title' => 'Category Management', 'url' => route('admin.categories')]
+                        ['title' => 'Category Management', 'url' => route('admin.categories.index')]
                     ],
                 ];
                 

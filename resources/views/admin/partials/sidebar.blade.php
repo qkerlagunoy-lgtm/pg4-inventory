@@ -30,7 +30,7 @@
 
         <div class="border-t border-slate-700 my-2"></div>
 
-        <!-- Order Management Accordion (UNCHANGED DESIGN) -->
+        <!-- Order Management Accordion -->
         <div class="space-y-1">
             <button type="button"
                     id="ordersAccordionHeader"
@@ -117,7 +117,7 @@
 
         <!-- Inventory -->
         <a href="{{ route('admin.inventory.index') }}"
-        class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->is('admin/inventory*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
+           class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->is('admin/inventory*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/>
                 <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/>
@@ -125,19 +125,23 @@
             <span class="font-medium">Inventory</span>
         </a>
         
-        <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-700">Users</a>
+        <!-- Users -->
+        <a href="{{ route('admin.users.index') }}"
+           class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->is('admin/users*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
+            </svg>
+            <span class="font-medium">Users</span>
+        </a>
         
         <!-- Categories -->
         <a href="{{ route('admin.categories.index') }}"
-        class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->is('admin/categories*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
+           class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->is('admin/categories*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
             </svg>
             <span class="font-medium">Categories</span>
         </a>
-        
-        <!--<a href="{{ route('admin.units') }}" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-700">Units</a>
-        <a href="{{ route('admin.addresses.index') }}" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-700">Addresses</a> -->
 
         <div class="border-t border-slate-700 my-4"></div>
 
@@ -147,7 +151,10 @@
             <button type="button"
                     onclick="confirmLogout()"
                     class="w-full flex items-center gap-3 px-4 py-3 text-red-300 hover:text-white hover:bg-red-500/20 rounded-lg">
-                Logout
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                <span class="font-medium">Logout</span>
             </button>
         </form>
     </nav>
@@ -316,27 +323,6 @@ document.getElementById('logoutModal')?.addEventListener('click', function(e) {
         hideLogoutModal();
     }
 });
-
-// Update pending count periodically
-function updatePendingCount() {
-    fetch('{{ route("admin.orders.pending") }}?count_only=true')
-        .then(response => response.json())
-        .then(data => {
-            const countElement = document.getElementById('pendingCount');
-            if (countElement && data.count !== undefined) {
-                if (data.count > 0) {
-                    countElement.textContent = data.count;
-                    countElement.classList.remove('hidden');
-                } else {
-                    countElement.classList.add('hidden');
-                }
-            }
-        })
-        .catch(error => console.error('Error updating count:', error));
-}
-
-// Update every 30 seconds
-setInterval(updatePendingCount, 30000);
 </script>
 
 <style>
