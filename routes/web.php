@@ -4,10 +4,13 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ItemRequestController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\OrderRequestController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -80,9 +83,21 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{item}/restock', [InventoryController::class, 'restock'])->name('restock');
     });
 
-    // User Management Module
-    Route::get('/admin/users', [AdminController::class, 'index'])
-    ->name('admin.users.index');
+    //order item admin
+
+    Route::resource('order-requests', controller: OrderRequestController::class);
+    Route::get('order-requests/{id}/pdf', [OrderRequestController::class, 'pdf']);
+
+
+        // User Management Routes
+        Route::get('/users', [UserController::class, 'index'])->name('users');
+        Route::post('/users', [UserController::class, 'store'])->name('users.store');
+        Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
+        Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
+        Route::post('/users/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+        Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::post('/users/bulk-update', [UserController::class, 'bulkUpdate'])->name('users.bulk-update');
 
 
     Route::prefix('users')->name('users.')->group(function () {

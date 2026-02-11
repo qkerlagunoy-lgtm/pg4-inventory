@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\OrderRequestItem;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -54,6 +55,11 @@ class Item extends Model
     public function requestItems()
     {
         return $this->hasMany(RequestItem::class);
+    }
+    public function orderRequestItems()
+    {
+        return $this->hasMany(OrderRequestItem::class);
+    }
     }
     // Check if item is low in stock
     public function isLowStock(): bool
