@@ -88,7 +88,7 @@ class InventoryController extends Controller
      */
     public function show(Item $item)
     {
-        $item->load(['category', 'requestItems.itemRequest.user', 'issuanceItems.issuance.itemRequest.user']);
+        $item->load(['category', 'requestItems.itemRequest.user', 'issuanceItems.issuance.itemRequest.user', 'auditLogs']);
         
         return view('admin.inventory.show', compact('item'));
     }
@@ -145,13 +145,47 @@ class InventoryController extends Controller
      */
     public function lowStock()
     {
-        $items = Item::with('category')
+        // Get all low stock items
+        $lowStockQuery = Item::with('category')
             ->whereColumn('quantity', '<=', 'minimum_quantity')
-            ->orWhere('quantity', 0)
-            ->orderBy('quantity')
+            ->orWhere('quantity', 0);
+        
+        $items = $lowStockQuery->orderByRaw('quantity / NULLIF(minimum_quantity, 0)')
             ->paginate(20);
         
-        return view('admin.inventory.low-stock', compact('items'));
+        // Get critical items (out of stock or ≤ 25% of minimum)
+        $criticalItems = Item::with('category')
+            ->where(function($query) {
+                $query->where('quantity', 0)
+                    ->orWhereRaw('(quantity / NULLIF(minimum_quantity, 0)) <= 0.25');
+            })
+            ->orderBy('quantity')
+            ->get();
+        
+        // Statistics
+        $outOfStockCount = Item::where('quantity', 0)->count();
+        $affectedCategoriesCount = Item::whereColumn('quantity', '<=', 'minimum_quantity')
+            ->orWhere('quantity', 0)
+            ->distinct('category_id')
+            ->count('category_id');
+        
+        // Get low stock items grouped by category
+        $lowStockByCategory = Category::withCount([
+            'items as low_stock_count' => function($query) {
+                $query->whereColumn('quantity', '<=', 'minimum_quantity')
+                    ->orWhere('quantity', 0);
+            }
+        ])->having('low_stock_count', '>', 0)
+        ->orderByDesc('low_stock_count')
+        ->get();
+        
+        return view('admin.inventory.low-stock', compact(
+            'items',
+            'criticalItems',
+            'outOfStockCount',
+            'affectedCategoriesCount',
+            'lowStockByCategory'
+        ));
     }
 
     /**
