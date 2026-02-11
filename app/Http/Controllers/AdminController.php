@@ -616,42 +616,6 @@ public function users(Request $request)
     return view('admin.users.index', compact('users', 'units'));
 }
 
-/**
- * Determine if user should be automatically activated based on email
- */
-protected function shouldAutoActivate($email)
-{
-    $autoActivateEmails = [
-        'superadmin@gmail.com',
-        'admin@afppgmc.com',
-        'logistics.admin@afppgmc.com',
-    ];
-    
-    return in_array(strtolower($email), array_map('strtolower', $autoActivateEmails));
-}
-
-/**
- * Get user activation status based on email and requested status
- */
-protected function getUserActivationStatus($email, $requestedStatus)
-{
-    // If email is in auto-activate list, always activate
-    if ($this->shouldAutoActivate($email)) {
-        return [
-            'status' => 'active',
-            'email_verified_at' => now(),
-            'auto_activated' => true,
-        ];
-    }
-    
-    // Otherwise use requested status
-    return [
-        'status' => $requestedStatus,
-        'email_verified_at' => $requestedStatus === 'active' ? now() : null,
-        'auto_activated' => false,
-    ];
-}
-
 // Show create user form
 public function createUser()
 {

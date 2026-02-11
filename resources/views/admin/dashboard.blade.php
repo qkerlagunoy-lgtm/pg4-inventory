@@ -69,7 +69,7 @@
            
             <div class="space-y-4">
                 <!-- Low Stock Items -->
-                <a href="#" class="block">
+                <a href="{{ route('admin.inventory') }}?filter=low_stock" class="block">
                     <div class="flex items-center gap-3 p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition">
                         <div class="bg-yellow-500 text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold">
                             ⚠️
@@ -83,7 +83,7 @@
                 </a>
 
                 <!-- Expiring Soon -->
-                <a href="#" class="block">
+                <a href="{{ route('admin.inventory') }}?filter=expiring" class="block">
                     <div class="flex items-center gap-3 p-4 bg-red-50 rounded-lg hover:bg-red-100 transition">
                         <div class="bg-red-500 text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold">
                             🔴
