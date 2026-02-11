@@ -116,12 +116,29 @@
 
         <div class="border-t border-slate-700 my-2"></div>
 
-        <!-- Other Links (unchanged) -->
-        <a href="{{ route('admin.inventory') }}" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-700">Inventory</a>
+        <!-- Inventory -->
+        <a href="{{ route('admin.inventory.index') }}"
+        class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->is('admin/inventory*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/>
+                <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <span class="font-medium">Inventory</span>
+        </a>
+        
         <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-700">Users</a>
-        <a href="{{ route('admin.categories') }}" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-700">Categories</a>
-        <a href="{{ route('admin.units') }}" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-700">Units</a>
-        <a href="{{ route('admin.addresses') }}" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-700">Addresses</a>
+        
+        <!-- Categories -->
+        <a href="{{ route('admin.categories.index') }}"
+        class="flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->is('admin/categories*') ? 'bg-slate-700 text-white' : 'text-gray-300 hover:bg-slate-700' }}">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+            </svg>
+            <span class="font-medium">Categories</span>
+        </a>
+        
+        <!--<a href="{{ route('admin.units') }}" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-700">Units</a>
+        <a href="{{ route('admin.addresses.index') }}" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-700">Addresses</a> -->
 
         <div class="border-t border-slate-700 my-4"></div>
 

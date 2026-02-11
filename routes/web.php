@@ -6,6 +6,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\OrderRequestController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 
@@ -69,7 +71,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 
     // Inventory Module
-    Route::get('/inventory', [AdminController::class, 'inventory'])->name('inventory');
+    Route::prefix('inventory')->name('inventory.')->group(function () {
+        Route::get('/', [InventoryController::class, 'index'])->name('index');
+        Route::get('/create', [InventoryController::class, 'create'])->name('create');
+        Route::post('/', [InventoryController::class, 'store'])->name('store');
+        Route::get('/{item}/edit', [InventoryController::class, 'edit'])->name('edit');
+        Route::put('/{item}', [InventoryController::class, 'update'])->name('update');
+        Route::delete('/{item}', [InventoryController::class, 'destroy'])->name('destroy');
+        Route::get('/{item}', [InventoryController::class, 'show'])->name('show');
+        Route::get('/low-stock', [InventoryController::class, 'lowStock'])->name('low-stock');
+        Route::post('/{item}/restock', [InventoryController::class, 'restock'])->name('restock');
+    });
 
     //order item admin
 
@@ -88,19 +100,34 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/users/bulk-update', [UserController::class, 'bulkUpdate'])->name('users.bulk-update');
 
 
-Route::prefix('users')->name('users.')->group(function () {
-    Route::get('/', [AdminController::class, 'users'])->name('index'); // List users
-    Route::get('/create', [AdminController::class, 'createUser'])->name('create'); // Show create form
-    Route::post('/store', [AdminController::class, 'storeUser'])->name('store'); // Save new user
-    Route::get('/{id}/edit', [AdminController::class, 'usersEdit'])->name('edit'); // Edit form
-    Route::put('/{id}', [AdminController::class, 'usersUpdate'])->name('update'); // Update user
-    Route::delete('/{id}', [AdminController::class, 'usersDestroy'])->name('destroy'); // Delete user
-    Route::get('/pdf', [AdminController::class, 'usersPdf'])->name('pdf'); // Generate PDF
-});
-    // Category Management Module
-    Route::get('/categories', [AdminController::class, 'categories'])->name('categories');
-    Route::get('/units', [AdminController::class, 'units'])->name('units');
-    Route::get('/addresses', [AdminController::class, 'addresses'])->name('addresses');
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/', [AdminController::class, 'users'])->name('index'); // List users
+        Route::get('/create', [AdminController::class, 'createUser'])->name('create'); // Show create form
+        Route::post('/store', [AdminController::class, 'storeUser'])->name('store'); // Save new user
+        Route::get('/{id}/edit', [AdminController::class, 'usersEdit'])->name('edit'); // Edit form
+        Route::put('/{id}', [AdminController::class, 'usersUpdate'])->name('update'); // Update user
+        Route::delete('/{id}', [AdminController::class, 'usersDestroy'])->name('destroy'); // Delete user
+        Route::get('/pdf', [AdminController::class, 'usersPdf'])->name('pdf'); // Generate PDF
+    });
+
+    // Categories Module
+    Route::prefix('categories')->name('categories.')->group(function () {
+        Route::get('/', [CategoryController::class, 'index'])->name('index');
+        Route::get('/create', [CategoryController::class, 'create'])->name('create');
+        Route::post('/', [CategoryController::class, 'store'])->name('store');
+        Route::get('/{category}/edit', [CategoryController::class, 'edit'])->name('edit');
+        Route::put('/{category}', [CategoryController::class, 'update'])->name('update');
+        Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('destroy');
+        Route::get('/{category}', [CategoryController::class, 'show'])->name('show');
+    });
+    
+    // Address Management Module
+    /*
+    Route::prefix('addresses')->name('addresses.')->group(function () {
+        Route::get('/', [AdminController::class, 'addresses'])->name('index');
+    });
+    */
+
 });
 
   
