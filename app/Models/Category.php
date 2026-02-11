@@ -3,51 +3,28 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Category extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
+        'parent_id',
         'name',
         'code',
         'description',
         'is_active',
-        'created_by',
+        'created_by'
     ];
-    public function users()
+
+    public function parent()
     {
-        return $this->hasMany(User::class);
+        return $this->belongsTo(Category::class, 'parent_id');
     }
-    public function items()
+
+    public function children()
     {
-        return $this->hasMany(Item::class);
-    }
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', true);
-    }
-    /**
-     * Check if category can be deleted (has no items)
-     */
-    public function canDelete(): bool
-    {
-        return $this->items()->count() === 0;
-    }
-    /**
-     * Get item count in this category
-     */
-    public function getItemCountAttribute(): int
-    {
-        return $this->items()->count();
-    } 
-    /**
-     * Get active item count in this category
-     */
-    public function getActiveItemCountAttribute(): int
-    {
-        return $this->items()->where('is_active', true)->count();
+        return $this->hasMany(Category::class, 'parent_id');
     }
 }

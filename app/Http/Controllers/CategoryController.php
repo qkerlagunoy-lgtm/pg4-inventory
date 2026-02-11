@@ -2,131 +2,135 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
     /**
-     * Display all categories
+     * INDEX
      */
     public function index(Request $request)
     {
-        $query = Category::withCount('items');
-        
-        // Search
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+        $query = Category::query();
+
+        // SEARCH
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('code', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%');
+            });
         }
-        
-        // Filter by parent category
-        if ($request->filled('parent_id')) {
-            $query->where('parent_id', $request->parent_id);
-        }
-        
-        $categories = $query->orderBy('name')->paginate(20);
-        $parentCategories = Category::whereNull('parent_id')->get();
-        
-        return view('admin.categories.index', compact('categories', 'parentCategories'));
+
+        $categories = $query
+            ->orderBy('code')
+            ->paginate(10);
+
+        return view('admin.categories.index', compact('categories'));
     }
 
     /**
-     * Show create category form
+     * CREATE PAGE
      */
     public function create()
     {
-        $parentCategories = Category::whereNull('parent_id')->get();
-        return view('admin.categories.create', compact('parentCategories'));
+        return view('admin.categories.create');
     }
 
     /**
-     * Store new category
+     * STORE
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name',
-            'description' => 'nullable|string|max:500',
-            'parent_id' => 'nullable|exists:categories,id',
+            'code' => 'required|string|max:50|unique:categories,code',
+            'description' => 'required|string',
+            'is_active' => 'nullable|boolean'
         ]);
-        
-        Category::create($validated);
-        
-        return redirect()->route('admin.categories.index')
-            ->with('success', 'Category created successfully.');
+
+Category::create([
+    'name' => $validated['code'], // AUTO FILL NAME
+    'code' => $validated['code'],
+    'description' => $validated['description'],
+    'is_active' => $request->has('is_active') ? 1 : 0,
+    'created_by' => Auth::id()
+]);
+
+  
+
+        return redirect()
+            ->route('admin.categories.index')
+            ->with('success', 'Category created successfully');
     }
 
     /**
-     * Show single category with items
-     */
-    public function show(Category $category)
-    {
-        $category->load(['items' => function($query) {
-            $query->orderBy('name');
-        }, 'children']);
-        
-        return view('admin.categories.show', compact('category'));
-    }
-
-    /**
-     * Show edit category form
+     * EDIT PAGE
      */
     public function edit(Category $category)
     {
-        $parentCategories = Category::whereNull('parent_id')
-            ->where('id', '!=', $category->id)
-            ->get();
-        
-        return view('admin.categories.edit', compact('category', 'parentCategories'));
+        return view('admin.categories.edit', compact('category'));
     }
 
     /**
-     * Update category
+     * UPDATE
      */
     public function update(Request $request, Category $category)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
-            'description' => 'nullable|string|max:500',
-            'parent_id' => 'nullable|exists:categories,id',
+            'code' => 'required|string|max:50|unique:categories,code,' . $category->id,
+            'description' => 'required|string',
+            'is_active' => 'nullable|boolean'
         ]);
-        
-        $category->update($validated);
-        
-        return redirect()->route('admin.categories.index')
-            ->with('success', 'Category updated successfully.');
+
+        $category->update([
+            'code' => $validated['code'],
+            'description' => $validated['description'],
+            'is_active' => $request->has('is_active') ? 1 : 0
+        ]);
+
+        return redirect()
+            ->route('admin.categories.index')
+            ->with('success', 'Category updated successfully');
     }
 
     /**
-     * Delete category
+     * DELETE SINGLE
      */
     public function destroy(Category $category)
     {
-        DB::beginTransaction();
-        try {
-            // Check if category has items
-            if ($category->items()->count() > 0) {
-                return back()->with('error', 'Cannot delete category that has items. Please reassign items first.');
-            }
-            
-            // Move subcategories to parent or make them root
-            if ($category->children()->count() > 0) {
-                $category->children()->update(['parent_id' => $category->parent_id]);
-            }
-            
-            $category->delete();
-            
-            DB::commit();
-            return redirect()->route('admin.categories.index')
-                ->with('success', 'Category deleted successfully.');
-                
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Failed to delete category: ' . $e->getMessage());
-        }
+        $category->delete();
+
+        return back()->with('success', 'Category deleted');
+    }
+
+    /**
+     * BULK DELETE
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'category_ids' => 'required|array'
+        ]);
+
+        Category::whereIn('id', $request->category_ids)->delete();
+
+        return back()->with('success', 'Selected categories deleted');
+    }
+
+    /**
+     * BULK STATUS UPDATE
+     */
+    public function bulkUpdateStatus(Request $request)
+    {
+        $request->validate([
+            'category_ids' => 'required|array',
+            'status' => 'required|in:0,1'
+        ]);
+
+        Category::whereIn('id', $request->category_ids)
+            ->update(['is_active' => $request->status]);
+
+        return back()->with('success', 'Status updated');
     }
 }
