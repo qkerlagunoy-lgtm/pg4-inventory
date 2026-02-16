@@ -68,6 +68,21 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Main Item Information -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <!-- Left Column: Item Details -->
@@ -103,13 +118,14 @@
                     <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
                         <p class="text-sm text-gray-600 mb-1">Current Stock</p>
                         <p class="text-2xl font-bold text-gray-800">{{ $item->quantity }}</p>
-                        <p class="text-xs text-gray-500">{{ $item->unit }}</p>
+                        {{-- FIX: was $item->unit, correct column is unit_of_measure --}}
+                        <p class="text-xs text-gray-500">{{ $item->unit_of_measure }}</p>
                     </div>
                     
                     <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
                         <p class="text-sm text-gray-600 mb-1">Minimum Quantity</p>
                         <p class="text-2xl font-bold text-gray-800">{{ $item->minimum_quantity }}</p>
-                        <p class="text-xs text-gray-500">{{ $item->unit }}</p>
+                        <p class="text-xs text-gray-500">{{ $item->unit_of_measure }}</p>
                     </div>
                     
                     <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
@@ -134,7 +150,7 @@
                     <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
                         <p class="text-sm text-gray-600 mb-1">Usage Rate</p>
                         <p class="text-2xl font-bold text-gray-800">
-                            {{ $item->requestItems()->count() }}
+                            {{ $item->requestItems->count() }}
                         </p>
                         <p class="text-xs text-gray-500">Total requests</p>
                     </div>
@@ -144,7 +160,8 @@
                 <div class="mb-6">
                     <div class="flex justify-between text-sm text-gray-600 mb-2">
                         <span>Stock Level</span>
-                        <span>{{ $item->quantity }} / {{ max($item->minimum_quantity * 2, $item->quantity + 10) }} {{ $item->unit }}</span>
+                        {{-- FIX: was $item->unit --}}
+                        <span>{{ $item->quantity }} / {{ max($item->minimum_quantity * 2, $item->quantity + 10) }} {{ $item->unit_of_measure }}</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2.5">
                         @php
@@ -170,19 +187,6 @@
                         <div>
                             <h4 class="text-sm font-medium text-gray-700 mb-2">Description</h4>
                             <p class="text-gray-600 whitespace-pre-line">{{ $item->description }}</p>
-                        </div>
-                    @endif
-                    
-                    @if($item->storage_location)
-                        <div>
-                            <h4 class="text-sm font-medium text-gray-700 mb-2">Storage Location</h4>
-                            <div class="flex items-center gap-2">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                </svg>
-                                <span class="text-gray-600">{{ $item->storage_location }}</span>
-                            </div>
                         </div>
                     @endif
                     
@@ -275,116 +279,108 @@
                 </div>
             </div>
 
-            <!-- Related Items Card -->
-            @if($item->category && $item->category->items->where('id', '!=', $item->id)->count() > 0)
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Related Items</h3>
-                    <div class="space-y-3">
-                        @foreach($item->category->items->where('id', '!=', $item->id)->take(3) as $relatedItem)
-                            <a href="{{ route('admin.inventory.show', $relatedItem) }}" 
-                               class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/>
-                                            <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/>
-                                        </svg>
+            {{-- 
+                FIX: Was calling $item->category->items->where() which crashes when category
+                has no items loaded. Now uses a proper query with null-safe check on category.
+            --}}
+            @if($item->category)
+                @php
+                    $relatedItems = \App\Models\Item::where('category_id', $item->category_id)
+                        ->where('id', '!=', $item->id)
+                        ->limit(3)
+                        ->get();
+                    $relatedCount = \App\Models\Item::where('category_id', $item->category_id)
+                        ->where('id', '!=', $item->id)
+                        ->count();
+                @endphp
+
+                @if($relatedItems->count() > 0)
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Related Items</h3>
+                        <div class="space-y-3">
+                            @foreach($relatedItems as $relatedItem)
+                                <a href="{{ route('admin.inventory.show', $relatedItem) }}" 
+                                   class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/>
+                                                <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">{{ Str::limit($relatedItem->name, 25) }}</p>
+                                            {{-- FIX: was $relatedItem->unit --}}
+                                            <p class="text-xs text-gray-500">{{ $relatedItem->quantity }} {{ $relatedItem->unit_of_measure }}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">{{ Str::limit($relatedItem->name, 25) }}</p>
-                                        <p class="text-xs text-gray-500">{{ $relatedItem->quantity }} {{ $relatedItem->unit }}</p>
-                                    </div>
-                                </div>
-                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                            </a>
-                        @endforeach
-                        @if($item->category->items->where('id', '!=', $item->id)->count() > 3)
-                            <a href="{{ route('admin.inventory.index') }}?category_id={{ $item->category_id }}" 
-                               class="text-sm text-blue-600 hover:text-blue-800 text-center block pt-2">
-                                View all {{ $item->category->items->count() - 1 }} items in this category →
-                            </a>
-                        @endif
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </a>
+                            @endforeach
+
+                            @if($relatedCount > 3)
+                                <a href="{{ route('admin.inventory.index') }}?category_id={{ $item->category_id }}" 
+                                   class="text-sm text-blue-600 hover:text-blue-800 text-center block pt-2">
+                                    View all {{ $relatedCount }} items in this category →
+                                </a>
+                            @endif
+                        </div>
                     </div>
-                </div>
+                @endif
             @endif
         </div>
     </div>
 
-    <!-- Transaction History Tabs -->
+    <!-- Transaction History: Requests Only (Issuances belong to order module) -->
     <div id="transactions" class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
-        <!-- Tabs Header -->
-        <div class="border-b border-gray-200">
-            <nav class="flex">
-                <button type="button" 
-                        id="requestsTab"
-                        class="px-6 py-3 text-sm font-medium border-b-2 border-blue-500 text-blue-600">
-                    Request History
-                    <span class="ml-2 px-2 py-1 text-xs font-bold bg-blue-100 text-blue-800 rounded-full">
-                        {{ $item->requestItems->count() }}
-                    </span>
-                </button>
-                <button type="button" 
-                        id="issuancesTab"
-                        class="px-6 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent">
-                    Issuance History
-                    <span class="ml-2 px-2 py-1 text-xs font-bold bg-gray-100 text-gray-800 rounded-full">
-                        {{ $item->issuanceItems->count() }}
-                    </span>
-                </button>
-            </nav>
+        <div class="border-b border-gray-200 px-6 py-4">
+            <h3 class="text-lg font-semibold text-gray-800">
+                Request History
+                <span class="ml-2 px-2 py-1 text-xs font-bold bg-blue-100 text-blue-800 rounded-full">
+                    {{ $item->requestItems->count() }}
+                </span>
+            </h3>
         </div>
-        
-        <!-- Requests Tab Content -->
-        <div id="requestsContent" class="p-6">
+
+        <div class="p-6">
             @if($item->requestItems->count() > 0)
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Request #
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Requester
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Date
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Quantity Requested
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Actions
-                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Request #</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requester</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qty Requested</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @foreach($item->requestItems->sortByDesc('created_at')->take(10) as $requestItem)
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        #{{ $requestItem->itemRequest->id }}
+                                        #{{ $requestItem->itemRequest->id ?? '—' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $requestItem->itemRequest->user->name }}
+                                        {{ optional($requestItem->itemRequest->user)->name ?? '—' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $requestItem->created_at->format('M d, Y') }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $requestItem->quantity }} {{ $item->unit }}
+                                        {{-- FIX: was $item->unit --}}
+                                        {{ $requestItem->quantity }} {{ $item->unit_of_measure }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @php
                                             $statusColors = [
-                                                'pending' => 'bg-yellow-100 text-yellow-800',
-                                                'approved' => 'bg-green-100 text-green-800',
-                                                'rejected' => 'bg-red-100 text-red-800',
-                                                'issued' => 'bg-blue-100 text-blue-800',
+                                                'pending'          => 'bg-yellow-100 text-yellow-800',
+                                                'approved'         => 'bg-green-100 text-green-800',
+                                                'rejected'         => 'bg-red-100 text-red-800',
+                                                'issued'           => 'bg-blue-100 text-blue-800',
                                                 'partially_issued' => 'bg-purple-100 text-purple-800',
                                             ];
                                             $colorClass = $statusColors[$requestItem->status] ?? 'bg-gray-100 text-gray-800';
@@ -394,17 +390,19 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="{{ route('admin.orders.review', $requestItem->itemRequest->id) }}" 
-                                           class="text-blue-600 hover:text-blue-900">
-                                            View
-                                        </a>
+                                        @if($requestItem->itemRequest)
+                                            <a href="{{ route('admin.orders.review', $requestItem->itemRequest->id) }}" 
+                                               class="text-blue-600 hover:text-blue-900">View</a>
+                                        @else
+                                            <span class="text-gray-400">—</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
-                
+
                 @if($item->requestItems->count() > 10)
                     <div class="mt-4 text-center">
                         <a href="{{ route('admin.orders.pending') }}?item_id={{ $item->id }}" 
@@ -423,100 +421,9 @@
                 </div>
             @endif
         </div>
-        
-        <!-- Issuances Tab Content -->
-        <div id="issuancesContent" class="p-6 hidden">
-            @if($item->issuanceItems->count() > 0)
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Issuance #
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Recipient
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Date Issued
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Quantity Issued
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($item->issuanceItems->sortByDesc('created_at')->take(10) as $issuanceItem)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        #{{ $issuanceItem->issuance->id }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $issuanceItem->issuance->itemRequest->user->name }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $issuanceItem->created_at->format('M d, Y') }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $issuanceItem->quantity_issued }} {{ $item->unit }}
-                                        @if($issuanceItem->quantity_returned)
-                                            <span class="text-xs text-gray-500">
-                                                ({{ $issuanceItem->quantity_returned }} returned)
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @php
-                                            $statusColors = [
-                                                'issued' => 'bg-blue-100 text-blue-800',
-                                                'returned' => 'bg-green-100 text-green-800',
-                                                'lost' => 'bg-red-100 text-red-800',
-                                            ];
-                                            $colorClass = $statusColors[$issuanceItem->status] ?? 'bg-gray-100 text-gray-800';
-                                        @endphp
-                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $colorClass }}">
-                                            {{ ucfirst($issuanceItem->status) }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="{{ route('admin.orders.issuances.view', $issuanceItem->issuance->id) }}" 
-                                           class="text-blue-600 hover:text-blue-900">
-                                            View
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                
-                @if($item->issuanceItems->count() > 10)
-                    <div class="mt-4 text-center">
-                        <a href="{{ route('admin.orders.issuances') }}?item_id={{ $item->id }}" 
-                           class="text-sm text-blue-600 hover:text-blue-800">
-                            View all {{ $item->issuanceItems->count() }} issuances →
-                        </a>
-                    </div>
-                @endif
-            @else
-                <div class="text-center py-8">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
-                    </svg>
-                    <h3 class="mt-2 text-sm font-medium text-gray-900">No issuance history</h3>
-                    <p class="mt-1 text-sm text-gray-500">This item has not been issued yet.</p>
-                </div>
-            @endif
-        </div>
     </div>
 
-    <!-- Audit Log (Optional) -->
+    <!-- Audit Log -->
     @if($item->auditLogs && $item->auditLogs->count() > 0)
         <div class="bg-white rounded-lg shadow-md p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h3>
@@ -531,12 +438,8 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <p class="text-sm text-gray-900">
-                                {{ $log->description }}
-                            </p>
-                            <p class="text-xs text-gray-500 mt-1">
-                                {{ $log->created_at->diffForHumans() }}
-                            </p>
+                            <p class="text-sm text-gray-900">{{ $log->action }}</p>
+                            <p class="text-xs text-gray-500 mt-1">{{ $log->created_at->diffForHumans() }}</p>
                         </div>
                     </div>
                 @endforeach
@@ -583,7 +486,8 @@
                         <div class="text-sm text-gray-600">
                             <div class="flex justify-between mb-1">
                                 <span>Current Stock:</span>
-                                <span class="font-medium">{{ $item->quantity }} {{ $item->unit }}</span>
+                                {{-- FIX: was $item->unit --}}
+                                <span class="font-medium">{{ $item->quantity }} {{ $item->unit_of_measure }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span>After Restock:</span>
@@ -626,17 +530,13 @@
                 <p class="text-sm text-red-600 text-center mt-2">
                     Warning: This action cannot be undone!
                 </p>
-                
-                @if($item->requestItems()->count() > 0 || $item->issuanceItems()->count() > 0)
+
+                {{-- FIX: Removed $item->issuanceItems() check — issuances are order module --}}
+                @if($item->requestItems()->exists())
                     <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                         <p class="text-xs text-red-700 font-medium mb-1">Cannot delete this item because:</p>
                         <ul class="text-xs text-red-600 space-y-1">
-                            @if($item->requestItems()->count() > 0)
-                                <li>• Has {{ $item->requestItems()->count() }} request history records</li>
-                            @endif
-                            @if($item->issuanceItems()->count() > 0)
-                                <li>• Has {{ $item->issuanceItems()->count() }} issuance records</li>
-                            @endif
+                            <li>• Has {{ $item->requestItems()->count() }} request history records</li>
                             <li>• Items with transaction history cannot be deleted</li>
                         </ul>
                     </div>
@@ -649,7 +549,7 @@
                         Cancel
                     </button>
                     
-                    @if($item->requestItems()->count() == 0 && $item->issuanceItems()->count() == 0)
+                    @if($item->requestItems()->doesntExist())
                         <form action="{{ route('admin.inventory.destroy', $item) }}" method="POST" class="inline">
                             @csrf
                             @method('DELETE')
@@ -669,64 +569,28 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Tab Switching
-        const requestsTab = document.getElementById('requestsTab');
-        const issuancesTab = document.getElementById('issuancesTab');
-        const requestsContent = document.getElementById('requestsContent');
-        const issuancesContent = document.getElementById('issuancesContent');
-        
-        if (requestsTab && issuancesTab) {
-            requestsTab.addEventListener('click', function() {
-                this.classList.add('border-blue-500', 'text-blue-600');
-                this.classList.remove('border-transparent', 'text-gray-500');
-                issuancesTab.classList.add('border-transparent', 'text-gray-500');
-                issuancesTab.classList.remove('border-blue-500', 'text-blue-600');
-                
-                requestsContent.classList.remove('hidden');
-                issuancesContent.classList.add('hidden');
-            });
-            
-            issuancesTab.addEventListener('click', function() {
-                this.classList.add('border-blue-500', 'text-blue-600');
-                this.classList.remove('border-transparent', 'text-gray-500');
-                requestsTab.classList.add('border-transparent', 'text-gray-500');
-                requestsTab.classList.remove('border-blue-500', 'text-blue-600');
-                
-                issuancesContent.classList.remove('hidden');
-                requestsContent.classList.add('hidden');
-            });
-        }
-        
-        // Restock Modal Logic
+        // Restock Modal - live "after restock" preview
         const restockQuantity = document.getElementById('restockQuantity');
-        const afterRestock = document.getElementById('afterRestock');
+        const afterRestock    = document.getElementById('afterRestock');
         
         if (restockQuantity && afterRestock) {
             restockQuantity.addEventListener('input', function() {
                 const currentQty = {{ $item->quantity }};
-                const addQty = parseInt(this.value) || 0;
-                const unit = '{{ $item->unit }}';
-                
+                const addQty     = parseInt(this.value) || 0;
+                const unit       = '{{ $item->unit_of_measure }}';
                 afterRestock.textContent = `${currentQty + addQty} ${unit}`;
             });
         }
     });
     
-    // Modal Functions
     function showRestockModal() {
         const modal = document.getElementById('restockModal');
         modal.classList.remove('hidden');
-        
-        // Reset form
         document.getElementById('restockQuantity').value = '';
-        document.getElementById('restockNotes').value = '';
+        document.getElementById('restockNotes').value    = '';
         document.getElementById('afterRestock').textContent = '—';
-        
-        // Close modal on background click
         modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                hideRestockModal();
-            }
+            if (e.target === modal) hideRestockModal();
         });
     }
     
@@ -737,15 +601,9 @@
     function showDeleteModal() {
         const modal = document.getElementById('deleteModal');
         modal.classList.remove('hidden');
-        
-        // Setup cancel button
         document.getElementById('deleteModalCancelBtn').onclick = hideDeleteModal;
-        
-        // Close modal on background click
         modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                hideDeleteModal();
-            }
+            if (e.target === modal) hideDeleteModal();
         });
     }
     
@@ -753,7 +611,6 @@
         document.getElementById('deleteModal').classList.add('hidden');
     }
     
-    // Close modals with Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             hideRestockModal();

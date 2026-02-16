@@ -27,4 +27,11 @@ class Category extends Model
     {
         return $this->hasMany(Category::class, 'parent_id');
     }
+
+    // FIX: Missing relationship — required by InventoryController@lowStock
+    // and InventoryController@index for category filtering.
+    public function items()
+    {
+        return $this->hasMany(Item::class);
+    }
 }

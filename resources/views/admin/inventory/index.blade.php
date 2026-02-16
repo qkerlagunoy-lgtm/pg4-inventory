@@ -22,14 +22,14 @@
 
 @section('header-actions')
     <div class="flex items-center space-x-2">
-        <a href="{{ route('admin.inventory.low-stock') }}" 
+        <a href="{{ route('admin.inventory.low-stock') }}"
            class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.73 0L4.342 16.5c-.77.833.192 2.5 1.732 2.5z"/>
             </svg>
             Low Stock
         </a>
-        <a href="{{ route('admin.inventory.create') }}" 
+        <a href="{{ route('admin.inventory.create') }}"
            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -91,9 +91,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">Total Stock</p>
-                    <p class="text-2xl font-bold text-gray-800">
-                        {{ \App\Models\Item::sum('quantity') }}
-                    </p>
+                    <p class="text-2xl font-bold text-gray-800">{{ \App\Models\Item::sum('quantity') }}</p>
                 </div>
                 <div class="p-3 bg-green-100 rounded-full">
                     <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
@@ -103,13 +101,18 @@
             </div>
         </div>
 
-        <a href="{{ route('admin.inventory.low-stock') }}" class="hover:shadow-lg transition">
-            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
+        {{--
+            FIX: Clicking the Low Stock stat card now filters the table directly
+            instead of navigating to a separate page — using ?stock_level=low
+        --}}
+        <a href="{{ route('admin.inventory.index', ['stock_level' => 'low']) }}"
+           class="hover:shadow-lg transition">
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 {{ request('stock_level') == 'low' ? 'border-yellow-600' : 'border-yellow-500' }}">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-600">Low Stock Items</p>
                         <p class="text-2xl font-bold text-gray-800">
-                            {{ \App\Models\Item::whereColumn('quantity', '<=', 'minimum_quantity')->count() }}
+                            {{ \App\Models\Item::where(function($q){ $q->whereColumn('quantity', '<=', 'minimum_quantity')->orWhere('quantity', 0); })->count() }}
                         </p>
                     </div>
                     <div class="p-3 bg-yellow-100 rounded-full">
@@ -125,9 +128,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">Out of Stock</p>
-                    <p class="text-2xl font-bold text-gray-800">
-                        {{ \App\Models\Item::where('quantity', 0)->count() }}
-                    </p>
+                    <p class="text-2xl font-bold text-gray-800">{{ \App\Models\Item::where('quantity', 0)->count() }}</p>
                 </div>
                 <div class="p-3 bg-red-100 rounded-full">
                     <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
@@ -140,20 +141,20 @@
 
     <!-- Search and Filters -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <form method="GET" action="{{ route('admin.inventory.index') }}" class="space-y-4">
+        <form method="GET" action="{{ route('admin.inventory.index') }}" id="filterForm" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <!-- Search -->
                 <div class="md:col-span-2">
                     <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
-                    <input type="text" name="search" id="search" value="{{ request('search') }}" 
-                           placeholder="Search by name, description, or location..." 
+                    <input type="text" name="search" id="search" value="{{ request('search') }}"
+                           placeholder="Search by name or description..."
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
-                
+
                 <!-- Category Filter -->
                 <div>
                     <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                    <select name="category_id" id="category_id" 
+                    <select name="category_id" id="category_id"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">All Categories</option>
                         @foreach($categories as $category)
@@ -163,33 +164,38 @@
                         @endforeach
                     </select>
                 </div>
-                
+
                 <!-- Stock Level Filter -->
                 <div>
                     <label for="stock_level" class="block text-sm font-medium text-gray-700 mb-1">Stock Level</label>
-                    <select name="stock_level" id="stock_level" 
+                    <select name="stock_level" id="stock_level"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">All Stock Levels</option>
-                        <option value="low" {{ request('stock_level') == 'low' ? 'selected' : '' }}>Low Stock</option>
-                        <option value="out" {{ request('stock_level') == 'out' ? 'selected' : '' }}>Out of Stock</option>
+                        <option value="low"    {{ request('stock_level') == 'low'    ? 'selected' : '' }}>Low Stock</option>
+                        <option value="out"    {{ request('stock_level') == 'out'    ? 'selected' : '' }}>Out of Stock</option>
                         <option value="normal" {{ request('stock_level') == 'normal' ? 'selected' : '' }}>Normal Stock</option>
                     </select>
                 </div>
             </div>
-            
+
             <!-- Action Buttons -->
             <div class="flex justify-between items-center pt-4 border-t border-gray-200">
                 <div class="text-sm text-gray-500">
-                    {{ $items->total() }} item(s) found
+                    @if(request('stock_level') == 'low')
+                        <span class="font-medium text-yellow-700">⚠ Showing low stock items only</span>
+                        — {{ $items->total() }} item(s) found
+                    @else
+                        {{ $items->total() }} item(s) found
+                    @endif
                 </div>
                 <div class="flex items-center space-x-3">
                     @if(request()->hasAny(['search', 'category_id', 'stock_level']))
-                        <a href="{{ route('admin.inventory.index') }}" 
+                        <a href="{{ route('admin.inventory.index') }}"
                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
                             Clear Filters
                         </a>
                     @endif
-                    <button type="submit" 
+                    <button type="submit"
                             class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                         Apply Filters
                     </button>
@@ -205,32 +211,18 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Item
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Category
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Stock
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Unit
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Location
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions
-                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                            {{-- FIX: column header renamed from "Unit" to "Unit" but now reads unit_of_measure --}}
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($items as $item)
-                            <tr class="hover:bg-gray-50 transition">
+                            <tr class="hover:bg-gray-50 transition {{ ($item->quantity == 0 || $item->quantity <= $item->minimum_quantity) ? 'bg-yellow-50' : '' }}">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -262,26 +254,23 @@
                                     <div class="flex items-center">
                                         <div class="w-24 bg-gray-200 rounded-full h-2.5 mr-3">
                                             @php
-                                                $percentage = $item->minimum_quantity > 0 
+                                                $percentage = $item->minimum_quantity > 0
                                                     ? min(100, ($item->quantity / $item->minimum_quantity) * 100)
                                                     : 0;
-                                                $color = $item->quantity == 0 ? 'bg-red-500' : 
-                                                        ($item->quantity <= $item->minimum_quantity ? 'bg-yellow-500' : 'bg-green-500');
+                                                $color = $item->quantity == 0 ? 'bg-red-500'
+                                                    : ($item->quantity <= $item->minimum_quantity ? 'bg-yellow-500' : 'bg-green-500');
                                             @endphp
                                             <div class="h-2.5 rounded-full {{ $color }}" style="width: {{ $percentage }}%"></div>
                                         </div>
                                         <div class="text-sm text-gray-900 font-medium">{{ $item->quantity }}</div>
                                     </div>
-                                    <div class="text-xs text-gray-500 mt-1">
-                                        Min: {{ $item->minimum_quantity }}
-                                    </div>
+                                    <div class="text-xs text-gray-500 mt-1">Min: {{ $item->minimum_quantity }}</div>
                                 </td>
+                                {{-- FIX: was $item->unit — correct column is unit_of_measure --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $item->unit }}
+                                    {{ $item->unit_of_measure }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $item->storage_location ?? '—' }}
-                                </td>x
+                                {{-- FIX: removed storage_location column (not in DB) and its stray 'x' character --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @if($item->quantity == 0)
                                         <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
@@ -300,7 +289,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex items-center space-x-2">
                                         <!-- View -->
-                                        <a href="{{ route('admin.inventory.show', $item) }}" 
+                                        <a href="{{ route('admin.inventory.show', $item) }}"
                                            class="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded"
                                            title="View Details">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -308,33 +297,29 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                             </svg>
                                         </a>
-                                        
                                         <!-- Edit -->
-                                        <a href="{{ route('admin.inventory.edit', $item) }}" 
+                                        <a href="{{ route('admin.inventory.edit', $item) }}"
                                            class="text-green-600 hover:text-green-900 p-1 hover:bg-green-50 rounded"
                                            title="Edit">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                             </svg>
                                         </a>
-                                        
                                         <!-- Restock -->
-                                        <button type="button" 
-                                                onclick="showRestockModal({{ $item->id }}, '{{ $item->name }}')"
+                                        <button type="button"
+                                                onclick="showRestockModal({{ $item->id }}, '{{ addslashes($item->name) }}')"
                                                 class="text-yellow-600 hover:text-yellow-900 p-1 hover:bg-yellow-50 rounded"
                                                 title="Restock">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                                             </svg>
                                         </button>
-                                        
                                         <!-- Delete -->
-                                        <form action="{{ route('admin.inventory.destroy', $item) }}" 
-                                              method="POST" class="inline">
+                                        <form action="{{ route('admin.inventory.destroy', $item) }}" method="POST" class="inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="button" 
-                                                    onclick="confirmDelete('{{ $item->name }}', this)"
+                                            <button type="button"
+                                                    onclick="confirmDelete('{{ addslashes($item->name) }}', this)"
                                                     class="text-red-600 hover:text-red-900 p-1 hover:bg-red-50 rounded"
                                                     title="Delete">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -347,16 +332,33 @@
                             </tr>
                         @endforeach
                     </tbody>
+
+                    {{-- NEW: Always-visible New Item row at the bottom of the table --}}
+                    <tfoot>
+                        <tr class="bg-gray-50 border-t-2 border-dashed border-gray-300">
+                            <td colspan="6" class="px-6 py-4">
+                                <a href="{{ route('admin.inventory.create') }}"
+                                   class="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium text-sm w-fit">
+                                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                        </svg>
+                                    </div>
+                                    Add New Item
+                                </a>
+                            </td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
-            
+
             <!-- Pagination -->
             @if($items->hasPages())
                 <div class="bg-white px-6 py-4 border-t border-gray-200">
                     {{ $items->links() }}
                 </div>
             @endif
-            
+
         @else
             <!-- Empty State -->
             <div class="text-center py-12">
@@ -366,13 +368,14 @@
                 <h3 class="mt-2 text-sm font-medium text-gray-900">No inventory items found</h3>
                 <p class="mt-1 text-sm text-gray-500">
                     @if(request()->hasAny(['search', 'category_id', 'stock_level']))
-                        Try adjusting your filters
+                        Try adjusting your filters or
+                        <a href="{{ route('admin.inventory.index') }}" class="text-blue-600 hover:underline">clear all filters</a>
                     @else
                         Get started by adding your first inventory item
                     @endif
                 </p>
                 <div class="mt-6">
-                    <a href="{{ route('admin.inventory.create') }}" 
+                    <a href="{{ route('admin.inventory.create') }}"
                        class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
                         <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -391,7 +394,7 @@
                 <h4 class="text-sm font-medium text-gray-900">Export Inventory Data</h4>
                 <p class="text-sm text-gray-600 mt-1">Download inventory data for reporting</p>
             </div>
-            <button type="button" 
+            <button type="button"
                     onclick="alert('Export feature coming soon!')"
                     class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -413,23 +416,18 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                 </svg>
             </div>
-            <h3 class="text-lg leading-6 font-medium text-gray-900 text-center" id="modalTitle">
-                Restock Item
-            </h3>
+            <h3 class="text-lg leading-6 font-medium text-gray-900 text-center" id="modalTitle">Restock Item</h3>
             <div class="mt-2 px-7 py-3">
                 <form id="restockForm" method="POST" class="space-y-4">
                     @csrf
-                    <input type="hidden" id="itemId" name="item_id">
-                    
                     <div>
                         <label for="restockQuantity" class="block text-sm font-medium text-gray-700 mb-1">
-                            Quantity to Add
+                            Quantity to Add *
                         </label>
-                        <input type="number" id="restockQuantity" name="quantity" min="1" 
+                        <input type="number" id="restockQuantity" name="quantity" min="1"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                                placeholder="Enter quantity" required>
                     </div>
-                    
                     <div>
                         <label for="restockNotes" class="block text-sm font-medium text-gray-700 mb-1">
                             Notes (Optional)
@@ -442,12 +440,12 @@
             </div>
             <div class="items-center px-4 py-3">
                 <div class="flex justify-center space-x-3">
-                    <button id="modalCancelBtn" 
-                            class="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    <button id="modalCancelBtn"
+                            class="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-400">
                         Cancel
                     </button>
-                    <button id="modalConfirmBtn" 
-                            class="px-4 py-2 bg-yellow-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                    <button id="modalConfirmBtn"
+                            class="px-4 py-2 bg-yellow-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-yellow-700">
                         Restock
                     </button>
                 </div>
@@ -464,55 +462,42 @@
             button.closest('form').submit();
         }
     }
-    
+
     function showRestockModal(itemId, itemName) {
-        const modal = document.getElementById('restockModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const itemIdInput = document.getElementById('itemId');
+        const modal       = document.getElementById('restockModal');
+        const modalTitle  = document.getElementById('modalTitle');
         const restockForm = document.getElementById('restockForm');
-        
-        modalTitle.textContent = `Restock: ${itemName}`;
-        itemIdInput.value = itemId;
-        
-        // Set form action
-        restockForm.action = `/admin/inventory/${itemId}/restock`;
-        
-        // Show modal
+
+        modalTitle.textContent  = `Restock: ${itemName}`;
+        restockForm.action      = `/admin/inventory/${itemId}/restock`;
+
+        document.getElementById('restockQuantity').value = '';
+        document.getElementById('restockNotes').value    = '';
+
         modal.classList.remove('hidden');
-        
-        // Setup cancel button
-        document.getElementById('modalCancelBtn').onclick = function() {
-            modal.classList.add('hidden');
-        };
-        
-        // Setup confirm button
-        document.getElementById('modalConfirmBtn').onclick = function() {
+
+        document.getElementById('modalCancelBtn').onclick = () => modal.classList.add('hidden');
+
+        document.getElementById('modalConfirmBtn').onclick = () => {
             if (document.getElementById('restockQuantity').value) {
                 restockForm.submit();
             } else {
                 alert('Please enter a quantity.');
             }
         };
-        
-        // Close modal on background click
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                modal.classList.add('hidden');
-            }
+
+        modal.addEventListener('click', e => {
+            if (e.target === modal) modal.classList.add('hidden');
         });
     }
-    
-    // Auto-submit filters on change
+
+    // FIX: Auto-submit on dropdown change so Low Stock filter takes effect immediately
     document.getElementById('category_id')?.addEventListener('change', function() {
-        if (this.value) {
-            this.form.submit();
-        }
+        document.getElementById('filterForm').submit();
     });
-    
+
     document.getElementById('stock_level')?.addEventListener('change', function() {
-        if (this.value) {
-            this.form.submit();
-        }
+        document.getElementById('filterForm').submit();
     });
 </script>
 @endpush

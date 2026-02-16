@@ -21,7 +21,7 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| NOTIFICATION ROUTES (Common for both admin and users)
+| NOTIFICATION ROUTES
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
@@ -31,7 +31,7 @@ Route::middleware(['auth'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| PROFILE ROUTES (Common for both admin and users)
+| PROFILE ROUTES
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
@@ -46,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+
     // Dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
@@ -78,6 +79,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/{item}/edit', [InventoryController::class, 'edit'])->name('edit');
         Route::put('/{item}', [InventoryController::class, 'update'])->name('update');
         Route::delete('/{item}', [InventoryController::class, 'destroy'])->name('destroy');
+        // FIX: Only ONE restock route. Registers as 'admin.inventory.restock'
         Route::post('/{item}/restock', [InventoryController::class, 'restock'])->name('restock');
     });
 
@@ -92,29 +94,25 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::delete('/{id}', [UserManagementController::class, 'destroy'])->name('destroy');
     });
 
-   // Category Management Module
-Route::prefix('categories')->name('categories.')->group(function () {
-    // Bulk Actions (ADD THESE)
-    Route::post('/bulk-status', [CategoryController::class, 'bulkUpdateStatus'])->name('bulk-status');
-    Route::post('/bulk-delete', [CategoryController::class, 'bulkDelete'])->name('bulk-delete');
-    
-    // Existing Routes
-    Route::get('/', [CategoryController::class, 'index'])->name('index');
-    Route::get('/create', [CategoryController::class, 'create'])->name('create');
-    Route::get('/export', [CategoryController::class, 'exportCsv'])->name('export');
-    Route::post('/', [CategoryController::class, 'store'])->name('store');
-    Route::get('/{category}', [CategoryController::class, 'show'])->name('show');
-    Route::get('/{category}/edit', [CategoryController::class, 'edit'])->name('edit');
-    Route::put('/{category}', [CategoryController::class, 'update'])->name('update');
-    Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('destroy');
-});
+    // Category Management Module
+    Route::prefix('categories')->name('categories.')->group(function () {
+        Route::post('/bulk-status', [CategoryController::class, 'bulkUpdateStatus'])->name('bulk-status');
+        Route::post('/bulk-delete', [CategoryController::class, 'bulkDelete'])->name('bulk-delete');
+        Route::get('/', [CategoryController::class, 'index'])->name('index');
+        Route::get('/create', [CategoryController::class, 'create'])->name('create');
+        Route::get('/export', [CategoryController::class, 'exportCsv'])->name('export');
+        Route::post('/', [CategoryController::class, 'store'])->name('store');
+        Route::get('/{category}', [CategoryController::class, 'show'])->name('show');
+        Route::get('/{category}/edit', [CategoryController::class, 'edit'])->name('edit');
+        Route::put('/{category}', [CategoryController::class, 'update'])->name('update');
+        Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('destroy');
+    });
 
     // Unit and Address Management
     Route::get('/units', [AdminController::class, 'units'])->name('units');
     Route::get('/addresses', [AdminController::class, 'addresses'])->name('addresses');
 });
 
- 
 /*
 |--------------------------------------------------------------------------
 | USER ROUTES
@@ -123,7 +121,6 @@ Route::prefix('categories')->name('categories.')->group(function () {
 Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
 
-    // Item Request Routes
     Route::prefix('requests')->name('requests.')->group(function () {
         Route::get('/', [ItemRequestController::class, 'index'])->name('index');
         Route::get('/cart', [ItemRequestController::class, 'cart'])->name('cart');

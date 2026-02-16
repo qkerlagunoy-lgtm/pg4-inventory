@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\OrderRequestItem;
 use App\Models\RequestItem;
+use App\Models\IssuanceItem;
+use App\Models\AuditLog;
 use App\Models\Category;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -13,13 +15,11 @@ use Carbon\Carbon;
 class Item extends Model
 {
     use HasFactory;
-    
-    // Booted method
+
     protected static function boot()
     {
         parent::boot();
 
-        // Calculate total value whenever quantity or unit_cost changes
         static::saving(function ($item) {
             if ($item->unit_cost !== null && $item->quantity !== null) {
                 $item->total_value = $item->unit_cost * $item->quantity;
@@ -27,7 +27,6 @@ class Item extends Model
                 $item->total_value = null;
             }
 
-            // Update last_restocked when quantity increases
             if ($item->isDirty('quantity') && $item->quantity > $item->getOriginal('quantity')) {
                 $item->last_restocked = now();
             }
@@ -40,20 +39,25 @@ class Item extends Model
         'category_id',
         'quantity',
         'minimum_quantity',
-        'unit_of_measure',
+        'unit_of_measure',  // actual DB column — controller must use this, not 'unit'
         'unit_cost',
         'total_value',
         'last_restocked',
         'expiration_date',
         'is_active',
+        // NOTE: 'storage_location' and 'unit' do NOT exist in your DB.
+        // Either add a migration to create them, or remove them from the controller validation.
     ];
 
     protected $casts = [
         'expiration_date' => 'date',
-        'is_active' => 'boolean',
+        'is_active'       => 'boolean',
     ];
 
+    // -------------------------------------------------------------------------
     // Relationships
+    // -------------------------------------------------------------------------
+
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -69,7 +73,27 @@ class Item extends Model
         return $this->hasMany(OrderRequestItem::class);
     }
 
+    /**
+     * Confirmed: issuance_items.item_id is the foreign key.
+     */
+    public function issuanceItems()
+    {
+        return $this->hasMany(IssuanceItem::class, 'item_id');
+    }
+
+    /**
+     * audit_logs is polymorphic: model_type + model_id.
+     * Laravel matches model_type = 'App\Models\Item' and model_id = item->id.
+     */
+    public function auditLogs()
+    {
+        return $this->morphMany(AuditLog::class, 'model');
+    }
+
+    // -------------------------------------------------------------------------
     // Stock status checks
+    // -------------------------------------------------------------------------
+
     public function isLowStock(): bool
     {
         return $this->quantity <= $this->minimum_quantity;
@@ -96,7 +120,10 @@ class Item extends Model
         return $this->quantity > 0 && $this->is_active && !$this->isExpired();
     }
 
+    // -------------------------------------------------------------------------
     // Quantity management
+    // -------------------------------------------------------------------------
+
     public function decreaseQuantity($amount): bool
     {
         if ($this->quantity < $amount) {
@@ -118,10 +145,9 @@ class Item extends Model
         $this->last_restocked = now();
 
         if ($unitCost !== null) {
-            // Weighted average if existing stock
             if ($this->quantity > $quantity && $this->unit_cost !== null) {
-                $existingValue = ($this->quantity - $quantity) * $this->unit_cost;
-                $newValue = $quantity * $unitCost;
+                $existingValue   = ($this->quantity - $quantity) * $this->unit_cost;
+                $newValue        = $quantity * $unitCost;
                 $this->unit_cost = ($existingValue + $newValue) / $this->quantity;
             } else {
                 $this->unit_cost = $unitCost;
@@ -153,7 +179,10 @@ class Item extends Model
         return $this;
     }
 
+    // -------------------------------------------------------------------------
     // Scopes
+    // -------------------------------------------------------------------------
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
@@ -182,13 +211,16 @@ class Item extends Model
     {
         return $query->where('is_active', true)
                      ->where('quantity', '>', 0)
-                     ->where(function($q) {
+                     ->where(function ($q) {
                          $q->whereNull('expiration_date')
                            ->orWhere('expiration_date', '>', now());
                      });
     }
 
+    // -------------------------------------------------------------------------
     // Inventory calculations
+    // -------------------------------------------------------------------------
+
     public static function getTotalInventoryValue(): float
     {
         return self::where('is_active', true)
@@ -211,7 +243,10 @@ class Item extends Model
         return now()->diffInDays($this->last_restocked);
     }
 
+    // -------------------------------------------------------------------------
     // Accessors
+    // -------------------------------------------------------------------------
+
     public function getLowStockWarningAttribute(): string
     {
         if ($this->quantity <= 0) {

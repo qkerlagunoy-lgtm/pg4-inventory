@@ -51,8 +51,13 @@
             </main>
         </div>
     </div>
-    
+
+    {{-- FIX: @stack('modals') was missing — modal HTML from @push('modals') 
+         in index, show, edit, and low-stock blades was never rendered,
+         causing all restock/delete modal buttons to silently do nothing. --}}
+    @stack('modals')
     @stack('scripts')
+
     <script>
         // Auto-dismiss flash messages after 5 seconds
         document.addEventListener('DOMContentLoaded', function() {

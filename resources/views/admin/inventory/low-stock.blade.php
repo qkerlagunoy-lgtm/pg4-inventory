@@ -30,7 +30,7 @@
 
 @section('header-actions')
     <div class="flex items-center space-x-2">
-        <button type="button" 
+        <button type="button"
                 onclick="printLowStockReport()"
                 class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,8 +38,8 @@
             </svg>
             Print Report
         </button>
-        
-        <button type="button" 
+
+        <button type="button"
                 onclick="exportLowStockCSV()"
                 class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,13 +62,10 @@
                 </div>
                 <div class="ml-3">
                     <h3 class="text-lg font-medium text-red-800">Critical Stock Alert!</h3>
-                    <div class="mt-2 text-red-700">
-                        <p>
-                            <span class="font-bold">{{ $criticalItems->count() }}</span> item(s) are 
-                            <span class="font-bold">out of stock</span> or critically low. 
-                            Immediate action is required.
-                        </p>
-                    </div>
+                    <p class="mt-2 text-red-700">
+                        <span class="font-bold">{{ $criticalItems->count() }}</span> item(s) are
+                        <span class="font-bold">out of stock</span> or critically low. Immediate action is required.
+                    </p>
                 </div>
             </div>
         </div>
@@ -138,18 +135,16 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
             <div>
                 <h3 class="text-lg font-medium text-gray-900">Filter Low Stock Items</h3>
-                <p class="text-sm text-gray-600">Items are automatically flagged when stock reaches or falls below minimum quantity</p>
+                <p class="text-sm text-gray-600">Items flagged when stock reaches or falls below minimum quantity</p>
             </div>
-            
             <div class="flex items-center space-x-3">
                 <div class="relative">
-                    <input type="text" id="searchItems" placeholder="Search items..." 
+                    <input type="text" id="searchItems" placeholder="Search items..."
                            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64">
                     <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
                 </div>
-                
                 <select id="severityFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="">All Severity Levels</option>
                     <option value="critical">Critical (Out of Stock)</option>
@@ -157,8 +152,7 @@
                 </select>
             </div>
         </div>
-        
-        <!-- Severity Legend -->
+
         <div class="flex items-center justify-between pt-4 border-t border-gray-200">
             <div class="flex items-center space-x-4">
                 <div class="flex items-center">
@@ -178,7 +172,6 @@
                     <span class="text-xs text-gray-600">Warning (≤ 75%)</span>
                 </div>
             </div>
-            
             <div class="text-sm text-gray-500">
                 Showing {{ $items->count() }} of {{ $items->total() }} items
             </div>
@@ -199,56 +192,57 @@
                     {{ $criticalItems->count() }} items
                 </span>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                @foreach($criticalItems as $item)
+                @foreach($criticalItems as $criticalItem)
                     <div class="bg-white border border-red-200 rounded-lg shadow-md overflow-hidden">
                         <div class="p-4 border-b border-red-100 bg-red-50">
                             <div class="flex items-center justify-between">
-                                <h4 class="font-bold text-red-800 truncate">{{ $item->name }}</h4>
+                                <h4 class="font-bold text-red-800 truncate">{{ $criticalItem->name }}</h4>
                                 <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-bold rounded">
-                                    {{ round(($item->quantity / $item->minimum_quantity) * 100, 1) }}%
+                                    {{ $criticalItem->minimum_quantity > 0 ? round(($criticalItem->quantity / $criticalItem->minimum_quantity) * 100, 1) : 0 }}%
                                 </span>
                             </div>
-                            @if($item->category)
-                                <div class="text-xs text-red-600 mt-1">{{ $item->category->name }}</div>
+                            @if($criticalItem->category)
+                                <div class="text-xs text-red-600 mt-1">{{ $criticalItem->category->name }}</div>
                             @endif
                         </div>
-                        
+
                         <div class="p-4">
                             <div class="flex justify-between items-center mb-3">
                                 <div>
-                                    <div class="text-2xl font-bold text-gray-800">{{ $item->quantity }}</div>
-                                    <div class="text-xs text-gray-500">{{ $item->unit }}</div>
+                                    <div class="text-2xl font-bold text-gray-800">{{ $criticalItem->quantity }}</div>
+                                    {{-- FIX: was $item->unit --}}
+                                    <div class="text-xs text-gray-500">{{ $criticalItem->unit_of_measure }}</div>
                                 </div>
                                 <div class="text-right">
                                     <div class="text-sm text-gray-600">Minimum</div>
-                                    <div class="text-lg font-bold text-red-600">{{ $item->minimum_quantity }}</div>
+                                    <div class="text-lg font-bold text-red-600">{{ $criticalItem->minimum_quantity }}</div>
                                 </div>
                             </div>
-                            
+
                             <div class="mb-4">
                                 <div class="flex justify-between text-xs text-gray-600 mb-1">
                                     <span>Stock Level</span>
-                                    <span>{{ $item->quantity }} / {{ $item->minimum_quantity }}</span>
+                                    <span>{{ $criticalItem->quantity }} / {{ $criticalItem->minimum_quantity }}</span>
                                 </div>
                                 <div class="w-full bg-gray-200 rounded-full h-2">
                                     @php
-                                        $percentage = $item->minimum_quantity > 0 
-                                            ? min(100, ($item->quantity / $item->minimum_quantity) * 100)
+                                        $critPct = $criticalItem->minimum_quantity > 0
+                                            ? min(100, ($criticalItem->quantity / $criticalItem->minimum_quantity) * 100)
                                             : 0;
                                     @endphp
-                                    <div class="h-2 rounded-full bg-red-500" style="width: {{ $percentage }}%"></div>
+                                    <div class="h-2 rounded-full bg-red-500" style="width: {{ $critPct }}%"></div>
                                 </div>
                             </div>
-                            
+
                             <div class="flex space-x-2">
-                                <a href="{{ route('admin.inventory.show', $item) }}" 
+                                <a href="{{ route('admin.inventory.show', $criticalItem) }}"
                                    class="flex-1 px-3 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded hover:bg-gray-200 transition text-center">
                                     View
                                 </a>
-                                <button type="button" 
-                                        onclick="quickRestock({{ $item->id }}, '{{ $item->name }}')"
+                                <button type="button"
+                                        onclick="quickRestock({{ $criticalItem->id }}, '{{ addslashes($criticalItem->name) }}', {{ $criticalItem->quantity }}, '{{ $criticalItem->unit_of_measure }}')"
                                         class="flex-1 px-3 py-2 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 transition">
                                     Restock
                                 </button>
@@ -270,63 +264,49 @@
                 </div>
             </div>
         </div>
-        
+
         @if($items->count() > 0)
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Item
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Category
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Current Stock
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Minimum Required
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Stock Level
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Severity
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions
-                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Stock</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Minimum Required</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock Level</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Severity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($items as $item)
                             @php
-                                $percentage = $item->minimum_quantity > 0 
+                                $percentage = $item->minimum_quantity > 0
                                     ? ($item->quantity / $item->minimum_quantity) * 100
                                     : 0;
-                                
+
                                 if ($item->quantity == 0) {
-                                    $severity = 'out';
+                                    $severity      = 'out';
                                     $severityColor = 'bg-red-100 text-red-800';
-                                    $severityText = 'Out of Stock';
+                                    $severityText  = 'Out of Stock';
                                 } elseif ($percentage <= 25) {
-                                    $severity = 'critical';
+                                    $severity      = 'critical';
                                     $severityColor = 'bg-orange-100 text-orange-800';
-                                    $severityText = 'Critical';
+                                    $severityText  = 'Critical';
                                 } elseif ($percentage <= 50) {
-                                    $severity = 'low';
+                                    $severity      = 'low';
                                     $severityColor = 'bg-yellow-100 text-yellow-800';
-                                    $severityText = 'Low';
+                                    $severityText  = 'Low';
                                 } else {
-                                    $severity = 'warning';
+                                    $severity      = 'warning';
                                     $severityColor = 'bg-blue-100 text-blue-800';
-                                    $severityText = 'Warning';
+                                    $severityText  = 'Warning';
                                 }
-                                
-                                $progressColor = $severity == 'out' ? 'bg-red-500' :
-                                                ($severity == 'critical' ? 'bg-orange-500' :
-                                                ($severity == 'low' ? 'bg-yellow-500' : 'bg-blue-500'));
+
+                                $progressColor = $severity == 'out'      ? 'bg-red-500'    :
+                                               ($severity == 'critical'  ? 'bg-orange-500' :
+                                               ($severity == 'low'       ? 'bg-yellow-500' : 'bg-blue-500'));
                             @endphp
                             <tr class="hover:bg-gray-50 transition" data-severity="{{ $severity }}">
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -339,13 +319,7 @@
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-medium text-gray-900">{{ $item->name }}</div>
-                                            <div class="text-xs text-gray-500">
-                                                @if($item->storage_location)
-                                                    {{ $item->storage_location }}
-                                                @else
-                                                    Location not set
-                                                @endif
-                                            </div>
+                                            <div class="text-xs text-gray-400">ID #{{ $item->id }}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -360,16 +334,18 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-bold text-gray-900">{{ $item->quantity }}</div>
-                                    <div class="text-xs text-gray-500">{{ $item->unit }}</div>
+                                    {{-- FIX: was $item->unit --}}
+                                    <div class="text-xs text-gray-500">{{ $item->unit_of_measure }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">{{ $item->minimum_quantity }}</div>
-                                    <div class="text-xs text-gray-500">{{ $item->unit }}</div>
+                                    {{-- FIX: was $item->unit --}}
+                                    <div class="text-xs text-gray-500">{{ $item->unit_of_measure }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="w-32 bg-gray-200 rounded-full h-2 mr-3">
-                                            <div class="h-2 rounded-full {{ $progressColor }}" 
+                                            <div class="h-2 rounded-full {{ $progressColor }}"
                                                  style="width: {{ min(100, $percentage) }}%"></div>
                                         </div>
                                         <div class="text-sm text-gray-900 font-medium">
@@ -384,13 +360,15 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex items-center space-x-2">
-                                        <a href="{{ route('admin.inventory.show', $item) }}" 
-                                           class="text-blue-600 hover:text-blue-900">
-                                            View
-                                        </a>
+                                        <a href="{{ route('admin.inventory.show', $item) }}"
+                                           class="text-blue-600 hover:text-blue-900">View</a>
                                         <span class="text-gray-300">|</span>
-                                        <button type="button" 
-                                                onclick="quickRestock({{ $item->id }}, '{{ $item->name }}')"
+                                        {{--
+                                            FIX: Pass quantity and unit_of_measure directly as arguments
+                                            instead of relying on itemsData JS lookup which used item.unit
+                                        --}}
+                                        <button type="button"
+                                                onclick="quickRestock({{ $item->id }}, '{{ addslashes($item->name) }}', {{ $item->quantity }}, '{{ $item->unit_of_measure }}')"
                                                 class="text-green-600 hover:text-green-900">
                                             Restock
                                         </button>
@@ -401,16 +379,14 @@
                     </tbody>
                 </table>
             </div>
-            
-            <!-- Pagination -->
+
             @if($items->hasPages())
                 <div class="bg-white px-6 py-4 border-t border-gray-200">
                     {{ $items->links() }}
                 </div>
             @endif
-            
+
         @else
-            <!-- Empty State -->
             <div class="text-center py-12">
                 <svg class="mx-auto h-12 w-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -418,7 +394,7 @@
                 <h3 class="mt-2 text-sm font-medium text-gray-900">No low stock items!</h3>
                 <p class="mt-1 text-sm text-gray-500">All inventory items are above their minimum quantities.</p>
                 <div class="mt-6">
-                    <a href="{{ route('admin.inventory.index') }}" 
+                    <a href="{{ route('admin.inventory.index') }}"
                        class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
                         View All Inventory
                     </a>
@@ -431,9 +407,8 @@
     @if($items->count() > 0)
         <div class="mt-6 bg-white rounded-lg shadow-md p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">📋 Restock Suggestions</h3>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- By Category -->
                 <div>
                     <h4 class="text-sm font-medium text-gray-700 mb-3">Prioritize by Category</h4>
                     <div class="space-y-3">
@@ -443,20 +418,17 @@
                                     <p class="font-medium text-gray-900">{{ $category->name }}</p>
                                     <p class="text-sm text-gray-600">{{ $category->low_stock_count }} items low</p>
                                 </div>
-                                <a href="{{ route('admin.inventory.index') }}?category_id={{ $category->id }}&stock_level=low" 
-                                   class="text-sm text-blue-600 hover:text-blue-800">
-                                    View →
-                                </a>
+                                <a href="{{ route('admin.inventory.index') }}?category_id={{ $category->id }}&stock_level=low"
+                                   class="text-sm text-blue-600 hover:text-blue-800">View →</a>
                             </div>
                         @endforeach
                     </div>
                 </div>
-                
-                <!-- Quick Actions -->
+
                 <div>
                     <h4 class="text-sm font-medium text-gray-700 mb-3">Quick Actions</h4>
                     <div class="space-y-3">
-                        <button type="button" 
+                        <button type="button"
                                 onclick="restockAllCritical()"
                                 class="w-full flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition">
                             <div class="flex items-center gap-3">
@@ -474,8 +446,8 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                             </svg>
                         </button>
-                        
-                        <a href="{{ route('admin.inventory.create') }}" 
+
+                        <a href="{{ route('admin.inventory.create') }}"
                            class="w-full flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition">
                             <div class="flex items-center gap-3">
                                 <div class="p-2 bg-blue-100 rounded-lg">
@@ -515,14 +487,13 @@
             <div class="mt-2 px-7 py-3">
                 <form id="quickRestockForm" method="POST" class="space-y-4">
                     @csrf
-                    <input type="hidden" id="restockItemId" name="item_id">
-                    
+
                     <div>
                         <label for="quickRestockQuantity" class="block text-sm font-medium text-gray-700 mb-1">
                             Quantity to Add *
                         </label>
                         <div class="flex items-center space-x-3">
-                            <input type="number" id="quickRestockQuantity" name="quantity" min="1" 
+                            <input type="number" id="quickRestockQuantity" name="quantity" min="1"
                                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                    placeholder="Enter quantity" required>
                             <div class="w-20 text-center">
@@ -530,24 +501,15 @@
                             </div>
                         </div>
                         <div class="mt-2 flex space-x-2">
-                            <button type="button" 
-                                    onclick="setRestockQuantity(25)"
-                                    class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
-                                +25
-                            </button>
-                            <button type="button" 
-                                    onclick="setRestockQuantity(50)"
-                                    class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
-                                +50
-                            </button>
-                            <button type="button" 
-                                    onclick="setRestockQuantity(100)"
-                                    class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
-                                +100
-                            </button>
+                            <button type="button" onclick="setRestockQuantity(25)"
+                                    class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">+25</button>
+                            <button type="button" onclick="setRestockQuantity(50)"
+                                    class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">+50</button>
+                            <button type="button" onclick="setRestockQuantity(100)"
+                                    class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">+100</button>
                         </div>
                     </div>
-                    
+
                     <div>
                         <label for="quickRestockNotes" class="block text-sm font-medium text-gray-700 mb-1">
                             Notes (Optional)
@@ -556,7 +518,7 @@
                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                   placeholder="Add any notes about this restock..."></textarea>
                     </div>
-                    
+
                     <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg">
                         <div class="text-sm text-gray-600">
                             <div class="flex justify-between mb-1">
@@ -569,14 +531,14 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="flex justify-center space-x-3 pt-2">
-                        <button type="button" 
+                        <button type="button"
                                 onclick="hideQuickRestockModal()"
                                 class="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-400">
                             Cancel
                         </button>
-                        <button type="submit" 
+                        <button type="submit"
                                 class="px-4 py-2 bg-green-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-green-700">
                             Restock Now
                         </button>
@@ -590,169 +552,128 @@
 
 @push('scripts')
 <script>
-    // Store item data for quick restocking
-    let itemsData = @json($items->items());
-    
-    function quickRestock(itemId, itemName) {
-        const item = itemsData.find(i => i.id === itemId);
-        if (!item) return;
-        
-        const modal = document.getElementById('quickRestockModal');
-        const form = document.getElementById('quickRestockForm');
-        const currentStock = document.getElementById('currentStock');
-        const afterRestock = document.getElementById('afterQuickRestock');
-        const itemNameElement = document.getElementById('restockItemName');
-        const itemIdInput = document.getElementById('restockItemId');
-        const unitDisplay = document.getElementById('restockUnit');
-        
-        // Update modal content
-        itemNameElement.textContent = `Restock: ${itemName}`;
-        itemIdInput.value = itemId;
-        currentStock.textContent = `${item.quantity} ${item.unit}`;
-        unitDisplay.textContent = item.unit;
-        
-        // Set form action
-        form.action = `/admin/inventory/${itemId}/restock`;
-        
-        // Reset quantity input
-        const quantityInput = document.getElementById('quickRestockQuantity');
-        quantityInput.value = '';
-        quantityInput.focus();
-        
-        // Update after restock display on input
-        quantityInput.addEventListener('input', function() {
+    {{--
+        FIX: Removed itemsData JS lookup entirely (it used item.unit which doesn't exist).
+        Instead, quickRestock() now receives currentQty and unit directly from Blade
+        as inline onclick arguments — reliable and always correct.
+    --}}
+    function quickRestock(itemId, itemName, currentQty, unit) {
+        const modal          = document.getElementById('quickRestockModal');
+        const form           = document.getElementById('quickRestockForm');
+        const currentStock   = document.getElementById('currentStock');
+        const afterRestock   = document.getElementById('afterQuickRestock');
+        const itemNameEl     = document.getElementById('restockItemName');
+        const unitDisplay    = document.getElementById('restockUnit');
+        const quantityInput  = document.getElementById('quickRestockQuantity');
+
+        itemNameEl.textContent    = `Restock: ${itemName}`;
+        currentStock.textContent  = `${currentQty} ${unit}`;
+        unitDisplay.textContent   = unit;
+        form.action               = `/admin/inventory/${itemId}/restock`;
+
+        // Reset fields
+        quantityInput.value                    = '';
+        document.getElementById('quickRestockNotes').value = '';
+        afterRestock.textContent               = '—';
+
+        // Live "after restock" preview
+        quantityInput.oninput = function() {
             const addQty = parseInt(this.value) || 0;
-            afterRestock.textContent = `${item.quantity + addQty} ${item.unit}`;
-        });
-        
-        // Show modal
+            afterRestock.textContent = `${currentQty + addQty} ${unit}`;
+        };
+
         modal.classList.remove('hidden');
-        
-        // Close modal on background click
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                hideQuickRestockModal();
-            }
-        });
+        quantityInput.focus();
+
+        modal.onclick = function(e) {
+            if (e.target === modal) hideQuickRestockModal();
+        };
     }
-    
+
     function hideQuickRestockModal() {
         document.getElementById('quickRestockModal').classList.add('hidden');
     }
-    
+
     function setRestockQuantity(quantity) {
         const input = document.getElementById('quickRestockQuantity');
         input.value = quantity;
         input.dispatchEvent(new Event('input'));
     }
-    
-    // Filter functionality
+
+    // Table search + severity filter
     document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('searchItems');
+        const searchInput    = document.getElementById('searchItems');
         const severityFilter = document.getElementById('severityFilter');
-        const tableRows = document.querySelectorAll('tbody tr');
-        
+        const tableRows      = document.querySelectorAll('tbody tr');
+
         function filterTable() {
-            const searchTerm = searchInput.value.toLowerCase();
+            const searchTerm    = searchInput.value.toLowerCase();
             const severityValue = severityFilter.value;
-            
+
             tableRows.forEach(row => {
-                const itemName = row.querySelector('td:first-child .text-sm').textContent.toLowerCase();
+                const nameEl = row.querySelector('td:first-child .text-sm.font-medium');
+                if (!nameEl) return;
+                const itemName = nameEl.textContent.toLowerCase();
                 const severity = row.getAttribute('data-severity');
-                
-                const matchesSearch = itemName.includes(searchTerm);
+
+                const matchesSearch   = itemName.includes(searchTerm);
                 const matchesSeverity = !severityValue || severity === severityValue;
-                
-                if (matchesSearch && matchesSeverity) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+
+                row.style.display = (matchesSearch && matchesSeverity) ? '' : 'none';
             });
         }
-        
-        if (searchInput) {
-            searchInput.addEventListener('input', filterTable);
-        }
-        
-        if (severityFilter) {
-            severityFilter.addEventListener('change', filterTable);
-        }
+
+        searchInput?.addEventListener('input', filterTable);
+        severityFilter?.addEventListener('change', filterTable);
     });
-    
-    // Export and Print functions
+
     function exportLowStockCSV() {
-        const rows = [];
-        const headers = ['Item Name', 'Category', 'Current Stock', 'Unit', 'Minimum Quantity', 'Stock Level %', 'Severity', 'Storage Location'];
-        
+        const rows    = [];
+        const headers = ['Item Name', 'Category', 'Current Stock', 'Unit', 'Minimum Quantity', 'Stock Level %', 'Severity'];
         rows.push(headers.join(','));
-        
-        itemsData.forEach(item => {
-            const percentage = item.minimum_quantity > 0 
-                ? ((item.quantity / item.minimum_quantity) * 100).toFixed(1)
-                : '0.0';
-            
-            const severity = item.quantity === 0 ? 'Out of Stock' :
-                           percentage <= 25 ? 'Critical' :
-                           percentage <= 50 ? 'Low' : 'Warning';
-            
-            const row = [
-                `"${item.name}"`,
-                item.category ? `"${item.category.name}"` : '',
-                item.quantity,
-                item.unit,
-                item.minimum_quantity,
-                percentage,
-                severity,
-                item.storage_location ? `"${item.storage_location}"` : ''
-            ];
-            
-            rows.push(row.join(','));
+
+        document.querySelectorAll('tbody tr').forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (!cells.length) return;
+            const name      = cells[0].querySelector('.text-sm.font-medium')?.textContent.trim() ?? '';
+            const category  = cells[1].textContent.trim();
+            const stock     = cells[2].querySelector('.text-sm.font-bold')?.textContent.trim() ?? '';
+            const unit      = cells[2].querySelector('.text-xs')?.textContent.trim() ?? '';
+            const minQty    = cells[3].querySelector('.text-sm')?.textContent.trim() ?? '';
+            const pct       = cells[4].querySelector('.font-medium')?.textContent.trim() ?? '';
+            const severity  = cells[5].textContent.trim();
+            rows.push([`"${name}"`, `"${category}"`, stock, unit, minQty, pct, `"${severity}"`].join(','));
         });
-        
-        const csvContent = rows.join('\n');
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        
-        a.href = url;
+
+        const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+        const url  = window.URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
         a.download = `low-stock-alerts-${new Date().toISOString().split('T')[0]}.csv`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
     }
-    
-    function printLowStockReport() {
-        window.print();
-    }
-    
+
+    function printLowStockReport() { window.print(); }
+
     function restockAllCritical() {
-        if (confirm('This will open restock modals for all critical items one by one. Continue?')) {
-            // This would need server-side implementation for bulk restocking
-            alert('Bulk restocking feature would be implemented here. For now, please restock items individually.');
-        }
+        alert('Bulk restocking: please restock items individually using the Restock button on each row.');
     }
-    
-    // Close modal with Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            hideQuickRestockModal();
-        }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') hideQuickRestockModal();
     });
-    
-    // Add print styles
+
     const style = document.createElement('style');
     style.innerHTML = `
         @media print {
             .no-print { display: none !important; }
             body { font-size: 12pt; }
             table { page-break-inside: auto; }
-            tr { page-break-inside: avoid; page-break-after: auto; }
+            tr { page-break-inside: avoid; }
             thead { display: table-header-group; }
-            .bg-gray-50 { background-color: #f9fafb !important; -webkit-print-color-adjust: exact; }
-            .text-red-600 { color: #dc2626 !important; }
-            .text-yellow-600 { color: #d97706 !important; }
         }`;
     document.head.appendChild(style);
 </script>
