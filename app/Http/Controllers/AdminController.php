@@ -27,18 +27,14 @@ class AdminController extends Controller
     // ==================== DASHBOARD ====================
     public function dashboard(): \Illuminate\View\View
     {
-        $stats = [
-            'pending_requests' => ItemRequest::where('status', 'pending')->count(),
-            'urgent_requests' => ItemRequest::where('status', 'urgent')->count(),
-            'approved_requests' => ItemRequest::where('status', 'approved')->count(),
-            'rejected_requests' => ItemRequest::where('status', 'rejected')->count(),
-            'low_stock_items' => Item::whereRaw('quantity <= minimum_quantity')
-                ->where('quantity', '>', 0)->count(),
-            'expiring_soon' => Item::expiringSoon(30)->count(),
-            'total_issuances' => Issuance::count(),
-            'overdue_items' => IssuanceItem::where('status', 'issued')->whereNotNull('due_date')
-                ->where('due_date', '<', now())->count(),
-        ];
+       $stats = [
+    'pending_requests' => ItemRequest::where('status', 'pending')->count(),
+    'urgent_requests' => ItemRequest::where('priority', 'urgent')->count(),
+    'approved_requests' => ItemRequest::where('status', 'approved')->count(),
+    'rejected_requests' => ItemRequest::where('status', 'rejected')->count(),
+    'low_stock_items' => Item::whereColumn('quantity', '<=', 'minimum_quantity')->count(),
+    'expiring_soon' => 0, // Add your logic here
+];
         // Get most requested items
         try {
             $mostRequestedItems = DB::table('request_items')

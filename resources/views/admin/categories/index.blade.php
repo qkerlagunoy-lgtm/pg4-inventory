@@ -4,121 +4,280 @@
 
 @section('content')
 
-<div class="min-h-screen p-8 bg-gray-50">
+<style>
+    :root {
+        --cream:    #FAF7F0;
+        --sand:     #D8D2C2;
+        --sienna:   #B17457;
+        --charcoal: #4A4947;
+    }
 
-    <!-- Header -->
-    <div class="mb-6">
-        <h2 class="font-bold text-2xl text-gray-900">Category Management</h2>
-        <p class="text-sm text-gray-500 mt-1">AFPPGMC Logistics Division</p>
-    </div>
+    /* ── page background ── */
+    .cat-page {
+        min-height: 100vh;
+        background: var(--cream);
+        padding: 2rem;
+        font-family: 'Georgia', serif;
+    }
 
-    <!-- Flash Messages -->
+    /* ── page heading ── */
+    .cat-heading {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--charcoal);
+        letter-spacing: .03em;
+        margin-bottom: 1.5rem;
+    }
+
+    /* ── flash messages ── */
+    .flash {
+        padding: .75rem 1.25rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        font-size: .875rem;
+        font-weight: 600;
+    }
+    .flash-success {
+        background: #f0faf0;
+        border: 1px solid #6aab6a;
+        color: #2e6b2e;
+    }
+    .flash-error {
+        background: #fff0f0;
+        border: 1px solid #d87070;
+        color: #8b2020;
+    }
+
+    /* ── toolbar card ── */
+    .toolbar-card {
+        background: #fff;
+        border: 1px solid var(--sand);
+        border-radius: 10px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.25rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .btn-group { display: flex; gap: .625rem; flex-wrap: wrap; }
+
+    /* ── buttons ── */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .5rem 1.25rem;
+        border-radius: 8px;
+        font-size: .875rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: opacity .15s, transform .1s;
+        text-decoration: none;
+        line-height: 1.4;
+    }
+    .btn:hover  { opacity: .88; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+    .btn-primary   { background: var(--sienna);  color: #fff; }
+    .btn-dark      { background: var(--charcoal); color: #fff; }
+    .btn-muted     { background: var(--sand);     color: var(--charcoal); }
+    .btn-blue      { background: #4a7fb5;          color: #fff; }
+
+    /* ── search bar ── */
+    .search-form { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .search-input {
+        padding: .5rem 1rem;
+        border: 1px solid var(--sand);
+        border-radius: 8px;
+        font-size: .875rem;
+        background: var(--cream);
+        color: var(--charcoal);
+        outline: none;
+        transition: border-color .2s;
+        min-width: 220px;
+    }
+    .search-input:focus { border-color: var(--sienna); }
+
+    /* ── table card ── */
+    .table-card {
+        background: #fff;
+        border: 1px solid var(--sand);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .table-wrap { overflow-x: auto; }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    thead tr {
+        background: var(--cream);
+        border-bottom: 2px solid var(--sand);
+    }
+    thead th {
+        padding: .9rem 1rem;
+        text-align: left;
+        font-size: .75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        color: var(--charcoal);
+    }
+    thead th:last-child { text-align: right; }
+
+    tbody tr { border-bottom: 1px solid #f0ece4; transition: background .12s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #fdfbf7; }
+
+    tbody td {
+        padding: .85rem 1rem;
+        font-size: .875rem;
+        color: var(--charcoal);
+        vertical-align: middle;
+    }
+    tbody td:last-child { text-align: right; }
+
+    .col-code {
+        font-weight: 700;
+        letter-spacing: .02em;
+        color: var(--sienna);
+    }
+
+    /* ── status badges ── */
+    .badge {
+        display: inline-block;
+        padding: .2rem .65rem;
+        border-radius: 20px;
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+    .badge-active   { background: #eef6ee; color: #2e7d32; }
+    .badge-inactive { background: #f5f3f0; color: #9a9591; }
+
+    /* ── checkbox ── */
+    input[type="checkbox"] {
+        accent-color: var(--sienna);
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    /* ── empty state ── */
+    .empty-row td {
+        padding: 3.5rem 1rem;
+        text-align: center;
+        color: var(--sand);
+        font-size: .9rem;
+    }
+
+    /* ── pagination wrapper ── */
+    .pagination-wrap {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid var(--sand);
+    }
+
+    /* ── Tailwind pagination override to match palette ── */
+    .pagination-wrap nav span[aria-current="page"] > span,
+    .pagination-wrap nav a {
+        border-color: var(--sand) !important;
+        color: var(--charcoal) !important;
+    }
+    .pagination-wrap nav span[aria-current="page"] > span {
+        background: var(--sienna) !important;
+        color: #fff !important;
+        border-color: var(--sienna) !important;
+    }
+</style>
+
+<div class="cat-page">
+
+    {{-- Flash Messages --}}
     @if(session('success'))
-        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-            {{ session('success') }}
-        </div>
+        <div class="flash flash-success">{{ session('success') }}</div>
     @endif
-
     @if(session('error'))
-        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-            {{ session('error') }}
-        </div>
+        <div class="flash flash-error">{{ session('error') }}</div>
     @endif
 
-    <!-- Actions + Search -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div class="flex flex-col md:flex-row justify-between gap-4">
+    {{-- Toolbar --}}
+    <div class="toolbar-card">
 
-            <!-- LEFT ACTIONS -->
-            <div class="flex gap-3">
-                <a href="{{ route('admin.categories.create') }}"
-                   class="px-6 py-2 bg-amber-700 text-white rounded-lg hover:bg-amber-800 transition font-medium shadow">
-                    New Category
-                </a>
-
-                <button id="btnDeleteSelected"
-                        onclick="deleteSelection()"
-                        class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition shadow"
-                        disabled>
-                    Delete Selected
-                </button>
-
-                <button id="btnEditSelected"
-                        onclick="editCategory()"
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow"
-                        disabled>
-                    Edit Selected
-                </button>
-            </div>
-
-            <!-- RIGHT SEARCH -->
-            <form method="GET" action="{{ route('admin.categories.index') }}" class="flex gap-2">
-                <input type="text"
-                       name="search"
-                       value="{{ request('search') }}"
-                       placeholder="Search categories..."
-                       class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-
-                <button type="submit"
-                        class="px-6 py-2 bg-amber-700 text-white rounded-lg hover:bg-amber-800">
-                    Search
-                </button>
-
-                @if(request('search'))
-                    <a href="{{ route('admin.categories.index') }}"
-                       class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
-                        Reset
-                    </a>
-                @endif
-            </form>
-
+        {{-- Left: action buttons --}}
+        <div class="btn-group">
+            <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">
+                + New Category
+            </a>
+            <button id="btnDeleteSelected" onclick="deleteSelection()" class="btn btn-dark" disabled>
+                Delete Selected
+            </button>
+            <button id="btnEditSelected" onclick="editCategory()" class="btn btn-blue" disabled>
+                Edit Selected
+            </button>
         </div>
+
+        {{-- Right: search --}}
+        <form method="GET" action="{{ route('admin.categories.index') }}" class="search-form">
+            <input type="text"
+                   name="search"
+                   value="{{ request('search') }}"
+                   placeholder="Search categories…"
+                   class="search-input">
+            <button type="submit" class="btn btn-primary">Search</button>
+            @if(request('search'))
+                <a href="{{ route('admin.categories.index') }}" class="btn btn-muted">Reset</a>
+            @endif
+        </form>
+
     </div>
 
-    <!-- CATEGORY TABLE -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50 border-b">
+    {{-- Table --}}
+    <div class="table-card">
+        <div class="table-wrap">
+            <table>
+                <thead>
                     <tr>
-                        <th class="p-4 text-left">
+                        <th style="width:44px;">
                             <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">
                         </th>
-                        <th class="p-4 text-left text-sm font-semibold text-gray-700">Code</th>
-                        <th class="p-4 text-left text-sm font-semibold text-gray-700">Description</th>
-                        <th class="p-4 text-right text-sm font-semibold text-gray-700">Status</th>
+                        <th>Code</th>
+                        <th>Description</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($categories as $category)
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-4">
+                    <tr>
+                        <td>
                             <input type="checkbox" value="{{ $category->id }}" class="category-checkbox">
                         </td>
-                        <td class="p-4 font-semibold text-gray-900">{{ $category->code }}</td>
-                        <td class="p-4 text-gray-600">{{ $category->description }}</td>
-                        <td class="p-4 text-right">
+                        <td class="col-code">{{ $category->code }}</td>
+                        <td>{{ $category->description }}</td>
+                        <td>
                             @if($category->is_active)
-                                <span class="text-xs font-semibold text-gray-800">ACTIVE</span>
+                                <span class="badge badge-active">Active</span>
                             @else
-                                <span class="text-xs font-semibold text-gray-400">INACTIVE</span>
+                                <span class="badge badge-inactive">Inactive</span>
                             @endif
                         </td>
                     </tr>
                     @empty
-                    <tr>
-                        <td colspan="4" class="text-center py-12 text-gray-500">
-                            No categories found
-                        </td>
+                    <tr class="empty-row">
+                        <td colspan="4">No categories found.</td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
 
-        <!-- Pagination -->
         @if($categories->hasPages())
-            <div class="p-4 border-t">
+            <div class="pagination-wrap">
                 {{ $categories->links() }}
             </div>
         @endif
@@ -127,78 +286,57 @@
 </div>
 
 <script>
-// BUTTONS
-const btnEditSelected = document.getElementById('btnEditSelected');
-const btnDeleteSelected = document.getElementById('btnDeleteSelected');
+    const btnEditSelected   = document.getElementById('btnEditSelected');
+    const btnDeleteSelected = document.getElementById('btnDeleteSelected');
 
-// FUNCTION TO UPDATE BUTTON STATES
-function updateActionButtons() {
-    const selected = document.querySelectorAll('.category-checkbox:checked');
-    btnDeleteSelected.disabled = selected.length === 0;
-    btnEditSelected.disabled = selected.length !== 1; // only enable edit if exactly one is selected
-}
-
-// TOGGLE SELECT ALL
-function toggleSelectAll(source) {
-    document.querySelectorAll('.category-checkbox').forEach(cb => cb.checked = source.checked);
-    updateActionButtons();
-}
-
-// ADD EVENT LISTENERS TO ALL CHECKBOXES
-document.querySelectorAll('.category-checkbox').forEach(cb => {
-    cb.addEventListener('change', updateActionButtons);
-});
-
-// DELETE SELECTED
-function deleteSelection() {
-    const selected = document.querySelectorAll('.category-checkbox:checked');
-
-    if(selected.length === 0){
-        alert('Select at least one category');
-        return;
+    function updateActionButtons() {
+        const selected = document.querySelectorAll('.category-checkbox:checked');
+        btnDeleteSelected.disabled = selected.length === 0;
+        btnEditSelected.disabled   = selected.length !== 1;
     }
 
-    if(confirm('Delete selected categories?')){
-        let form = document.createElement('form');
+    function toggleSelectAll(source) {
+        document.querySelectorAll('.category-checkbox').forEach(cb => cb.checked = source.checked);
+        updateActionButtons();
+    }
+
+    document.querySelectorAll('.category-checkbox').forEach(cb => {
+        cb.addEventListener('change', updateActionButtons);
+    });
+
+    function deleteSelection() {
+        const selected = document.querySelectorAll('.category-checkbox:checked');
+        if (selected.length === 0) { alert('Select at least one category'); return; }
+        if (!confirm('Delete selected categories?')) return;
+
+        const form = document.createElement('form');
         form.method = 'POST';
         form.action = "{{ route('admin.categories.bulk-delete') }}";
 
-        let csrf = document.createElement('input');
-        csrf.type = 'hidden';
-        csrf.name = '_token';
+        const csrf = document.createElement('input');
+        csrf.type  = 'hidden';
+        csrf.name  = '_token';
         csrf.value = "{{ csrf_token() }}";
         form.appendChild(csrf);
 
-        selected.forEach(cb=>{
-            const input = document.createElement('input');
-            input.type='hidden';
-            input.name='category_ids[]';
-            input.value=cb.value;
+        selected.forEach(cb => {
+            const input  = document.createElement('input');
+            input.type   = 'hidden';
+            input.name   = 'category_ids[]';
+            input.value  = cb.value;
             form.appendChild(input);
         });
 
         document.body.appendChild(form);
         form.submit();
     }
-}
 
-// EDIT SELECTED (redirect to edit page)
-function editCategory() {
-    const selected = document.querySelectorAll('.category-checkbox:checked');
-
-    if(selected.length === 0){
-        alert('Select one category to edit');
-        return;
+    function editCategory() {
+        const selected = document.querySelectorAll('.category-checkbox:checked');
+        if (selected.length === 0)  { alert('Select one category to edit'); return; }
+        if (selected.length > 1)    { alert('Please select only one category to edit at a time'); return; }
+        window.location.href = `/admin/categories/${selected[0].value}/edit`;
     }
-
-    if(selected.length > 1){
-        alert('Please select only one category to edit at a time');
-        return;
-    }
-
-    const categoryId = selected[0].value;
-    window.location.href = `/admin/categories/${categoryId}/edit`;
-}
 </script>
 
 @endsection
