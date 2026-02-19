@@ -8,6 +8,7 @@ use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\AddressController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -50,7 +51,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    // Order Management Module
+    // Orders
     Route::prefix('orders')->name('orders.')->group(function () {
         Route::get('/', [AdminController::class, 'orderDashboard'])->name('index');
         Route::get('/pending', [AdminController::class, 'pendingOrders'])->name('pending');
@@ -69,7 +70,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/export', [AdminController::class, 'export'])->name('export');
     });
 
-    // Inventory Module
+    // Inventory
     Route::prefix('inventory')->name('inventory.')->group(function () {
         Route::get('/', [InventoryController::class, 'index'])->name('index');
         Route::get('/create', [InventoryController::class, 'create'])->name('create');
@@ -79,11 +80,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/{item}/edit', [InventoryController::class, 'edit'])->name('edit');
         Route::put('/{item}', [InventoryController::class, 'update'])->name('update');
         Route::delete('/{item}', [InventoryController::class, 'destroy'])->name('destroy');
-        // FIX: Only ONE restock route. Registers as 'admin.inventory.restock'
         Route::post('/{item}/restock', [InventoryController::class, 'restock'])->name('restock');
     });
 
-    // User Management Module
+    // Users
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/', [UserManagementController::class, 'index'])->name('index');
         Route::get('/create', [UserManagementController::class, 'create'])->name('create');
@@ -94,7 +94,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::delete('/{id}', [UserManagementController::class, 'destroy'])->name('destroy');
     });
 
-    // Category Management Module
+    // Categories
     Route::prefix('categories')->name('categories.')->group(function () {
         Route::post('/bulk-status', [CategoryController::class, 'bulkUpdateStatus'])->name('bulk-status');
         Route::post('/bulk-delete', [CategoryController::class, 'bulkDelete'])->name('bulk-delete');
@@ -108,9 +108,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('destroy');
     });
 
-    // Unit and Address Management
-    Route::get('/units', [AdminController::class, 'units'])->name('units');
-    Route::get('/addresses', [AdminController::class, 'addresses'])->name('addresses');
+    // Address Management
+    Route::get('/addresses', [AddressController::class, 'index'])->name('addresses.index');
+
 });
 
 /*
@@ -133,6 +133,7 @@ Route::middleware(['auth', 'user'])->group(function () {
         Route::get('/my-requests/{id}', [ItemRequestController::class, 'show'])->name('show');
         Route::post('/my-requests/{id}/cancel', [ItemRequestController::class, 'cancelRequest'])->name('cancel');
     });
+
 });
 
 require __DIR__.'/auth.php';

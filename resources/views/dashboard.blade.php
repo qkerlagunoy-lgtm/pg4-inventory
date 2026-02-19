@@ -3,19 +3,12 @@
 
         <!-- Sidebar -->
         <aside class="w-64 bg-slate-800 shadow-md flex flex-col sticky top-0 max-h-screen">
-
-            <!-- Logo (Centered & Bigger) -->
             <div class="flex items-center justify-center py-8 border-b border-gray-700">
                 <a href="{{ route('dashboard') }}">
-                    <img
-                        src="{{ asset('images/logo.png') }}"
-                        alt="App Logo"
-                        class="h-32 w-auto"
-                    >
+                    <img src="{{ asset('images/logo.png') }}" alt="App Logo" class="h-32 w-auto">
                 </a>
             </div>
 
-            <!-- Navigation -->
             <nav class="mt-6 flex-1">
                 <a href="{{ route('dashboard') }}"
                    class="flex items-center gap-3 px-6 py-3 text-white hover:bg-slate-700 border-l-4 border-blue-500">
@@ -34,7 +27,6 @@
                     Request Items
                 </a>
 
-                <!-- FIXED: Changed requests.myRequests to requests.my-requests -->
                 <a href="{{ route('requests.my-requests') }}"
                    class="flex items-center gap-3 px-6 py-3 text-gray-300 hover:bg-slate-700 border-l-4 border-transparent hover:border-blue-500">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -44,7 +36,6 @@
                 </a>
             </nav>
 
-            <!-- Logout Button at Bottom -->
             <div class="p-4 border-t border-gray-700">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
@@ -56,26 +47,20 @@
                     </button>
                 </form>
             </div>
-
         </aside>
 
         <!-- Main Content -->
         <main class="flex-1 flex flex-col">
-
-            <!-- Header -->
             <header class="bg-slate-800 shadow-lg">
                 <div class="px-8 py-4 flex items-center justify-between">
                     <div>
-                        <h2 class="font-bold text-2xl text-white">
-                            Dashboard
-                        </h2>
+                        <h2 class="font-bold text-2xl text-white">Dashboard</h2>
                         <p class="text-sm text-gray-400 mt-1">AFPPGMC Logistics Division</p>
                     </div>
                     <div class="flex items-center gap-3">
-                        <!-- User Info - Clickable to Edit Profile -->
                         <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 hover:bg-slate-700 px-4 py-2 rounded-lg transition">
                             <div class="text-right">
-                                <span class="text-white font-medium block">{{ Auth::user()->name }}</span>
+                                <span class="text-white font-medium block">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span>
                                 <span class="text-gray-400 text-sm">User</span>
                             </div>
                             <button class="p-2 hover:bg-slate-600 rounded-full">
@@ -85,19 +70,15 @@
                             </button>
                         </a>
                         
-                        <!-- Notification Bell Dropdown -->
                         <div class="relative">
                             <button id="notificationButton" class="p-2 hover:bg-slate-700 rounded-full relative">
                                 <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
                                 </svg>
-                                <!-- Notification Badge -->
-                                <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">0</span>
+                                <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">{{ $stats['urgent'] }}</span>
                             </button>
 
-                            <!-- Notification Dropdown -->
                             <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-2xl z-50">
-                                <!-- Dropdown Header -->
                                 <div class="flex items-center justify-between p-4 border-b">
                                     <h3 class="text-lg font-bold text-gray-800">Notifications</h3>
                                     <div class="flex gap-3">
@@ -106,9 +87,12 @@
                                     </div>
                                 </div>
 
-                                <!-- Notification Content -->
                                 <div class="p-6">
-                                    <p class="text-center text-gray-400 italic">No new notifications</p>
+                                    @if($stats['urgent'] > 0)
+                                        <p class="text-center text-gray-700">You have {{ $stats['urgent'] }} urgent request(s)</p>
+                                    @else
+                                        <p class="text-center text-gray-400 italic">No new notifications</p>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -116,7 +100,6 @@
                 </div>
             </header>
 
-            <!-- Page Content -->
             <div class="flex-1 p-8 bg-gray-50">
                 
                 <!-- Request Summary Section -->
@@ -125,12 +108,11 @@
                     
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <!-- Cancelled Requests -->
-                        <!-- FIXED: Updated route names in links -->
                         <a href="{{ route('requests.my-requests') }}?status=cancelled" class="text-center p-4 bg-gray-50 rounded-lg hover:bg-yellow-50 hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-yellow-500">
                             <p class="text-sm text-gray-600 mb-2 font-medium">Cancelled Requests</p>
                             <div class="flex items-center justify-center gap-2">
-                                <span class="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">0</span>
-                                <span class="text-2xl font-bold text-gray-400">0</span>
+                                <span class="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">⚠</span>
+                                <span class="text-2xl font-bold {{ $stats['cancelled'] > 0 ? 'text-yellow-600' : 'text-gray-400' }}">{{ $stats['cancelled'] }}</span>
                             </div>
                         </a>
 
@@ -138,8 +120,8 @@
                         <a href="{{ route('requests.my-requests') }}?status=urgent" class="text-center p-4 bg-gray-50 rounded-lg hover:bg-red-50 hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-red-500">
                             <p class="text-sm text-gray-600 mb-2 font-medium">Urgent Requests</p>
                             <div class="flex items-center justify-center gap-2">
-                                <span class="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">0</span>
-                                <span class="text-2xl font-bold text-gray-400">0</span>
+                                <span class="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">🚨</span>
+                                <span class="text-2xl font-bold {{ $stats['urgent'] > 0 ? 'text-red-600' : 'text-gray-400' }}">{{ $stats['urgent'] }}</span>
                             </div>
                         </a>
 
@@ -148,7 +130,7 @@
                             <p class="text-sm text-gray-600 mb-2 font-medium">Approved Requests</p>
                             <div class="flex items-center justify-center gap-2">
                                 <span class="text-3xl">👍</span>
-                                <span class="text-2xl font-bold text-gray-400">0</span>
+                                <span class="text-2xl font-bold {{ $stats['approved'] > 0 ? 'text-green-600' : 'text-gray-400' }}">{{ $stats['approved'] }}</span>
                             </div>
                         </a>
 
@@ -157,7 +139,7 @@
                             <p class="text-sm text-gray-600 mb-2 font-medium">Rejected Requests</p>
                             <div class="flex items-center justify-center gap-2">
                                 <span class="text-3xl">👎</span>
-                                <span class="text-2xl font-bold text-gray-400">0</span>
+                                <span class="text-2xl font-bold {{ $stats['rejected'] > 0 ? 'text-red-600' : 'text-gray-400' }}">{{ $stats['rejected'] }}</span>
                             </div>
                         </a>
                     </div>
@@ -170,7 +152,6 @@
                         <span class="text-sm text-gray-500">Urgent & Pending</span>
                     </div>
 
-                    <!-- Table -->
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead>
@@ -178,14 +159,42 @@
                                     <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Purpose</th>
                                     <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Created</th>
                                     <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Status</th>
+                                    <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Priority</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td colspan="3" class="text-center py-8 text-gray-400 italic">
-                                        No critical requests at this time
-                                    </td>
-                                </tr>
+                                @forelse($criticalRequests as $request)
+                                    <tr class="border-b hover:bg-gray-50">
+                                        <td class="py-3 px-4 text-sm text-gray-800">{{ Str::limit($request->purpose, 50) }}</td>
+                                        <td class="py-3 px-4 text-sm text-gray-600">{{ $request->created_at->format('M d, Y') }}</td>
+                                        <td class="py-3 px-4">
+                                            <span class="px-3 py-1 rounded-full text-xs font-semibold
+                                                @if($request->status == 'pending') bg-yellow-100 text-yellow-800
+                                                @elseif($request->status == 'approved') bg-green-100 text-green-800
+                                                @elseif($request->status == 'rejected') bg-red-100 text-red-800
+                                                @else bg-gray-100 text-gray-800 @endif">
+                                                {{ ucfirst($request->status) }}
+                                            </span>
+                                        </td>
+                                        <td class="py-3 px-4">
+                                            @if($request->priority == 'urgent')
+                                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                                    🚨 Urgent
+                                                </span>
+                                            @else
+                                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                                                    Normal
+                                                </span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center py-8 text-gray-400 italic">
+                                            No critical requests at this time
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -197,25 +206,21 @@
 
     </div>
 
-    <!-- Notification Dropdown Script -->
     <script>
         const notificationButton = document.getElementById('notificationButton');
         const notificationDropdown = document.getElementById('notificationDropdown');
 
-        // Toggle dropdown
         notificationButton.addEventListener('click', (e) => {
             e.stopPropagation();
             notificationDropdown.classList.toggle('hidden');
         });
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', (e) => {
             if (!notificationButton.contains(e.target) && !notificationDropdown.contains(e.target)) {
                 notificationDropdown.classList.add('hidden');
             }
         });
 
-        // Prevent dropdown from closing when clicking inside
         notificationDropdown.addEventListener('click', (e) => {
             e.stopPropagation();
         });

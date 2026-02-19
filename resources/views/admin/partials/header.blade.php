@@ -255,6 +255,7 @@
                     'admin.inventory.index'       => 'Inventory Management',
                     'admin.users.index'           => 'User Management',
                     'admin.categories.index'      => 'Category Management',
+                    'admin.addresses.index'       => 'Address Management',
                     'profile.edit'                => 'My Profile',
                 ];
                 $currentTitle = $moduleTitles[Route::currentRouteName()] ?? 'Admin Dashboard';
@@ -277,6 +278,7 @@
                     'admin.inventory.index'       => [['title'=>'Dashboard','url'=>route('admin.dashboard')],['title'=>'Inventory','url'=>route('admin.inventory.index')]],
                     'admin.users.index'           => [['title'=>'Dashboard','url'=>route('admin.dashboard')],['title'=>'User Management','url'=>route('admin.users.index')]],
                     'admin.categories.index'      => [['title'=>'Dashboard','url'=>route('admin.dashboard')],['title'=>'Category Management','url'=>route('admin.categories.index')]],
+                    'admin.addresses.index'       => [['title'=>'Dashboard','url'=>route('admin.dashboard')],['title'=>'Address Management','url'=>route('admin.addresses.index')]],
                 ];
                 $currentBreadcrumbs = $breadcrumbs[Route::currentRouteName()] ?? [];
             @endphp

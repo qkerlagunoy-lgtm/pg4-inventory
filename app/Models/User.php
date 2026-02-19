@@ -307,5 +307,10 @@ public function unit()
     
 }
 
+public function requests()
+{
+    return $this->hasMany(Request::class);
+}
+
 
 }

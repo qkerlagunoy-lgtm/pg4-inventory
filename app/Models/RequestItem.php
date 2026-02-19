@@ -94,7 +94,7 @@ class RequestItem extends Model
 
     public function isRejected(): bool
     {
-        return $this->status === 'rejected';
+        return $this->status === 'rejected'; 
     }
 
     public function calculateCosts()
