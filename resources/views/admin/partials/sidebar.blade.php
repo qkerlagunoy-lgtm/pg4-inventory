@@ -424,7 +424,7 @@
         </a>
 
         {{-- Address Management --}}
-       <a href="{{ route('admin.addresses.index') }}"
+     <a href="{{ route('admin.addresses.index') }}"
    class="nav-link {{ request()->is('admin/addresses*') ? 'active' : '' }}">
     <svg fill="currentColor" viewBox="0 0 20 20">
         <path fill-rule="evenodd" 
