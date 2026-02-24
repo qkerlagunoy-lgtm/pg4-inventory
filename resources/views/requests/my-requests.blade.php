@@ -2,38 +2,113 @@
 
 @section('title', 'My Requests')
 
-@section('page-title', 'My Requests')
-
-@section('breadcrumb')
-    <nav class="mb-4">
-        <ol class="flex items-center space-x-2 text-sm">
-            <li><a href="{{ route('dashboard') }}" class="text-gray-500 hover:text-gray-700">Dashboard</a></li>
-            <li><svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            </li>
-            <li class="text-blue-600 font-medium">My Requests</li>
-        </ol>
-    </nav>
-@endsection
-
 @section('content')
+<style>
+    /* ── PALETTE ──────────────────────────────────────────
+       #FCF8F3  cream       → page/card backgrounds
+       #AEDADD  teal        → total/info accents
+       #DB996C  terracotta  → primary actions, buttons
+       #6E7DA2  slate       → approved, links, focus rings
+    ───────────────────────────────────────────────────── */
+
+    /* stat icon backgrounds */
+    .stat-icon-total   { background: rgba(174,218,221,0.2); }
+    .stat-icon-total svg   { color: #7bbfc3; }
+    .stat-icon-pending { background: rgba(219,153,108,0.15); }
+    .stat-icon-pending svg { color: #DB996C; }
+    .stat-icon-approved{ background: rgba(110,125,162,0.15); }
+    .stat-icon-approved svg{ color: #6E7DA2; }
+    .stat-icon-rejected{ background: rgba(192,57,43,0.1); }
+    .stat-icon-rejected svg{ color: #c0392b; }
+
+    /* form focus rings → slate */
+    .filter-input:focus {
+        outline: none;
+        border-color: #6E7DA2 !important;
+        box-shadow: 0 0 0 3px rgba(110,125,162,0.18);
+    }
+
+    /* search / submit button → terracotta */
+    .btn-search {
+        background: #DB996C;
+        color: #fff;
+    }
+    .btn-search:hover { background: #c8844f; }
+
+    /* clear filters button */
+    .btn-clear {
+        background: #f0f1f5;
+        color: #4a5878;
+    }
+    .btn-clear:hover { background: #e2e4ec; }
+
+    /* view action link → slate */
+    .action-view {
+        color: #6E7DA2;
+        background: rgba(110,125,162,0.08);
+    }
+    .action-view:hover {
+        color: #4a5878;
+        background: rgba(110,125,162,0.16);
+    }
+
+    /* cancel action link → keeps red (semantic danger) */
+    .action-cancel {
+        color: #c0392b;
+        background: rgba(192,57,43,0.07);
+    }
+    .action-cancel:hover {
+        color: #922b21;
+        background: rgba(192,57,43,0.14);
+    }
+
+    /* priority badges */
+    .badge-low      { background: #f0f1f5;                    color: #4a5878; }
+    .badge-medium   { background: rgba(174,218,221,0.25);     color: #5a9ea0; }
+    .badge-high     { background: rgba(219,153,108,0.18);     color: #b07040; }
+    .badge-urgent   { background: rgba(192,57,43,0.1);        color: #c0392b; }
+
+    /* status badges */
+    .badge-pending  { background: rgba(219,153,108,0.15);     color: #b07040; }
+    .badge-approved { background: rgba(110,125,162,0.15);     color: #4a5878; }
+    .badge-rejected { background: rgba(192,57,43,0.1);        color: #c0392b; }
+    .badge-cancelled{ background: #f0f1f5;                    color: #6b7280; }
+
+    /* empty state CTA → terracotta */
+    .btn-cta {
+        background: #DB996C;
+        color: #fff;
+        border-color: transparent;
+    }
+    .btn-cta:hover { background: #c8844f; }
+
+    /* table header bg */
+    .thead-bg { background: #FCF8F3; }
+
+    /* stat card accent underline */
+    .stat-card-total   { border-top: 3px solid #AEDADD; }
+    .stat-card-pending { border-top: 3px solid #DB996C; }
+    .stat-card-approved{ border-top: 3px solid #6E7DA2; }
+    .stat-card-rejected{ border-top: 3px solid #c0392b; }
+</style>
+
     <!-- Quick Stats -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow-md p-4">
+        <div class="bg-white rounded-lg shadow-md p-4 stat-card-total">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">Total Requests</p>
                     <p class="text-2xl font-bold text-gray-800">{{ $requests->total() }}</p>
                 </div>
-                <div class="p-3 bg-blue-100 rounded-full">
-                    <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <div class="p-3 stat-icon-total rounded-full">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 2h8a1 1 0 110 2H6a1 1 0 110-2zm0 4h8a1 1 0 110 2H6a1 1 0 110-2z" clip-rule="evenodd"/>
                     </svg>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-md p-4">
+        <div class="bg-white rounded-lg shadow-md p-4 stat-card-pending">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">Pending</p>
@@ -41,15 +116,15 @@
                         {{ $requests->where('status', 'pending')->count() }}
                     </p>
                 </div>
-                <div class="p-3 bg-yellow-100 rounded-full">
-                    <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                <div class="p-3 stat-icon-pending rounded-full">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
                     </svg>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-md p-4">
+        <div class="bg-white rounded-lg shadow-md p-4 stat-card-approved">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">Approved</p>
@@ -57,15 +132,15 @@
                         {{ $requests->where('status', 'approved')->count() }}
                     </p>
                 </div>
-                <div class="p-3 bg-green-100 rounded-full">
-                    <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <div class="p-3 stat-icon-approved rounded-full">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-md p-4">
+        <div class="bg-white rounded-lg shadow-md p-4 stat-card-rejected">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">Rejected</p>
@@ -73,8 +148,8 @@
                         {{ $requests->where('status', 'rejected')->count() }}
                     </p>
                 </div>
-                <div class="p-3 bg-red-100 rounded-full">
-                    <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                <div class="p-3 stat-icon-rejected rounded-full">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
                     </svg>
                 </div>
@@ -94,7 +169,7 @@
                         Status
                     </label>
                     <select name="status" id="status" 
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            class="filter-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">All Statuses</option>
                         <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
                         <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
@@ -109,7 +184,7 @@
                         Priority
                     </label>
                     <select name="priority" id="priority" 
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            class="filter-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">All Priorities</option>
                         <option value="low" {{ request('priority') == 'low' ? 'selected' : '' }}>Low</option>
                         <option value="medium" {{ request('priority') == 'medium' ? 'selected' : '' }}>Medium</option>
@@ -124,7 +199,7 @@
                         From Date
                     </label>
                     <input type="date" name="from_date" id="from_date" value="{{ request('from_date') }}"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                           class="filter-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
 
                 <div>
@@ -132,7 +207,7 @@
                         To Date
                     </label>
                     <input type="date" name="to_date" id="to_date" value="{{ request('to_date') }}"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                           class="filter-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
             </div>
 
@@ -145,9 +220,9 @@
                     <div class="flex gap-2">
                         <input type="text" name="search" id="search" value="{{ request('search') }}"
                                placeholder="Enter search term..."
-                               class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                               class="filter-input flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <button type="submit" 
-                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+                                class="btn-search px-6 py-2 rounded-lg transition flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
@@ -158,7 +233,7 @@
 
                 @if(request()->hasAny(['status', 'priority', 'search', 'from_date', 'to_date']))
                     <a href="{{ route('requests.my-requests') }}" 
-                       class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition flex items-center gap-2">
+                       class="btn-clear px-6 py-2 rounded-lg transition flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                         </svg>
@@ -174,7 +249,7 @@
         @if($requests->count() > 0)
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                    <thead class="thead-bg">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Request #
@@ -214,29 +289,27 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
-                                        $priorityColors = [
-                                            'low' => 'bg-gray-100 text-gray-800',
-                                            'medium' => 'bg-blue-100 text-blue-800',
-                                            'high' => 'bg-yellow-100 text-yellow-800',
-                                            'urgent' => 'bg-red-100 text-red-800'
-                                        ];
-                                        $priorityColor = $priorityColors[$request->priority] ?? 'bg-gray-100 text-gray-800';
+                                        $priorityClass = [
+                                            'low'    => 'badge-low',
+                                            'medium' => 'badge-medium',
+                                            'high'   => 'badge-high',
+                                            'urgent' => 'badge-urgent',
+                                        ][$request->priority] ?? 'badge-low';
                                     @endphp
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $priorityColor }}">
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $priorityClass }}">
                                         {{ ucfirst($request->priority) }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
-                                        $statusColors = [
-                                            'pending' => 'bg-yellow-100 text-yellow-800',
-                                            'approved' => 'bg-green-100 text-green-800',
-                                            'rejected' => 'bg-red-100 text-red-800',
-                                            'cancelled' => 'bg-gray-100 text-gray-800'
-                                        ];
-                                        $statusColor = $statusColors[$request->status] ?? 'bg-gray-100 text-gray-800';
+                                        $statusClass = [
+                                            'pending'   => 'badge-pending',
+                                            'approved'  => 'badge-approved',
+                                            'rejected'  => 'badge-rejected',
+                                            'cancelled' => 'badge-cancelled',
+                                        ][$request->status] ?? 'badge-cancelled';
                                     @endphp
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusColor }}">
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClass }}">
                                         {{ ucfirst($request->status) }}
                                     </span>
                                 </td>
@@ -251,7 +324,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex items-center space-x-3">
                                         <a href="{{ route('requests.show', $request->id) }}" 
-                                           class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                                           class="action-view px-3 py-1.5 rounded-lg transition flex items-center gap-1">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -264,7 +337,7 @@
                                                   class="inline" onsubmit="return confirm('Are you sure you want to cancel this request?')">
                                                 @csrf
                                                 <button type="submit" 
-                                                        class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                                                        class="action-cancel px-3 py-1.5 rounded-lg transition flex items-center gap-1">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                                     </svg>
@@ -304,7 +377,7 @@
                 @if(!request()->hasAny(['status', 'priority', 'search']))
                     <div class="mt-6">
                         <a href="{{ route('requests.index') }}" 
-                           class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                           class="btn-cta inline-flex items-center px-4 py-2 border shadow-sm text-sm font-medium rounded-md">
                             <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>

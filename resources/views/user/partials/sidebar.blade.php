@@ -2,11 +2,11 @@
 
 <style>
 :root {
-    --cream:    #FAF7F0;
-    --sand:     #D8D2C2;
-    --blue-accent: #3498db;
-    --dark-blue: #2c3e50;
-    --navy:     #1e2b37;
+    --cream:       #FCF8F3;
+    --sand:        #AEDADD;
+    --blue-accent: #DB996C;
+    --dark-blue:   #4a5878;
+    --navy:        #3d4d68;
 }
 
 /* ── SIDEBAR ── */
@@ -31,7 +31,7 @@
     flex-direction: column;
     align-items: center;
     padding: 1.5rem 1rem;
-    border-bottom: 2px solid rgba(216,210,194,.15);
+    border-bottom: 2px solid rgba(174,218,221,.15);
 }
 .sidebar-logo img {
     width: 6.5rem;
@@ -39,7 +39,7 @@
     border-radius: 50%;
     margin-bottom: .75rem;
     border: 3px solid var(--blue-accent);
-    box-shadow: 0 4px 12px rgba(52,152,219,.25);
+    box-shadow: 0 4px 12px rgba(219,153,108,.25);
 }
 .sidebar-logo h2 {
     font-size: .7rem;
@@ -70,7 +70,7 @@
     font-weight: 600;
     transition: background .15s, color .15s;
 }
-.nav-link:hover { background: rgba(216,210,194,.08); color: var(--cream); }
+.nav-link:hover { background: rgba(174,218,221,.08); color: var(--cream); }
 .nav-link.active { background: var(--blue-accent); color: #fff; }
 .nav-link svg { width: 1.15rem; height: 1.15rem; flex-shrink: 0; }
 
@@ -91,8 +91,8 @@
     transition: background .15s, color .15s;
     font-family: inherit;
 }
-.accordion-btn:hover { background: rgba(216,210,194,.08); color: var(--cream); }
-.accordion-btn.active { background: rgba(52,152,219,.22); color: var(--cream); }
+.accordion-btn:hover { background: rgba(174,218,221,.08); color: var(--cream); }
+.accordion-btn.active { background: rgba(219,153,108,.22); color: var(--cream); }
 .accordion-left { display: flex; align-items: center; gap: .75rem; }
 .accordion-left svg { width: 1.15rem; height: 1.15rem; }
 .accordion-chevron {
@@ -111,7 +111,7 @@
 
 .accordion-submenu {
     margin-left: 2.2rem;
-    border-left: 2px solid rgba(216,210,194,.15);
+    border-left: 2px solid rgba(174,218,221,.15);
     padding-left: .75rem;
     padding-top: .25rem;
     padding-bottom: .25rem;
@@ -128,8 +128,8 @@
     transition: background .12s, color .12s;
     margin-bottom: .15rem;
 }
-.accordion-submenu a:hover { background: rgba(216,210,194,.08); color: var(--cream); }
-.accordion-submenu a.active { background: rgba(52,152,219,.3); color: #fff; }
+.accordion-submenu a:hover { background: rgba(174,218,221,.08); color: var(--cream); }
+.accordion-submenu a.active { background: rgba(219,153,108,.3); color: #fff; }
 
 /* Badge for cart count */
 .cart-badge {
@@ -153,7 +153,7 @@
     padding: .15rem .5rem;
     font-size: .65rem;
     font-weight: 700;
-    background: #e6a23c;
+    background: #6E7DA2;
     color: #fff;
     border-radius: 20px;
     box-shadow: 0 1px 4px rgba(0,0,0,.2);
@@ -162,7 +162,7 @@
 /* ── DIVIDER ── */
 .nav-divider {
     border: none;
-    border-top: 1px solid rgba(216,210,194,.15);
+    border-top: 1px solid rgba(174,218,221,.15);
     margin: .75rem 0;
 }
 
@@ -180,13 +180,13 @@
     font-family: inherit;
     font-size: .875rem;
     font-weight: 600;
-    color: #e8a89a;
+    color: rgba(174,218,221,.7);
     transition: background .15s, color .15s, transform .1s;
     text-align: left;
 }
 .logout-btn:hover {
-    background: rgba(192,57,43,.15);
-    color: #f5c7bd;
+    background: rgba(219,153,108,.15);
+    color: #FCF8F3;
     transform: translateY(-1px);
 }
 .logout-btn svg { width: 1.15rem; height: 1.15rem; flex-shrink: 0; }
@@ -195,7 +195,7 @@
 .user-footer {
     margin-top: auto;
     padding: 1rem .75rem;
-    border-top: 1px solid rgba(216,210,194,.15);
+    border-top: 1px solid rgba(174,218,221,.15);
 }
 .user-info {
     display: flex;
@@ -208,16 +208,16 @@
 .user-avatar {
     width: 2.5rem;
     height: 2.5rem;
-    background: linear-gradient(135deg, var(--blue-accent), #2980b9);
+    background: linear-gradient(135deg, #AEDADD, #7bbfc3);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--cream);
+    color: #4a5878;
     font-size: .9rem;
     font-weight: 700;
     flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(52,152,219,.35);
+    box-shadow: 0 2px 8px rgba(174,218,221,.35);
     font-family: 'Georgia', serif;
 }
 .user-details {
@@ -253,7 +253,7 @@
     border: 2px solid var(--blue-accent);
     border-radius: 8px;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(44,62,80,.25);
+    box-shadow: 0 4px 12px rgba(74,88,120,.25);
 }
 .mobile-toggle svg { width: 1.4rem; height: 1.4rem; }
 
@@ -281,7 +281,7 @@
 .logout-modal-card {
     background: var(--cream);
     border-radius: 12px;
-    box-shadow: 0 12px 48px rgba(44,62,80,.3);
+    box-shadow: 0 12px 48px rgba(74,88,120,.3);
     max-width: 26rem;
     width: 100%;
     padding: 1.5rem;
@@ -293,9 +293,9 @@
     width: 4rem; height: 4rem;
     margin: 0 auto 1rem;
     border-radius: 50%;
-    background: #ffe6e6;
+    background: rgba(219,153,108,.15);
 }
-.logout-modal-icon svg { width: 2rem; height: 2rem; color: #c0392b; }
+.logout-modal-icon svg { width: 2rem; height: 2rem; color: #DB996C; }
 .logout-modal-title {
     font-size: 1.15rem;
     font-weight: 700;
@@ -330,15 +330,15 @@
     gap: .4rem;
 }
 .modal-btn-cancel {
-    background: var(--sand);
-    color: var(--dark-blue);
+    background: #AEDADD;
+    color: #4a5878;
 }
-.modal-btn-cancel:hover { background: #c5bfaf; }
+.modal-btn-cancel:hover { background: #8ecdd0; }
 .modal-btn-confirm {
-    background: #c0392b;
+    background: #DB996C;
     color: #fff;
 }
-.modal-btn-confirm:hover { background: #a02f23; transform: translateY(-1px); }
+.modal-btn-confirm:hover { background: #c8844f; transform: translateY(-1px); }
 .modal-btn svg { width: 1.1rem; height: 1.1rem; }
 .modal-btn:disabled {
     opacity: .6;
@@ -349,8 +349,8 @@
 /* ── SCROLLBAR ── */
 #sidebar::-webkit-scrollbar { width: 4px; }
 #sidebar::-webkit-scrollbar-track { background: rgba(0,0,0,.15); }
-#sidebar::-webkit-scrollbar-thumb { background: rgba(216,210,194,.3); border-radius: 2px; }
-#sidebar::-webkit-scrollbar-thumb:hover { background: rgba(216,210,194,.5); }
+#sidebar::-webkit-scrollbar-thumb { background: rgba(174,218,221,.3); border-radius: 2px; }
+#sidebar::-webkit-scrollbar-thumb:hover { background: rgba(174,218,221,.5); }
 
 /* ── MOBILE ── */
 @media (max-width: 768px) {

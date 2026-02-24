@@ -1,6 +1,3 @@
-<div>
-    <!-- People find pleasure in different ways. I find it in keeping my mind clear. - Marcus Aurelius -->
-</div>
 @extends('layouts.user')
 
 @section('title', 'Request #' . $request->id)
@@ -18,7 +15,7 @@
             <li><svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </li>
-            <li class="text-blue-600 font-medium">Request #{{ $request->id }}</li>
+            <li style="color:#6E7DA2;" class="font-medium">Request #{{ $request->id }}</li>
         </ol>
     </nav>
 @endsection
@@ -50,11 +47,87 @@
 @endsection
 
 @section('content')
+<style>
+    /* ── PALETTE ──────────────────────────────────────────
+       #FCF8F3  cream       → banner bg, card headers
+       #AEDADD  teal        → info icon, issued badge, completed
+       #DB996C  terracotta  → pending, CTA buttons
+       #6E7DA2  slate       → approved, breadcrumb, links
+    ───────────────────────────────────────────────────── */
+
+    /* banner icon → teal */
+    .banner-icon { background:rgba(174,218,221,0.18); border-color:rgba(174,218,221,0.35); }
+    .banner-icon svg { color:#7bbfc3; }
+
+    /* banner + card surfaces */
+    .banner-bg    { background:#FCF8F3; }
+    .banner-divider { border-color:#eaecf2; }
+    .card-hdr-bg  { background:#FCF8F3; border-color:#eaecf2; }
+    .card-hdr-icon { color:#AEDADD; }
+    .items-pill   { background:#f0f1f5; color:#6b7280; }
+
+    /* STATUS BADGES */
+    .badge-pending   { background:rgba(219,153,108,0.15); color:#b07040; border:1px solid rgba(219,153,108,0.25); }
+    .badge-approved  { background:rgba(110,125,162,0.15); color:#4a5878; border:1px solid rgba(110,125,162,0.25); }
+    .badge-rejected  { background:rgba(192,57,43,0.10);   color:#c0392b; border:1px solid rgba(192,57,43,0.18); }
+    .badge-cancelled { background:#f0f1f5;                color:#6b7280; border:1px solid #e2e4ec; }
+    .badge-completed { background:rgba(174,218,221,0.2);  color:#5a8fa0; border:1px solid rgba(174,218,221,0.35); }
+
+    /* PRIORITY BADGES */
+    .badge-low    { background:#f0f1f5;                    color:#6b7280; border:1px solid #e2e4ec; }
+    .badge-medium { background:rgba(174,218,221,0.2);     color:#5a8fa0; border:1px solid rgba(174,218,221,0.3); }
+    .badge-high   { background:rgba(219,153,108,0.15);    color:#b07040; border:1px solid rgba(219,153,108,0.25); }
+    .badge-urgent { background:rgba(192,57,43,0.1);       color:#c0392b; border:1px solid rgba(192,57,43,0.18); }
+
+    /* STAT NUMBERS */
+    .stat-approved { color:#6E7DA2; }
+    .stat-pending  { color:#DB996C; }
+
+    /* ITEM ROW BADGES */
+    .ibadge-pending   { background:rgba(219,153,108,0.12); color:#b07040; border:1px solid rgba(219,153,108,0.2); }
+    .ibadge-approved  { background:rgba(110,125,162,0.12); color:#4a5878; border:1px solid rgba(110,125,162,0.2); }
+    .ibadge-rejected  { background:rgba(192,57,43,0.08);   color:#c0392b; border:1px solid rgba(192,57,43,0.15); }
+    .ibadge-cancelled { background:#f0f1f5;                color:#6b7280; border:1px solid #e2e4ec; }
+    .ibadge-issued    { background:rgba(174,218,221,0.18); color:#5a8fa0; border:1px solid rgba(174,218,221,0.3); }
+
+    /* BREAKDOWN DOTS + PILLS */
+    .dot-pending  { background:#DB996C; }
+    .dot-approved { background:#6E7DA2; }
+    .dot-rejected { background:#c0392b; }
+    .pill-pending  { background:rgba(219,153,108,0.12); border-color:rgba(219,153,108,0.2); color:#1e2535; }
+    .pill-approved { background:rgba(110,125,162,0.10); border-color:rgba(110,125,162,0.2); color:#1e2535; }
+    .pill-rejected { background:rgba(192,57,43,0.08);   border-color:rgba(192,57,43,0.15); color:#1e2535; }
+
+    /* PROGRESS BAR */
+    .prog-approved { background:#6E7DA2; }
+    .prog-rejected { background:#c0392b; }
+    .prog-pending  { background:#DB996C; }
+
+    /* CANCELLED ROW */
+    .cancelled-row   { background:rgba(219,153,108,0.06); }
+    .cancelled-label { color:#b07040; }
+    .cancelled-val   { color:#b07040; font-weight:600; }
+
+    /* FLASH SUCCESS → teal */
+    .flash-success {
+        background:rgba(174,218,221,0.12);
+        border-color:rgba(174,218,221,0.35);
+        color:#4a5878;
+    }
+    .flash-success svg { color:#7bbfc3; }
+
+    /* REORDER CTA → terracotta */
+    .btn-reorder { background:#DB996C; color:#fff; }
+    .btn-reorder:hover { background:#c8844f; }
+
+    /* TABLE THEAD */
+    .thead-cream { background:#FCF8F3; }
+</style>
 
     {{-- Flash Messages --}}
     @if(session('success'))
-        <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg flex items-center gap-3">
-            <svg class="w-5 h-5 flex-shrink-0 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="mb-6 p-4 flash-success border rounded-lg flex items-center gap-3">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <span class="text-sm font-medium">{{ session('success') }}</span>
@@ -71,14 +144,20 @@
     @endif
 
     @php
-        $statusColors = [
-            'pending'   => 'bg-yellow-100 text-yellow-800 border border-yellow-200',
-            'approved'  => 'bg-green-100 text-green-800 border border-green-200',
-            'rejected'  => 'bg-red-100 text-red-800 border border-red-200',
-            'cancelled' => 'bg-gray-100 text-gray-600 border border-gray-200',
-            'completed' => 'bg-blue-100 text-blue-800 border border-blue-200',
-        ];
-        $statusColor = $statusColors[$request->status] ?? 'bg-gray-100 text-gray-600';
+        $statusBadgeClass = [
+            'pending'   => 'badge-pending',
+            'approved'  => 'badge-approved',
+            'rejected'  => 'badge-rejected',
+            'cancelled' => 'badge-cancelled',
+            'completed' => 'badge-completed',
+        ][$request->status] ?? 'badge-cancelled';
+
+        $priorityBadgeClass = [
+            'low'    => 'badge-low',
+            'medium' => 'badge-medium',
+            'high'   => 'badge-high',
+            'urgent' => 'badge-urgent',
+        ][$request->priority] ?? 'badge-low';
 
         $statusIcons = [
             'pending'   => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>',
@@ -89,14 +168,6 @@
         ];
         $statusIcon = $statusIcons[$request->status] ?? $statusIcons['pending'];
 
-        $priorityColors = [
-            'low'    => 'bg-gray-100 text-gray-600 border border-gray-200',
-            'medium' => 'bg-blue-100 text-blue-700 border border-blue-200',
-            'high'   => 'bg-orange-100 text-orange-700 border border-orange-200',
-            'urgent' => 'bg-red-100 text-red-700 border border-red-200',
-        ];
-        $priorityColor = $priorityColors[$request->priority] ?? 'bg-gray-100 text-gray-600';
-
         $approvedItems = $request->requestItems->where('status', 'approved')->count();
         $rejectedItems = $request->requestItems->where('status', 'rejected')->count();
         $pendingItems  = $request->requestItems->where('status', 'pending')->count();
@@ -105,11 +176,11 @@
     @endphp
 
     {{-- Top Summary Banner --}}
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-6 overflow-hidden">
+    <div class="banner-bg rounded-xl border banner-divider shadow-sm mb-6 overflow-hidden">
         <div class="px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-12 h-12 rounded-full banner-icon border flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                     </svg>
                 </div>
@@ -119,11 +190,11 @@
                 </div>
             </div>
             <div class="flex flex-wrap items-center gap-3">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full {{ $statusColor }}">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full {{ $statusBadgeClass }}">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">{!! $statusIcon !!}</svg>
                     {{ ucfirst($request->status) }}
                 </span>
-                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full {{ $priorityColor }}">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full {{ $priorityBadgeClass }}">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/>
                     </svg>
@@ -136,7 +207,7 @@
         </div>
 
         {{-- Stats Row --}}
-        <div class="border-t border-gray-100 grid grid-cols-2 sm:grid-cols-4 divide-x divide-gray-100">
+        <div class="border-t banner-divider grid grid-cols-2 sm:grid-cols-4 divide-x" style="border-color:#eaecf2;">
             <div class="px-6 py-4 text-center">
                 <p class="text-2xl font-bold text-gray-900">{{ $totalItems }}</p>
                 <p class="text-xs text-gray-400 mt-0.5 uppercase tracking-wide">Total Items</p>
@@ -146,11 +217,11 @@
                 <p class="text-xs text-gray-400 mt-0.5 uppercase tracking-wide">Total Qty</p>
             </div>
             <div class="px-6 py-4 text-center">
-                <p class="text-2xl font-bold {{ $approvedItems > 0 ? 'text-green-600' : 'text-gray-300' }}">{{ $approvedItems }}</p>
+                <p class="text-2xl font-bold {{ $approvedItems > 0 ? 'stat-approved' : 'text-gray-300' }}" style="{{ $approvedItems > 0 ? 'color:#6E7DA2' : '' }}">{{ $approvedItems }}</p>
                 <p class="text-xs text-gray-400 mt-0.5 uppercase tracking-wide">Approved</p>
             </div>
             <div class="px-6 py-4 text-center">
-                <p class="text-2xl font-bold {{ $pendingItems > 0 ? 'text-yellow-500' : 'text-gray-300' }}">{{ $pendingItems }}</p>
+                <p class="text-2xl font-bold" style="{{ $pendingItems > 0 ? 'color:#DB996C' : 'color:#d1d5db' }}">{{ $pendingItems }}</p>
                 <p class="text-xs text-gray-400 mt-0.5 uppercase tracking-wide">Pending</p>
             </div>
         </div>
@@ -163,8 +234,8 @@
 
             {{-- Request Details Card --}}
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                <div class="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
-                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="card-hdr-bg px-5 py-4 border-b flex items-center gap-2">
+                    <svg class="w-4 h-4 card-hdr-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Request Info</h3>
@@ -206,9 +277,9 @@
                     @endif
 
                     @if($request->status === 'cancelled' && $request->cancelled_at)
-                        <div class="px-5 py-3.5 bg-red-50">
-                            <span class="text-xs text-red-400 uppercase tracking-wide block mb-1.5">Cancelled At</span>
-                            <p class="text-sm text-red-700 font-medium">
+                        <div class="px-5 py-3.5 cancelled-row">
+                            <span class="text-xs cancelled-label uppercase tracking-wide block mb-1.5">Cancelled At</span>
+                            <p class="text-sm cancelled-val">
                                 {{ \Carbon\Carbon::parse($request->cancelled_at)->format('M d, Y g:i A') }}
                             </p>
                         </div>
@@ -219,8 +290,8 @@
             {{-- Item Status Breakdown --}}
             @if($totalItems > 0)
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <div class="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="card-hdr-bg px-5 py-4 border-b flex items-center gap-2">
+                        <svg class="w-4 h-4 card-hdr-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
                         <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Item Breakdown</h3>
@@ -229,43 +300,42 @@
                         @if($pendingItems > 0)
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <span class="w-2 h-2 rounded-full bg-yellow-400 flex-shrink-0"></span>
+                                    <span class="w-2 h-2 rounded-full dot-pending flex-shrink-0"></span>
                                     <span class="text-sm text-gray-600">Pending</span>
                                 </div>
-                                <span class="text-sm font-semibold text-gray-900 bg-yellow-50 px-2.5 py-0.5 rounded-full border border-yellow-100">{{ $pendingItems }}</span>
+                                <span class="text-sm font-semibold pill-pending px-2.5 py-0.5 rounded-full border">{{ $pendingItems }}</span>
                             </div>
                         @endif
                         @if($approvedItems > 0)
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <span class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></span>
+                                    <span class="w-2 h-2 rounded-full dot-approved flex-shrink-0"></span>
                                     <span class="text-sm text-gray-600">Approved</span>
                                 </div>
-                                <span class="text-sm font-semibold text-gray-900 bg-green-50 px-2.5 py-0.5 rounded-full border border-green-100">{{ $approvedItems }}</span>
+                                <span class="text-sm font-semibold pill-approved px-2.5 py-0.5 rounded-full border">{{ $approvedItems }}</span>
                             </div>
                         @endif
                         @if($rejectedItems > 0)
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <span class="w-2 h-2 rounded-full bg-red-400 flex-shrink-0"></span>
+                                    <span class="w-2 h-2 rounded-full dot-rejected flex-shrink-0"></span>
                                     <span class="text-sm text-gray-600">Rejected</span>
                                 </div>
-                                <span class="text-sm font-semibold text-gray-900 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-100">{{ $rejectedItems }}</span>
+                                <span class="text-sm font-semibold pill-rejected px-2.5 py-0.5 rounded-full border">{{ $rejectedItems }}</span>
                             </div>
                         @endif
 
-                        {{-- Progress Bar --}}
                         @if($totalItems > 0)
                             <div class="pt-2">
                                 <div class="flex rounded-full overflow-hidden h-1.5 bg-gray-100">
                                     @if($approvedItems > 0)
-                                        <div class="bg-green-400 h-1.5 transition-all" style="width: {{ ($approvedItems / $totalItems) * 100 }}%"></div>
+                                        <div class="prog-approved h-1.5 transition-all" style="width: {{ ($approvedItems / $totalItems) * 100 }}%"></div>
                                     @endif
                                     @if($rejectedItems > 0)
-                                        <div class="bg-red-400 h-1.5 transition-all" style="width: {{ ($rejectedItems / $totalItems) * 100 }}%"></div>
+                                        <div class="prog-rejected h-1.5 transition-all" style="width: {{ ($rejectedItems / $totalItems) * 100 }}%"></div>
                                     @endif
                                     @if($pendingItems > 0)
-                                        <div class="bg-yellow-300 h-1.5 transition-all" style="width: {{ ($pendingItems / $totalItems) * 100 }}%"></div>
+                                        <div class="prog-pending h-1.5 transition-all" style="width: {{ ($pendingItems / $totalItems) * 100 }}%"></div>
                                     @endif
                                 </div>
                                 <p class="text-xs text-gray-400 mt-1.5 text-right">{{ $totalItems }} total item(s)</p>
@@ -281,14 +351,14 @@
         <div class="lg:col-span-2 space-y-5">
 
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <div class="card-hdr-bg px-6 py-4 border-b flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 card-hdr-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
                         </svg>
                         <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Items Ordered</h3>
                     </div>
-                    <span class="text-xs text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full font-medium">
+                    <span class="text-xs items-pill px-2.5 py-1 rounded-full font-medium">
                         {{ $totalItems }} {{ Str::plural('item', $totalItems) }}
                     </span>
                 </div>
@@ -306,7 +376,7 @@
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead>
-                                <tr class="bg-gray-50 border-b border-gray-100">
+                                <tr class="thead-cream border-b border-gray-100">
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Item</th>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Category</th>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Qty</th>
@@ -317,14 +387,13 @@
                             <tbody class="divide-y divide-gray-50">
                                 @foreach($request->requestItems as $requestItem)
                                     @php
-                                        $itemStatusColors = [
-                                            'pending'   => 'bg-yellow-50 text-yellow-700 border border-yellow-100',
-                                            'approved'  => 'bg-green-50 text-green-700 border border-green-100',
-                                            'rejected'  => 'bg-red-50 text-red-700 border border-red-100',
-                                            'cancelled' => 'bg-gray-100 text-gray-500 border border-gray-200',
-                                            'issued'    => 'bg-blue-50 text-blue-700 border border-blue-100',
-                                        ];
-                                        $itemStatusColor = $itemStatusColors[$requestItem->status] ?? 'bg-gray-100 text-gray-500';
+                                        $ibadge = [
+                                            'pending'   => 'ibadge-pending',
+                                            'approved'  => 'ibadge-approved',
+                                            'rejected'  => 'ibadge-rejected',
+                                            'cancelled' => 'ibadge-cancelled',
+                                            'issued'    => 'ibadge-issued',
+                                        ][$requestItem->status] ?? 'ibadge-cancelled';
                                     @endphp
                                     <tr class="hover:bg-gray-50 transition-colors">
                                         <td class="px-6 py-4">
@@ -353,7 +422,7 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4">
-                                            <span class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full {{ $itemStatusColor }}">
+                                            <span class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full {{ $ibadge }}">
                                                 {{ ucfirst($requestItem->status ?? 'pending') }}
                                             </span>
                                         </td>
@@ -397,7 +466,7 @@
                         <p class="text-xs text-gray-400 mt-0.5">Browse available items and add them to your cart.</p>
                     </div>
                     <a href="{{ route('requests.index') }}"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-semibold flex-shrink-0">
+                        class="btn-reorder inline-flex items-center gap-2 px-5 py-2.5 rounded-lg transition text-sm font-semibold flex-shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>

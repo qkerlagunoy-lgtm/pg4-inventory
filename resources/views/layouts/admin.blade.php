@@ -9,7 +9,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body style="background-color: #FAF7F0;">
     <div class="flex min-h-screen">
         <!-- Sidebar -->
         @include('admin.partials.sidebar')
@@ -21,18 +21,8 @@
             
             <!-- Page Content -->
             <main class="flex-1 p-6 overflow-y-auto">
-                <!-- Flash Messages -->
-                @if(session('success'))
-                    <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-                        {{ session('success') }}
-                    </div>
-                @endif
+               
                 
-                @if(session('error'))
-                    <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                        {{ session('error') }}
-                    </div>
-                @endif
                 
                 @if(session('info'))
                     <div class="mb-4 bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded">

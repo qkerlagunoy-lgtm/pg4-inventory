@@ -1,21 +1,7 @@
 @extends('layouts.user')
 
+
 @section('title', 'Request Items')
-
-@section('page-title', 'Request Items')
-
-@section('breadcrumb')
-    <nav class="mb-4">
-        <ol class="flex items-center space-x-2 text-sm">
-            <li><a href="{{ route('dashboard') }}" class="text-gray-500 hover:text-gray-700">Dashboard</a></li>
-            <li><svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            </li>
-            <li class="text-blue-600 font-medium">Request Items</li>
-        </ol>
-    </nav>
-@endsection
-
 @section('header-actions')
     @php
         $cart = session()->get('cart', []);
@@ -23,48 +9,78 @@
         $cartTotal = array_sum(array_column($cart, 'quantity'));
     @endphp
     <a href="{{ route('requests.cart') }}" 
-       class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition flex items-center gap-2">
+       style="background:#DB996C;" 
+       class="px-4 py-2 text-white rounded-lg hover:opacity-90 transition flex items-center gap-2">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
         </svg>
         View Cart
         @if($cartCount > 0)
-            <span class="px-2 py-1 text-xs font-bold bg-white text-yellow-700 rounded-full">{{ $cartTotal }}</span>
+            <span class="px-2 py-1 text-xs font-bold bg-white rounded-full" style="color:#DB996C;">{{ $cartTotal }}</span>
         @endif
     </a>
 @endsection
 
 @section('content')
-    <!-- Flash Messages -->
-    @if(session('success'))
-        <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
-                </div>
-            </div>
-        </div>
-    @endif
+<style>
+    /* focus rings → slate */
+    .f-input:focus {
+        outline: none;
+        border-color: #6E7DA2 !important;
+        box-shadow: 0 0 0 3px rgba(110,125,162,0.18);
+    }
 
-    @if(session('error'))
-        <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
-                </div>
-            </div>
-        </div>
-    @endif
+    /* quick filter pills */
+    .qf-stock    { background:rgba(174,218,221,0.25); color:#5a9ea0; }
+    .qf-stock:hover { background:rgba(174,218,221,0.45); }
+    .qf-low      { background:rgba(219,153,108,0.18); color:#b07040; }
+    .qf-low:hover { background:rgba(219,153,108,0.32); }
+    .qf-expiring { background:rgba(192,57,43,0.1);   color:#c0392b; }
+    .qf-expiring:hover { background:rgba(192,57,43,0.18); }
+    .qf-clear    { background:#f0f1f5; color:#6b7280; }
+    .qf-clear:hover { background:#e2e4ec; }
+
+    /* category badge → teal */
+    .badge-category { background:rgba(174,218,221,0.25); color:#5a8fa0; }
+
+    /* stock status badges */
+    .badge-instock   { background:rgba(110,125,162,0.15); color:#4a5878; }
+    .badge-lowstock  { background:rgba(219,153,108,0.18); color:#b07040; }
+    .badge-outstock  { background:#f0f1f5;                color:#6b7280; }
+    .badge-expiring  { background:rgba(192,57,43,0.1);   color:#c0392b; }
+    .badge-expired   { background:#f0f1f5;                color:#6b7280; }
+
+    /* add to cart button → terracotta */
+    .btn-add-cart {
+        background: #DB996C;
+        color: #fff;
+    }
+    .btn-add-cart:hover { background: #c8844f; }
+
+    /* table thead */
+    .thead-cream { background: #FCF8F3; }
+
+    /* modal icon circle → teal */
+    .modal-icon-bg { background: rgba(174,218,221,0.25); }
+    .modal-icon-bg svg { color: #7bbfc3; }
+
+    /* modal submit → terracotta */
+    .btn-modal-submit { background: #DB996C; color: #fff; }
+    .btn-modal-submit:hover { background: #c8844f; }
+
+    /* modal cancel */
+    .btn-modal-cancel { background: #f0f1f5; color: #4a5878; }
+    .btn-modal-cancel:hover { background: #e2e4ec; }
+
+    /* flash success */
+    .flash-success { background:#f0faf9; border-left-color:#AEDADD; }
+    .flash-success svg { color:#7bbfc3; }
+    .flash-success p   { color:#4a5878; }
+
+    /* flash error stays red (semantic) */
+</style>
+
+
 
     <!-- Search and Filter Card -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -73,7 +89,7 @@
                 <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-2">Search Items</label>
                 <div class="relative">
                     <input type="text" id="searchInput" placeholder="Search by name, category, or description..." 
-                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                           class="f-input w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
@@ -81,7 +97,7 @@
             </div>
             <div class="flex items-end">
                 <button onclick="resetSearch()" 
-                        class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center gap-2">
+                        class="qf-clear px-6 py-2 rounded-lg transition flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                     </svg>
@@ -93,10 +109,10 @@
         <!-- Quick Filters -->
         <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200">
             <span class="text-sm text-gray-600 mr-2 py-1">Quick filters:</span>
-            <button onclick="filterByStatus('available')" class="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition">In Stock</button>
-            <button onclick="filterByStatus('low')" class="px-3 py-1 text-xs bg-yellow-100 text-yellow-700 rounded-full hover:bg-yellow-200 transition">Low Stock</button>
-            <button onclick="filterByStatus('expiring')" class="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-full hover:bg-red-200 transition">Expiring Soon</button>
-            <button onclick="resetSearch()" class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition">Clear All</button>
+            <button onclick="filterByStatus('available')" class="qf-stock px-3 py-1 text-xs rounded-full transition">In Stock</button>
+            <button onclick="filterByStatus('low')"       class="qf-low   px-3 py-1 text-xs rounded-full transition">Low Stock</button>
+            <button onclick="filterByStatus('expiring')"  class="qf-expiring px-3 py-1 text-xs rounded-full transition">Expiring Soon</button>
+            <button onclick="resetSearch()"               class="qf-clear px-3 py-1 text-xs rounded-full transition">Clear All</button>
         </div>
     </div>
 
@@ -104,7 +120,7 @@
     <div class="bg-white rounded-lg shadow-md overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200" id="itemsTable">
-                <thead class="bg-gray-50">
+                <thead class="thead-cream">
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Name</th>
@@ -123,7 +139,7 @@
                             data-stock="{{ $item->quantity }}"
                             data-minimum="{{ $item->minimum_quantity }}">
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                                <span class="badge-category px-3 py-1 text-xs font-medium rounded-full">
                                     {{ $item->category->name ?? 'Uncategorized' }}
                                 </span>
                             </td>
@@ -145,25 +161,25 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="space-y-1">
                                     @if($item->quantity == 0)
-                                        <span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">Out of Stock</span>
+                                        <span class="badge-outstock px-2 py-1 text-xs rounded-full">Out of Stock</span>
                                     @elseif($item->quantity <= $item->minimum_quantity)
-                                        <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Low Stock</span>
+                                        <span class="badge-lowstock px-2 py-1 text-xs rounded-full">Low Stock</span>
                                     @else
-                                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">In Stock</span>
+                                        <span class="badge-instock px-2 py-1 text-xs rounded-full">In Stock</span>
                                     @endif
                                     
                                     @if($item->isExpiringSoon(30))
-                                        <span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">Expiring Soon</span>
+                                        <span class="badge-expiring px-2 py-1 text-xs rounded-full">Expiring Soon</span>
                                     @endif
                                     @if($item->isExpired())
-                                        <span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">Expired</span>
+                                        <span class="badge-expired px-2 py-1 text-xs rounded-full">Expired</span>
                                     @endif
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($item->quantity > 0)
                                     <button onclick="openAddToCartModal({{ $item->id }}, '{{ $item->name }}', {{ $item->quantity }}, '{{ $item->unit }}')" 
-                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">
+                                            class="btn-add-cart inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition">
                                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                         </svg>
@@ -206,8 +222,8 @@
 <div id="addToCartModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
     <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
-                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full modal-icon-bg mb-4">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                 </svg>
             </div>
@@ -225,7 +241,7 @@
                         </label>
                         <div class="flex items-center space-x-3">
                             <input type="number" id="modalQuantity" name="quantity" min="1" 
-                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   class="f-input flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                    required>
                             <div class="w-20 text-center">
                                 <span class="text-sm text-gray-500" id="modalUnit">—</span>
@@ -239,18 +255,18 @@
                             Notes (Optional)
                         </label>
                         <textarea id="modalNotes" name="notes" rows="2"
-                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  class="f-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                   placeholder="Add any specific requirements..."></textarea>
                     </div>
                     
                     <div class="flex justify-center space-x-3 pt-2">
                         <button type="button" 
                                 onclick="closeModal()"
-                                class="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-400">
+                                class="btn-modal-cancel px-4 py-2 text-base font-medium rounded-md shadow-sm">
                             Cancel
                         </button>
                         <button type="submit" 
-                                class="px-4 py-2 bg-blue-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-700">
+                                class="btn-modal-submit px-4 py-2 text-base font-medium rounded-md shadow-sm">
                             Add to Cart
                         </button>
                     </div>
