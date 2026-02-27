@@ -294,80 +294,144 @@ class AdminController extends Controller
             'issued_items.*.due_date' => 'nullable|date|after_or_equal:today',
             'remarks' => 'nullable|string|max:500',
         ]);
+
         DB::beginTransaction();
         try {
-            $itemRequest = ItemRequest::with('requestItems')->findOrFail($id);
+            // Load the item request with its items
+            $itemRequest = ItemRequest::with(['requestItems.item'])->findOrFail($id);
+
+            // Verify request is approved
+            if ($itemRequest->status !== 'approved') {
+                throw new \Exception('Only approved requests can be processed for issuance.');
+            }
+
             // Create issuance record
             $issuance = Issuance::create([
                 'item_request_id' => $itemRequest->id,
                 'issued_by' => auth()->id(),
                 'issued_at' => now(),
                 'status' => 'pending',
-                'remarks' => $validated['remarks'],
+                'remarks' => $validated['remarks'] ?? null,
             ]);
-            $issuedCount = 0;
-            $totalRequested = count(value: $itemRequest->requestItems);
+
+            $itemsProcessed = 0;
+            $totalItems = count($itemRequest->requestItems);
+
             foreach ($validated['issued_items'] as $issuedItem) {
-                $item = Item::find($issuedItem['item_id']);
-                // Validate quantity
-                $requestedItem = $itemRequest->requestItems
+                // Find the corresponding request item
+                $requestItem = $itemRequest->requestItems
                     ->where('item_id', $issuedItem['item_id'])
                     ->first();
-                if (!$requestedItem) {
-                    throw new \Exception("Item not found in request.");
+
+                if (!$requestItem) {
+                    throw new \Exception("Item ID {$issuedItem['item_id']} not found in the original request.");
                 }
-                if ($issuedItem['quantity'] > $requestedItem->quantity) {
-                    throw new \Exception("Cannot issue more than requested quantity for {$item->name}.");
+
+                // Validate quantity doesn't exceed approved quantity
+                $approvedQty = $requestItem->approved_quantity ?? $requestItem->quantity;
+                if ($issuedItem['quantity'] > $approvedQty) {
+                    throw new \Exception(
+                        "Cannot issue more than approved quantity for item {$requestItem->item->name}. " .
+                        "Approved: {$approvedQty}, Requested: {$issuedItem['quantity']}"
+                    );
                 }
+
+                // Check inventory
+                $item = $requestItem->item;
                 if ($item->quantity < $issuedItem['quantity']) {
-                    throw new \Exception("Insufficient stock for {$item->name}. Available: {$item->quantity}");
+                    throw new \Exception(
+                        "Insufficient stock for {$item->name}. Available: {$item->quantity}, " .
+                        "Requested: {$issuedItem['quantity']}"
+                    );
                 }
-                // Create issuance item
+
+                // Create issuance item record
                 IssuanceItem::create([
                     'issuance_id' => $issuance->id,
+                    'item_request_id' => $itemRequest->id,
+                    'request_item_id' => $requestItem->id,
                     'item_id' => $issuedItem['item_id'],
                     'quantity_issued' => $issuedItem['quantity'],
+                    'quantity_returned' => 0,
+                    'issue_date' => now()->toDateString(),
                     'due_date' => $issuedItem['due_date'] ?? null,
                     'status' => 'issued',
+                    'unit_cost_at_time' => $item->unit_cost ?? 0,
+                    'total_cost' => ($item->unit_cost ?? 0) * $issuedItem['quantity'],
+                    'notes' => $validated['remarks'] ?? null,
                 ]);
+
                 // Reduce inventory
                 $item->decrement('quantity', $issuedItem['quantity']);
-                // Update request item status
-                if ($issuedItem['quantity'] == $requestedItem->quantity) {
-                    $requestedItem->update(['status' => 'issued']);
-                } else {
-                    $requestedItem->update(['status' => 'partially_issued']);
-                }
-                $issuedCount++;
+
+                $itemsProcessed++;
             }
+
             // Update issuance status
-            $issuanceStatus = ($issuedCount == 0) ? 'pending' :
-                            (($issuedCount < $totalRequested) ? 'partially_issued' : 'completed');
-            $issuance->update(['status' => $issuanceStatus]);
-            // Update request issuance status
-            $requestIssuanceStatus = ($issuedCount == 0) ? 'not_issued' :
-                                (($issuedCount < $totalRequested) ? 'partially_issued' : 'fully_issued');
-            $itemRequest->update([
-                'issuance_status' => $requestIssuanceStatus,
-                'issued_by' => auth()->id(),
-                'actual_issue_date' => now(),
-            ]);
-            // Create notification for user
+            if ($itemsProcessed == 0) {
+                $issuance->update(['status' => 'pending']);
+            } elseif ($itemsProcessed < $totalItems) {
+                $issuance->update(['status' => 'partially_completed']);
+            } else {
+                $issuance->update(['status' => 'completed']);
+            }
+
+            // Update item request issuance status
+            $this->updateItemRequestIssuanceStatus($itemRequest);
+
+            // Create notification
             Notification::create([
                 'user_id' => $itemRequest->user_id,
                 'type' => 'items_issued',
                 'title' => 'Items Issued',
                 'message' => "Items from your request #{$itemRequest->id} have been issued.",
-                'data' => ['request_id' => $itemRequest->id, 'issuance_id' => $issuance->id],
+                'data' => [
+                    'request_id' => $itemRequest->id,
+                    'issuance_id' => $issuance->id,
+                    'items_issued' => $itemsProcessed
+                ],
             ]);
+
             DB::commit();
+
             return redirect()->route('admin.orders.issuances')
-                ->with('success', 'Issuance created successfully.');
+                ->with('success', "Issuance created successfully. {$itemsProcessed} item(s) issued.");
+
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Issuance processing failed: ' . $e->getMessage(), [
+                'request_id' => $id,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return back()->with('error', 'Failed to process issuance: ' . $e->getMessage())
                 ->withInput();
         }
+    }
+
+    /**
+     * Helper method to update item request issuance status
+     */
+    private function updateItemRequestIssuanceStatus(ItemRequest $itemRequest)
+    {
+        $totalItems = $itemRequest->requestItems->count();
+        $issuedCount = IssuanceItem::where('item_request_id', $itemRequest->id)
+            ->distinct('request_item_id')
+            ->count('request_item_id');
+        
+        if ($issuedCount == 0) {
+            $status = 'not_issued';
+        } elseif ($issuedCount < $totalItems) {
+            $status = 'partially_issued';
+        } else {
+            $status = 'fully_issued';
+        }
+        
+        $itemRequest->update([
+            'issuance_status' => $status,
+            'actual_issue_date' => now(),
+            'issued_by' => auth()->id(),
+        ]);
     }
     // View all issuances
     public function issuances(Request $request)

@@ -8,65 +8,26 @@ use Carbon\Carbon;
 
 class RequestItem extends Model
 {
+    protected $table = 'request_items';
+
     protected $fillable = [
         'item_request_id',
         'item_id',
         'quantity',
         'approved_quantity',
-        'issued_quantity',
-        'returned_quantity',
-        'issuance_status',
-        'issue_date',
-        'due_date',
-        'return_date',
-        'condition_on_return',
-        'unit_cost_at_time',
-        'total_cost',
-        'issuance_id',
+        'status', // pending, approved, rejected, partially_approved
         'remarks',
-        'status',
     ];
 
     protected $casts = [
-        'issue_date'          => 'date',
-        'due_date'            => 'date',
-        'return_date'         => 'date',
-        'unit_cost_at_time'   => 'decimal:2',
-        'total_cost'          => 'decimal:2',
-        'status'              => 'string',
-        'issuance_status'     => 'string',
-        'condition_on_return' => 'string',
+        'quantity' => 'integer',
+        'approved_quantity' => 'integer',
+        'status' => 'string',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::saving(function ($requestItem) {
-            // FIX: Wrap in try-catch so a missing unit_cost column or null
-            // relationship never corrupts the save or mangles updated_at.
-            try {
-                $requestItem->calculateCosts();
-            } catch (\Exception $e) {
-                // Cost calculation is optional — don't block saving
-            }
-
-            // Auto-set issuance_status based on quantities
-            if ($requestItem->approved_quantity !== null) {
-                $issued = (int) $requestItem->issued_quantity;
-                $approved = (int) $requestItem->approved_quantity;
-
-                if ($issued === 0) {
-                    $requestItem->issuance_status = 'not_issued';
-                } elseif ($issued >= $approved) {
-                    $requestItem->issuance_status = 'fully_issued';
-                } else {
-                    $requestItem->issuance_status = 'partially_issued';
-                }
-            }
-        });
-    }
-
+    // Relationships
     public function itemRequest()
     {
         return $this->belongsTo(ItemRequest::class);
@@ -77,11 +38,12 @@ class RequestItem extends Model
         return $this->belongsTo(Item::class);
     }
 
-    public function issuance()
+    public function issuanceItems()
     {
-        return $this->belongsTo(Issuance::class);
+        return $this->hasMany(IssuanceItem::class, 'request_item_id');
     }
 
+    // Status check methods
     public function isPending(): bool
     {
         return $this->status === 'pending';
@@ -97,49 +59,38 @@ class RequestItem extends Model
         return $this->status === 'rejected'; 
     }
 
-    public function calculateCosts()
+    // Quantity helper methods
+    public function getApprovedQuantity(): int
     {
-        // FIX: Guard against missing relationship or missing unit_cost column.
-        // If item doesn't exist or has no unit_cost, skip silently.
-        if (
-            $this->item &&
-            isset($this->item->unit_cost) &&
-            $this->item->unit_cost !== null
-        ) {
-            $this->unit_cost_at_time = (string) $this->item->unit_cost;
-            $this->total_cost        = (string) ($this->item->unit_cost * $this->quantity);
-        } else {
-            $this->unit_cost_at_time = $this->unit_cost_at_time ?? null;
-            $this->total_cost        = $this->total_cost ?? null;
-        }
+        return $this->approved_quantity ?? $this->quantity;
     }
 
-    public function isOverdue(): bool
+    public function getTotalIssuedQuantity(): int
     {
-        return $this->due_date &&
-               $this->due_date < now() &&
-               $this->issuance_status === 'issued' &&
-               $this->returned_quantity < $this->issued_quantity;
+        return $this->issuanceItems()->sum('quantity_issued');
+    }
+
+    public function getTotalReturnedQuantity(): int
+    {
+        return $this->issuanceItems()->sum('quantity_returned');
     }
 
     public function getRemainingToIssue(): int
     {
-        if ($this->approved_quantity === null) {
-            return 0;
-        }
-        return max(0, (int) $this->approved_quantity - (int) $this->issued_quantity);
+        $approved = $this->getApprovedQuantity();
+        $issued = $this->getTotalIssuedQuantity();
+        return max(0, $approved - $issued);
     }
 
     public function getRemainingToReturn(): int
     {
-        return max(0, (int) $this->issued_quantity - (int) $this->returned_quantity);
+        $issued = $this->getTotalIssuedQuantity();
+        $returned = $this->getTotalReturnedQuantity();
+        return max(0, $issued - $returned);
     }
 
     public function canIssue(int $quantity): bool
     {
-        if ($this->approved_quantity === null) {
-            return false;
-        }
         return $quantity <= $this->getRemainingToIssue();
     }
 
@@ -148,65 +99,44 @@ class RequestItem extends Model
         return $quantity <= $this->getRemainingToReturn();
     }
 
-    public function issueQuantity(int $quantity): bool
+    // Issuance status derived from related issuance items
+    public function getIssuanceStatusAttribute(): string
     {
-        if (!$this->canIssue($quantity)) {
-            return false;
-        }
-        $this->issued_quantity += $quantity;
+        $issued = $this->getTotalIssuedQuantity();
+        $approved = $this->getApprovedQuantity();
 
-        if ($this->issued_quantity == 0) {
-            $this->issuance_status = 'not_issued';
-        } elseif ($this->issued_quantity >= $this->approved_quantity) {
-            $this->issuance_status = 'fully_issued';
+        if ($issued === 0) {
+            return 'not_issued';
+        } elseif ($issued >= $approved) {
+            return 'fully_issued';
         } else {
-            $this->issuance_status = 'partially_issued';
+            return 'partially_issued';
         }
+    }
 
-        if ($this->issue_date === null && $quantity > 0) {
-            $this->issue_date = now()->toDateString();
+    // Return status derived from related issuance items
+    public function getReturnStatusAttribute(): string
+    {
+        $issued = $this->getTotalIssuedQuantity();
+        $returned = $this->getTotalReturnedQuantity();
+
+        if ($returned === 0) {
+            return 'not_returned';
+        } elseif ($returned >= $issued) {
+            return 'fully_returned';
+        } else {
+            return 'partially_returned';
         }
-
-        return $this->save();
     }
 
-    public function returnQuantity(int $quantity, string $condition = 'good'): bool
+    // Check if any issued items are overdue
+    public function hasOverdueItems(): bool
     {
-        if (!$this->canReturn($quantity)) {
-            return false;
-        }
-        $this->returned_quantity   += $quantity;
-        $this->condition_on_return  = $condition;
-
-        if ($this->return_date === null && $quantity > 0) {
-            $this->return_date = now()->toDateString();
-        }
-
-        return $this->save();
-    }
-
-    public function getCostAtTime(): float
-    {
-        return (float) ($this->unit_cost_at_time ?? 0);
-    }
-
-    public function getTotalCost(): float
-    {
-        return (float) ($this->total_cost ?? 0);
-    }
-
-    public function isFullyIssued(): bool
-    {
-        return $this->issuance_status === 'fully_issued';
-    }
-
-    public function isPartiallyIssued(): bool
-    {
-        return $this->issuance_status === 'partially_issued';
-    }
-
-    public function isNotIssued(): bool
-    {
-        return $this->issuance_status === 'not_issued';
+        return $this->issuanceItems()
+            ->where('status', 'issued')
+            ->whereNotNull('due_date')
+            ->where('due_date', '<', now())
+            ->whereRaw('quantity_returned < quantity_issued')
+            ->exists();
     }
 }
