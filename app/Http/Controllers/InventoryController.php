@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Models\Category;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -56,6 +57,21 @@ class InventoryController extends Controller
         $items = $query->orderBy('name')->paginate(25);
         $categories = Category::orderBy('name')->get();
 
+        // ✅ AUDIT LOG: View list (optional - can be commented out if too noisy)
+        // AuditLog::create([
+        //     'user_id' => auth()->id(),
+        //     'action' => 'viewed_list',
+        //     'module' => 'inventory',
+        //     'description' => 'Viewed inventory list',
+        //     'old_data' => ['filters' => $request->only(['search', 'category_id', 'stock_level'])],
+        //     'new_data' => ['result_count' => $items->total()],
+        //     'ip_address' => $request->ip(),
+        //     'user_agent' => $request->userAgent(),
+        //     'url' => $request->fullUrl(),
+        //     'method' => $request->method(),
+        //     'performed_at' => now(),
+        // ]);
+
         return view('admin.inventory.index', compact('items', 'categories'));
     }
 
@@ -66,6 +82,19 @@ class InventoryController extends Controller
     {
         $categories = Category::orderBy('name')->get();
         $units = ['pcs', 'boxes', 'sets', 'units', 'packs', 'reams', 'bottles', 'cans'];
+
+        // ✅ AUDIT LOG: View create form (optional)
+        // AuditLog::create([
+        //     'user_id' => auth()->id(),
+        //     'action' => 'viewed_create_form',
+        //     'module' => 'inventory',
+        //     'description' => 'Viewed create item form',
+        //     'ip_address' => request()->ip(),
+        //     'user_agent' => request()->userAgent(),
+        //     'url' => request()->fullUrl(),
+        //     'method' => request()->method(),
+        //     'performed_at' => now(),
+        // ]);
 
         return view('admin.inventory.create', compact('categories', 'units'));
     }
@@ -84,10 +113,51 @@ class InventoryController extends Controller
             'unit_of_measure'  => 'required|string|in:pcs,boxes,sets,units,packs,reams,bottles,cans',
         ]);
 
-        Item::create($validated);
+        DB::beginTransaction();
+        try {
+            $item = Item::create($validated);
 
-        return redirect()->route('admin.inventory.index')
-            ->with('success', 'Item added to inventory successfully.');
+            // ✅ AUDIT LOG: Item creation
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'created',
+                'module' => 'inventory',
+                'description' => "Created new item: {$item->name}",
+                'model_type' => Item::class,
+                'model_id' => $item->id,
+                'new_data' => $item->toArray(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'performed_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.inventory.index')
+                ->with('success', 'Item added to inventory successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            // ✅ AUDIT LOG: Failed creation
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'create_failed',
+                'module' => 'inventory',
+                'description' => "Failed to create item: " . $e->getMessage(),
+                'old_data' => $validated,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'performed_at' => now(),
+            ]);
+            
+            return back()->with('error', 'Failed to create item: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
@@ -101,6 +171,21 @@ class InventoryController extends Controller
             'auditLogs',
         ]);
 
+        // ✅ AUDIT LOG: View item details
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'viewed',
+            'module' => 'inventory',
+            'description' => "Viewed item details: {$item->name}",
+            'model_type' => Item::class,
+            'model_id' => $item->id,
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'url' => request()->fullUrl(),
+            'method' => request()->method(),
+            'performed_at' => now(),
+        ]);
+
         return view('admin.inventory.show', compact('item'));
     }
 
@@ -111,6 +196,21 @@ class InventoryController extends Controller
     {
         $categories = Category::orderBy('name')->get();
         $units = ['pcs', 'boxes', 'sets', 'units', 'packs', 'reams', 'bottles', 'cans'];
+
+        // ✅ AUDIT LOG: View edit form
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'viewed_edit_form',
+            'module' => 'inventory',
+            'description' => "Viewed edit form for item: {$item->name}",
+            'model_type' => Item::class,
+            'model_id' => $item->id,
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'url' => request()->fullUrl(),
+            'method' => request()->method(),
+            'performed_at' => now(),
+        ]);
 
         return view('admin.inventory.edit', compact('item', 'categories', 'units'));
     }
@@ -132,10 +232,55 @@ class InventoryController extends Controller
             'unit_of_measure'  => 'required|string|in:pcs,boxes,sets,units,packs,reams,bottles,cans',
         ]);
 
-        $item->update($validated);
+        DB::beginTransaction();
+        try {
+            $oldData = $item->toArray();
+            $item->update($validated);
 
-        return redirect()->route('admin.inventory.show', $item)
-            ->with('success', 'Item updated successfully.');
+            // ✅ AUDIT LOG: Item update
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'updated',
+                'module' => 'inventory',
+                'description' => "Updated item: {$item->name}",
+                'model_type' => Item::class,
+                'model_id' => $item->id,
+                'old_data' => $oldData,
+                'new_data' => $item->getChanges(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'performed_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.inventory.show', $item)
+                ->with('success', 'Item updated successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            // ✅ AUDIT LOG: Failed update
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'update_failed',
+                'module' => 'inventory',
+                'description' => "Failed to update item {$item->name}: " . $e->getMessage(),
+                'model_type' => Item::class,
+                'model_id' => $item->id,
+                'old_data' => $validated,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'performed_at' => now(),
+            ]);
+            
+            return back()->with('error', 'Failed to update item: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
@@ -148,19 +293,79 @@ class InventoryController extends Controller
         $hasHistory = $item->requestItems()->exists();
 
         if ($hasHistory) {
+            // ✅ AUDIT LOG: Failed deletion (has history)
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'delete_failed',
+                'module' => 'inventory',
+                'description' => "Failed to delete item {$item->name} - has transaction history",
+                'model_type' => Item::class,
+                'model_id' => $item->id,
+                'old_data' => ['reason' => 'Has transaction history'],
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'url' => request()->fullUrl(),
+                'method' => request()->method(),
+                'performed_at' => now(),
+            ]);
+            
             return back()->with('error', 'Cannot delete item that has transaction history.');
         }
 
-        $item->delete();
+        DB::beginTransaction();
+        try {
+            $itemData = $item->toArray();
+            $itemName = $item->name;
+            
+            $item->delete();
 
-        return redirect()->route('admin.inventory.index')
-            ->with('success', 'Item deleted successfully.');
+            // ✅ AUDIT LOG: Item deletion
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'deleted',
+                'module' => 'inventory',
+                'description' => "Deleted item: {$itemName}",
+                'model_type' => Item::class,
+                'model_id' => $item->id,
+                'old_data' => $itemData,
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'url' => request()->fullUrl(),
+                'method' => request()->method(),
+                'performed_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.inventory.index')
+                ->with('success', 'Item deleted successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            // ✅ AUDIT LOG: Failed deletion (error)
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'delete_failed',
+                'module' => 'inventory',
+                'description' => "Failed to delete item {$item->name}: " . $e->getMessage(),
+                'model_type' => Item::class,
+                'model_id' => $item->id,
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'url' => request()->fullUrl(),
+                'method' => request()->method(),
+                'performed_at' => now(),
+            ]);
+            
+            return back()->with('error', 'Failed to delete item: ' . $e->getMessage());
+        }
     }
 
     /**
      * Show low stock items
      */
-    public function lowStock()
+    public function lowStock(Request $request)
     {
         // BUG FIX: Wrapped orWhere conditions in closures throughout this method
         // so that "quantity = 0" does not match items outside the intended scope.
@@ -210,6 +415,24 @@ class InventoryController extends Controller
         ->orderByDesc('low_stock_count')
         ->get();
 
+        // ✅ AUDIT LOG: Viewed low stock report
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'viewed_report',
+            'module' => 'inventory',
+            'description' => 'Viewed low stock report',
+            'new_data' => [
+                'low_stock_count' => $items->total(),
+                'critical_count' => $criticalItems->count(),
+                'out_of_stock' => $outOfStockCount,
+            ],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'url' => $request->fullUrl(),
+            'method' => $request->method(),
+            'performed_at' => now(),
+        ]);
+
         return view('admin.inventory.low-stock', compact(
             'items',
             'criticalItems',
@@ -236,17 +459,23 @@ class InventoryController extends Controller
 
             $item->update(['quantity' => $newQuantity]);
 
-            // BUG FIX: Audit log was left as a dead comment. Wire this to your
-            // AuditLog model. Example (uncomment and adjust fields as needed):
-            //
-            // AuditLog::create([
-            //     'item_id'      => $item->id,
-            //     'action'       => 'restock',
-            //     'old_quantity' => $oldQuantity,
-            //     'new_quantity' => $newQuantity,
-            //     'notes'        => $validated['notes'] ?? null,
-            //     'performed_by' => auth()->id(),
-            // ]);
+            // ✅ FIXED: Proper audit log using your AuditLog model
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'restocked',
+                'module' => 'inventory',
+                'description' => "Restocked item: {$item->name}",
+                'model_type' => Item::class,
+                'model_id' => $item->id,
+                'old_data' => ['quantity' => $oldQuantity],
+                'new_data' => ['quantity' => $newQuantity, 'notes' => $validated['notes'] ?? null],
+                'remarks' => $validated['notes'] ?? null,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'performed_at' => now(),
+            ]);
 
             DB::commit();
 
@@ -257,7 +486,25 @@ class InventoryController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            // ✅ AUDIT LOG: Failed restock
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'restock_failed',
+                'module' => 'inventory',
+                'description' => "Failed to restock item {$item->name}: " . $e->getMessage(),
+                'model_type' => Item::class,
+                'model_id' => $item->id,
+                'old_data' => ['quantity' => $item->quantity],
+                'new_data' => ['requested' => $validated['quantity']],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'performed_at' => now(),
+            ]);
+            
             return back()->with('error', 'Failed to restock item: ' . $e->getMessage());
         }
     }
-} 
+}
