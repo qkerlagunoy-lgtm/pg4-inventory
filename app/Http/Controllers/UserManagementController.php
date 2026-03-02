@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -44,6 +45,12 @@ class UserManagementController extends Controller
        
         // Get distinct units for filter
         $units = User::select('unit')->distinct()->whereNotNull('unit')->get();
+
+        // ✅ OPTIONAL: Log view action (if you want to track who views the list)
+        // AuditLog::log('viewed_list', 'users', null, [
+        //     'filters' => $request->only(['unit', 'status', 'search']),
+        //     'result_count' => $users->total()
+        // ]);
 
         return view('admin.users.index', compact('users', 'units'));
     }
@@ -91,6 +98,30 @@ class UserManagementController extends Controller
                 'email_verified_at' => $validated['status'] === 'active' ? now() : null,
             ]);
 
+            // ✅ AUDIT LOG: User creation
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'created',
+                'module' => 'users',
+                'description' => "Created new user: {$user->username} ({$user->email})",
+                'new_values' => [
+                    'username' => $user->username,
+                    'email' => $user->email,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'unit' => $user->unit,
+                    'role' => $user->type,
+                    'status' => $validated['status'],
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'model_type' => User::class,
+                'model_id' => $user->id,
+                'performed_at' => now(),
+            ]);
+
             DB::commit();
            
             return redirect()->route('admin.users.index')
@@ -98,6 +129,21 @@ class UserManagementController extends Controller
                
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            // ✅ AUDIT LOG: Failed creation
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'create_failed',
+                'module' => 'users',
+                'description' => "Failed to create user: " . $e->getMessage(),
+                'old_values' => $validated,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'performed_at' => now(),
+            ]);
+            
             return back()->with('error', 'Failed to create user: ' . $e->getMessage())
                 ->withInput();
         }
@@ -124,6 +170,9 @@ class UserManagementController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
+        
+        // Store old values before update
+        $oldValues = $user->toArray();
        
         $validated = $request->validate([
             'username' => 'required|string|max:255|unique:users,username,' . $id,
@@ -155,6 +204,26 @@ class UserManagementController extends Controller
             }
 
             $user->update($updateData);
+            
+            // ✅ AUDIT LOG: User update
+            $changes = $user->getChanges();
+            unset($changes['updated_at']); // Remove timestamp from changes log
+            
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'updated',
+                'module' => 'users',
+                'description' => "Updated user: {$user->username}",
+                'old_values' => array_intersect_key($oldValues, $changes), // Only changed fields
+                'new_values' => $changes,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'model_type' => User::class,
+                'model_id' => $user->id,
+                'performed_at' => now(),
+            ]);
 
             DB::commit();
            
@@ -163,6 +232,23 @@ class UserManagementController extends Controller
                
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            // ✅ AUDIT LOG: Failed update
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'update_failed',
+                'module' => 'users',
+                'description' => "Failed to update user {$user->username}: " . $e->getMessage(),
+                'old_values' => $validated,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'model_type' => User::class,
+                'model_id' => $user->id,
+                'performed_at' => now(),
+            ]);
+            
             return back()->with('error', 'Failed to update user: ' . $e->getMessage())
                 ->withInput();
         }
@@ -178,10 +264,42 @@ class UserManagementController extends Controller
             $user = User::findOrFail($id);
            
             if ($user->id === auth()->id()) {
+                // ✅ AUDIT LOG: Self-deletion attempt
+                AuditLog::create([
+                    'user_id' => auth()->id(),
+                    'action' => 'delete_self_attempt',
+                    'module' => 'users',
+                    'description' => "Attempted to delete own account",
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                    'url' => request()->fullUrl(),
+                    'method' => request()->method(),
+                    'performed_at' => now(),
+                ]);
+                
                 return back()->with('error', 'You cannot delete your own account.');
             }
-           
+            
+            // Store user data before deletion
+            $userData = $user->toArray();
+            
             $user->delete();
+            
+            // ✅ AUDIT LOG: User deletion
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'deleted',
+                'module' => 'users',
+                'description' => "Deleted user: {$userData['username']} ({$userData['email']})",
+                'old_values' => $userData,
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'url' => request()->fullUrl(),
+                'method' => request()->method(),
+                'model_type' => User::class,
+                'model_id' => $id,
+                'performed_at' => now(),
+            ]);
            
             DB::commit();
            
@@ -190,6 +308,20 @@ class UserManagementController extends Controller
                
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            // ✅ AUDIT LOG: Failed deletion
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'delete_failed',
+                'module' => 'users',
+                'description' => "Failed to delete user: " . $e->getMessage(),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'url' => request()->fullUrl(),
+                'method' => request()->method(),
+                'performed_at' => now(),
+            ]);
+            
             return back()->with('error', 'Failed to delete user: ' . $e->getMessage());
         }
     }
@@ -224,6 +356,23 @@ class UserManagementController extends Controller
         }
        
         $users = $query->orderBy('created_at', 'desc')->get();
+        
+        // ✅ AUDIT LOG: Export action
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'exported',
+            'module' => 'users',
+            'description' => "Exported users to CSV",
+            'old_values' => [
+                'filters' => $request->only(['unit', 'status', 'search']),
+                'count' => $users->count()
+            ],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'url' => $request->fullUrl(),
+            'method' => $request->method(),
+            'performed_at' => now(),
+        ]);
        
         $headers = [
             'Content-Type' => 'text/csv',
