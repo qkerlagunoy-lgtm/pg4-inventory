@@ -22,6 +22,7 @@
     --text-main:  #1e2535;
     --text-sub:   #6b7280;
     --text-muted: #9ca3af;
+    --red:        #dc2626; 
 }
 
 .dash-wrap * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -105,12 +106,12 @@
 
 .stat-card.cancelled::before { background: #f59e0b; }
 .stat-card.cancelled:hover   { border-color: rgba(245,158,11,.35); }
-.stat-card.urgent::before    { background: var(--terra); }
+.stat-card.urgent::before    { background: var(--red); }
 .stat-card.urgent:hover      { border-color: rgba(219,153,108,.35); }
 .stat-card.approved::before  { background: #5a9e6a; }
 .stat-card.approved:hover    { border-color: rgba(90,158,106,.35); }
-.stat-card.rejected::before  { background: var(--slate); }
-.stat-card.rejected:hover    { border-color: rgba(110,125,162,.35); }
+.stat-card.rejected::before  { background: var(--red); }
+.stat-card.rejected:hover    { border-color: rgba(169, 2, 2, 0.35); }
 
 .stat-top {
     display: flex;
@@ -236,7 +237,7 @@
 .badge.other    .badge-dot { background: var(--text-muted); }
 
 .badge.urgent   { background: var(--terra-light); color: #b45309; }
-.badge.urgent   .badge-dot { background: var(--terra); }
+.badge.urgent   .badge-dot { background: var(--red); }
 .badge.normal   { background: #f3f4f6; color: var(--text-sub); }
 .badge.normal   .badge-dot { background: var(--text-muted); }
 
