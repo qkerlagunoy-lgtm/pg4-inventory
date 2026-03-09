@@ -311,6 +311,9 @@ public function requests()
 {
     return $this->hasMany(Request::class);
 }
-
+public function isPg4Admin(): bool
+{
+    return $this->type === 'admin' && strtoupper($this->unit) === 'PG4';
+}
 
 }

@@ -83,8 +83,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{item}/restock', [InventoryController::class, 'restock'])->name('restock');
     });
 
-    // Users
-    Route::prefix('users')->name('users.')->group(function () {
+    // Users - RESTRICTED for PG4 admins
+    Route::prefix('users')->name('users.')->middleware('superadmin.only')->group(function () {
         Route::get('/', [UserManagementController::class, 'index'])->name('index');
         Route::get('/create', [UserManagementController::class, 'create'])->name('create');
         Route::get('/export', [UserManagementController::class, 'exportCsv'])->name('export');
@@ -108,8 +108,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('destroy');
     });
 
-    // Address Management
-    Route::get('/addresses', [AddressController::class, 'index'])->name('addresses.index');
+    // Address Management - RESTRICTED for PG4 admins
+    Route::get('/addresses', [AddressController::class, 'index'])
+        ->name('addresses.index')
+        ->middleware('superadmin.only');
 
 });
 
@@ -133,7 +135,6 @@ Route::middleware(['auth', 'user'])->group(function () {
         Route::get('/my-requests/{id}', [ItemRequestController::class, 'show'])->name('show');
         Route::post('/my-requests/{id}/cancel', [ItemRequestController::class, 'cancelRequest'])->name('cancel');
     });
-
 });
 
 require __DIR__.'/auth.php';
