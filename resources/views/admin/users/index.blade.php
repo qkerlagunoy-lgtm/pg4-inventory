@@ -377,6 +377,20 @@ tbody td:last-child { text-align: center; }
                                     <a href="{{ route('admin.users.edit', $user->id) }}"
                                        class="btn-sm btn-sm-edit"
                                        title="Edit User">✏️ Edit</a>
+                                       @if(!$user->email_verified_at || !$user->is_active)
+
+                                           {{-- Activate Button (only show if inactive) --}}
+                        <form action="{{ route('admin.users.activate', $user->id) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Activate {{ $user->first_name }} {{ $user->last_name }}?');"
+                                        style="display:inline;">
+                                        @csrf
+                                        <button type="submit"
+                                                class="btn-sm"
+                                                style="background:#4a8c4a; color:#fff;"
+                                                title="Activate User">✅ Activate</button>
+                                    </form>
+                                @endif
                                     @if($user->id !== auth()->id())
                                         <form action="{{ route('admin.users.destroy', $user->id) }}"
                                               method="POST"

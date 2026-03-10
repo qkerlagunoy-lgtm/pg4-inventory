@@ -19,7 +19,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('auth.landing');
 });
-
+Route::get('/register/pending', function () {
+    return view('auth.pending');
+})->name('register.pending');
 /*
 |--------------------------------------------------------------------------
 | NOTIFICATION ROUTES
@@ -92,6 +94,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/{id}/edit', [UserManagementController::class, 'edit'])->name('edit');
         Route::put('/{id}', [UserManagementController::class, 'update'])->name('update');
         Route::delete('/{id}', [UserManagementController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/activate', [UserManagementController::class, 'activate'])->name('activate'); 
     });
 
     // Categories

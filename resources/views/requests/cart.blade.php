@@ -1,6 +1,6 @@
 @extends('layouts.user')
 
-@section('title', 'Shopping Cart')
+@section('title', 'Cart')
 
 @section('header-actions')
     <a href="{{ route('requests.index') }}" 

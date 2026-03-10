@@ -162,6 +162,11 @@ class User extends Authenticatable
     {
         return $this->type === 'admin';
     }
+
+    public function isPg4Admin(): bool
+{
+    return $this->type === 'admin' && strtoupper($this->unit) === 'PG4';
+}
     public function isUser(): bool
     {
         return $this->type === 'user';
@@ -311,9 +316,6 @@ public function requests()
 {
     return $this->hasMany(Request::class);
 }
-public function isPg4Admin(): bool
-{
-    return $this->type === 'admin' && strtoupper($this->unit) === 'PG4';
-}
+
 
 }

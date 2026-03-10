@@ -8,33 +8,34 @@ use Illuminate\Validation\Rule;
 
 class ProfileUpdateRequest extends FormRequest
 {
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => [
-                'required',
-                'string',
-                'lowercase',
-                'email',
-                'max:255',
-                Rule::unique(User::class)->ignore($this->user()->id),
-            ],
-            'first_name' => ['nullable', 'string', 'max:255'],
+            'first_name'  => ['required', 'string', 'max:255'],
+            'last_name'   => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
-            'last_name' => ['nullable', 'string', 'max:255'],
-            'suffix' => ['nullable', 'string', 'max:50'],
-            'sex' => ['nullable', 'in:Male,Female'],
-            'category' => ['nullable', 'string', 'max:255'],
-            'unit' => ['nullable', 'string', 'max:255'],
-            'username' => ['nullable', 'string', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
-            'type' => ['nullable', 'string', 'in:customer,vendor,admin'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'suffix'      => ['nullable', 'string', 'max:50'],
+            'username'    => ['required', 'string', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
+            'email'       => ['required', 'string', 'email', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
+            'sex'         => ['nullable', 'in:male,female'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'first_name.required' => 'First name is required.',
+            'last_name.required'  => 'Last name is required.',
+            'username.required'   => 'Username is required.',
+            'username.unique'     => 'This username is already taken.',
+            'email.required'      => 'Email address is required.',
+            'email.unique'        => 'This email is already in use.',
+            'email.email'         => 'Please enter a valid email address.',
         ];
     }
 }

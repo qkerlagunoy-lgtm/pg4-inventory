@@ -402,4 +402,39 @@ class UserManagementController extends Controller
        
         return response()->stream($callback, 200, $headers);
     }
+    public function activate($id)
+{
+    DB::beginTransaction();
+    try {
+        $user = User::findOrFail($id);
+
+        $user->update([
+            'is_active'          => true,
+            'email_verified_at'  => now(),
+        ]);
+
+        AuditLog::create([
+            'user_id'      => auth()->id(),
+            'action'       => 'activated',
+            'module'       => 'users',
+            'description'  => "Activated user: {$user->username}",
+            'ip_address'   => request()->ip(),
+            'user_agent'   => request()->userAgent(),
+            'url'          => request()->fullUrl(),
+            'method'       => request()->method(),
+            'model_type'   => User::class,
+            'model_id'     => $user->id,
+            'performed_at' => now(),
+        ]);
+
+        DB::commit();
+
+        return redirect()->route('admin.users.index')
+            ->with('success', "{$user->first_name} {$user->last_name}'s account has been activated.");
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'Failed to activate user: ' . $e->getMessage());
+    }
+}
 }

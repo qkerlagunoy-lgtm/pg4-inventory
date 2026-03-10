@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('purpose')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected', 'cancelled', 'urgent'])->default('pending');
             $table->enum('issuance_status', ['not_issued', 'partially_issued', 'fully_issued', 'cancelled'])->default('not_issued');
-            $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
+            $table->enum('priority', ['low', 'medium', 'high', 'urgent'])->default('medium');
             $table->timestamp('request_date')->useCurrent();
             $table->timestamp('required_date')->nullable();
             $table->date('scheduled_issue_date')->nullable();
