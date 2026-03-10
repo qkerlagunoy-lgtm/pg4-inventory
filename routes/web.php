@@ -22,6 +22,15 @@ Route::get('/', function () {
 Route::get('/register/pending', function () {
     return view('auth.pending');
 })->name('register.pending');
+
+// ADD THIS — redirects /login to landing page
+Route::get('/login', function () {
+    return view('auth.landing');
+})->name('login');
+
+Route::get('/register/pending', function () {
+    return view('auth.pending');
+})->name('register.pending');
 /*
 |--------------------------------------------------------------------------
 | NOTIFICATION ROUTES
