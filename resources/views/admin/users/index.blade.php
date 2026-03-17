@@ -340,6 +340,8 @@ tbody td:last-child { text-align: center; }
             <table>
                 <thead>
                     <tr>
+                       
+                       <th></th>  {{-- avatar col --}}
                         <th>Name</th>
                         <th>Username</th>
                         <th>Email</th>
@@ -353,7 +355,17 @@ tbody td:last-child { text-align: center; }
                 <tbody>
                     @forelse($users as $user)
                         <tr>
-                            <td class="td-name">{{ $user->first_name }} {{ $user->last_name }}</td>
+<td>
+    @if($user->avatar)
+        <img src="{{ asset('storage/' . $user->avatar) }}"
+             style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #D8D2C2;">
+    @else
+        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#AEDADD,#DB996C);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;border:2px solid #D8D2C2;">
+            {{ strtoupper(substr($user->first_name,0,1)) }}{{ strtoupper(substr($user->last_name,0,1)) }}
+        </div>
+    @endif
+</td>
+<td class="td-name">{{ $user->first_name }} {{ $user->last_name }}</td>
                             <td>{{ $user->username }}</td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->unit ?? 'N/A' }}</td>

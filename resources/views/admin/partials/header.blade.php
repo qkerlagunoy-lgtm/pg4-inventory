@@ -301,15 +301,20 @@
         <div class="header-right">
 
             {{-- Profile --}}
-            <a href="{{ route('profile.edit') }}" class="profile-link">
+          <a href="{{ route('admin.profile.edit') }}" class="profile-link"> 
                 <div class="profile-text">
                     <span class="profile-name">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span>
                     <span class="profile-role">{{ Auth::user()->type }}</span>
+                                </div>
+                <div class="avatar" style="{{ Auth::user()->avatar ? 'background:none;padding:0;overflow:hidden;' : '' }}">
+                    @if(Auth::user()->avatar)
+                        <img src="{{ asset('storage/' . Auth::user()->avatar) }}"
+                            style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                    @else
+                        {{ Str::upper(substr(Auth::user()->first_name,0,1).substr(Auth::user()->last_name,0,1)) }}
+                    @endif
                 </div>
-                <div class="avatar">
-                    {{ Str::upper(substr(Auth::user()->first_name,0,1).substr(Auth::user()->last_name,0,1)) }}
-                </div>
-            </a>
+                </a> 
 
             {{-- Notification Bell --}}
             <div style="position:relative;">

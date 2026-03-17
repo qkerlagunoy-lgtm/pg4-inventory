@@ -396,20 +396,33 @@
                                         ][$requestItem->status] ?? 'ibadge-cancelled';
                                     @endphp
                                     <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm font-semibold text-gray-900">
-                                                {{ $requestItem->item->name ?? 'Item Unavailable' }}
-                                            </div>
-                                            @if($requestItem->item?->storage_location)
-                                                <div class="flex items-center gap-1 mt-1">
-                                                    <svg class="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                    </svg>
-                                                    <span class="text-xs text-gray-400">{{ $requestItem->item->storage_location }}</span>
-                                                </div>
-                                            @endif
-                                        </td>
+                                       <td class="px-6 py-4">
+    <div class="flex items-center gap-3">
+        @if($requestItem->item?->image)
+            <img src="{{ asset('storage/'.$requestItem->item->image) }}"
+                 class="w-12 h-12 object-cover rounded-lg border border-gray-200 shadow-sm flex-shrink-0">
+        @else
+            <div class="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200
+                        flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor"
+                     stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+        @endif
+        <div>
+            <div class="text-sm font-medium text-gray-900">
+                {{ $requestItem->item->name ?? 'Item Unavailable' }}
+            </div>
+            @if($requestItem->item?->storage_location)
+                <div class="text-xs text-gray-400 mt-1">
+                    📍 {{ $requestItem->item->storage_location }}
+                </div>
+            @endif
+        </div>
+    </div>
+</td>
                                         <td class="px-6 py-4">
                                             <span class="text-sm text-gray-500">
                                                 {{ $requestItem->item?->category?->name ?? 'Uncategorized' }}

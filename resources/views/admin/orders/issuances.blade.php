@@ -350,10 +350,23 @@ tbody td {
                                     </a>
                                 </td>
                                 <td>
-                                    <div class="td-name">{{ $issuance->itemRequest->user->full_name ?? $issuance->itemRequest->user->name }}</div>
-                                    <div class="td-unit">{{ $issuance->itemRequest->user->unit ?? 'N/A' }}</div>
-                                </td>
-                                <td>
+                                <div style="display:flex; align-items:center; gap:.75rem;">
+                                    <div style="width:2.5rem;height:2.5rem;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;{{ $issuance->itemRequest->user->avatar ? '' : 'background:linear-gradient(135deg,#B17457,#8a5a40);' }}">
+                                        @if($issuance->itemRequest->user->avatar)
+                                            <img src="{{ asset('storage/' . $issuance->itemRequest->user->avatar) }}"
+                                                alt="{{ $issuance->itemRequest->user->first_name }}"
+                                                style="width:100%;height:100%;object-fit:cover;">
+                                        @else
+                                            {{ strtoupper(substr($issuance->itemRequest->user->first_name, 0, 1) . substr($issuance->itemRequest->user->last_name, 0, 1)) }}
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <div class="td-name">{{ $issuance->itemRequest->user->first_name }} {{ $issuance->itemRequest->user->last_name }}</div>
+                                        <div class="td-unit">{{ $issuance->itemRequest->user->unit ?? 'N/A' }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                                  <td>
                                     <div>{{ $issuance->issuanceItems->count() }} items</div>
                                     <div class="td-qty">{{ $issuance->issuanceItems->sum('quantity_issued') }} total qty</div>
                                 </td>

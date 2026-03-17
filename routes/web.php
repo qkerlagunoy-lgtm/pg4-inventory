@@ -10,6 +10,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AddressController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,6 +54,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
 });
 
 /*
@@ -64,6 +66,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+     Route::get('/profile',              [AdminProfileController::class, 'edit'])         ->name('profile.edit');
+    Route::patch('/profile',            [AdminProfileController::class, 'update'])       ->name('profile.update');
+    Route::post('/profile/avatar',      [AdminProfileController::class, 'updateAvatar']) ->name('profile.avatar');
+
 
     // Orders
     Route::prefix('orders')->name('orders.')->group(function () {
@@ -84,19 +90,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/export', [AdminController::class, 'export'])->name('export');
     });
 
-    // Inventory
-    Route::prefix('inventory')->name('inventory.')->group(function () {
-        Route::get('/', [InventoryController::class, 'index'])->name('index');
-        Route::get('/create', [InventoryController::class, 'create'])->name('create');
-        Route::post('/', [InventoryController::class, 'store'])->name('store');
-        Route::get('/low-stock', [InventoryController::class, 'lowStock'])->name('low-stock');
-        Route::get('/{item}', [InventoryController::class, 'show'])->name('show');
-        Route::get('/{item}/edit', [InventoryController::class, 'edit'])->name('edit');
-        Route::put('/{item}', [InventoryController::class, 'update'])->name('update');
-        Route::delete('/{item}', [InventoryController::class, 'destroy'])->name('destroy');
-        Route::post('/{item}/restock', [InventoryController::class, 'restock'])->name('restock');
-    });
-
+  Route::prefix('inventory')->name('inventory.')->group(function () {
+    Route::get('/', [InventoryController::class, 'index'])->name('index');
+    Route::get('/create', [InventoryController::class, 'create'])->name('create');
+    Route::get('/low-stock', [InventoryController::class, 'lowStock'])->name('low-stock');
+    Route::get('/export-csv', [InventoryController::class, 'exportCsv'])->name('export-csv'); // ← moved up
+    Route::post('/', [InventoryController::class, 'store'])->name('store');
+    Route::get('/{item}', [InventoryController::class, 'show'])->name('show');
+    Route::get('/{item}/edit', [InventoryController::class, 'edit'])->name('edit');
+    Route::put('/{item}', [InventoryController::class, 'update'])->name('update');
+    Route::delete('/{item}', [InventoryController::class, 'destroy'])->name('destroy');
+    Route::post('/{item}/restock', [InventoryController::class, 'restock'])->name('restock');
+});
     // Users - RESTRICTED for PG4 admins
     Route::prefix('users')->name('users.')->middleware('superadmin.only')->group(function () {
         Route::get('/', [UserManagementController::class, 'index'])->name('index');

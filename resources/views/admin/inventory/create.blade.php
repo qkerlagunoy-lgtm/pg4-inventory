@@ -7,22 +7,12 @@
 @section('breadcrumb')
     <nav class="mb-4">
         <ol class="flex items-center space-x-2 text-sm">
-            <li>
-                <a href="{{ route('admin.dashboard') }}" class="text-gray-500 hover:text-gray-700">Dashboard</a>
-            </li>
-            <li>
-                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-            </li>
-            <li>
-                <a href="{{ route('admin.inventory.index') }}" class="text-gray-500 hover:text-gray-700">Inventory</a>
-            </li>
-            <li>
-                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-            </li>
+            <li><a href="{{ route('admin.dashboard') }}" class="text-gray-500 hover:text-gray-700">Dashboard</a></li>
+            <li><svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+            <li><a href="{{ route('admin.inventory.index') }}" class="text-gray-500 hover:text-gray-700">Inventory</a></li>
+            <li><svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
             <li class="text-blue-600 font-medium">Add New Item</li>
         </ol>
     </nav>
@@ -47,10 +37,12 @@
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-6">Item Information</h3>
 
-            <form action="{{ route('admin.inventory.store') }}" method="POST" id="inventoryForm">
+            <form action="{{ route('admin.inventory.store') }}" method="POST"
+                  id="inventoryForm" enctype="multipart/form-data">
                 @csrf
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                     <!-- Left Column -->
                     <div class="space-y-6">
 
@@ -98,8 +90,6 @@
                                        value="{{ old('quantity', 0) }}" min="0"
                                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('quantity') border-red-500 @enderror"
                                        required>
-
-                                {{-- FIX: was name="unit" — must be unit_of_measure to match DB column and controller validation --}}
                                 <div class="w-32">
                                     <select id="unit_of_measure" name="unit_of_measure"
                                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('unit_of_measure') border-red-500 @enderror"
@@ -146,19 +136,52 @@
                                 System will alert when stock reaches or falls below this level
                             </p>
                         </div>
+
                     </div>
 
                     <!-- Right Column -->
                     <div class="space-y-6">
 
-                        {{-- FIX: Removed storage_location field — column does not exist in your items table --}}
+                        <!-- Item Image Upload -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Item Image</label>
+
+                            <!-- Preview (hidden until image selected) -->
+                            <div id="imgPreviewWrap" class="mb-3" style="display:none;">
+                                <img id="imgPreview" src=""
+                                     class="w-28 h-28 object-cover rounded-xl border border-gray-200 shadow-sm">
+                            </div>
+
+                            <!-- Upload button -->
+                            <label for="imageInput"
+                                   id="uploadLabel"
+                                   class="inline-flex items-center gap-2 px-4 py-2.5 cursor-pointer
+                                          bg-white border-2 border-dashed border-blue-300 rounded-xl
+                                          text-sm font-semibold text-blue-600
+                                          hover:bg-blue-50 hover:border-blue-400 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <span id="uploadLabelText">Upload Image</span>
+                            </label>
+                            <input type="file" id="imageInput" name="image"
+                                   accept="image/jpg,image/jpeg,image/png,image/webp"
+                                   class="hidden" onchange="previewImg(this)">
+
+                            <p class="mt-1.5 text-xs text-gray-400">JPG, PNG, WEBP · Max 2MB</p>
+
+                            @error('image')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
 
                         <!-- Description -->
                         <div>
                             <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
                                 Description
                             </label>
-                            <textarea id="description" name="description" rows="6"
+                            <textarea id="description" name="description" rows="5"
                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('description') border-red-500 @enderror"
                                       placeholder="Describe this item, include specifications, brand, model, or any important details...">{{ old('description') }}</textarea>
                             @error('description')
@@ -188,6 +211,7 @@
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
@@ -222,7 +246,6 @@
         <!-- Help & Guidelines -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">📝 Inventory Item Guidelines</h3>
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-4">
                     <div class="flex items-start">
@@ -235,11 +258,9 @@
                             <h4 class="text-sm font-medium text-gray-900">Item Naming</h4>
                             <p class="text-sm text-gray-600 mt-1">
                                 Use clear, descriptive names. Include brand and model when applicable.
-                                Example: "HP LaserJet Pro Printer" instead of just "Printer".
                             </p>
                         </div>
                     </div>
-
                     <div class="flex items-start">
                         <div class="flex-shrink-0 mt-0.5">
                             <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
@@ -253,11 +274,25 @@
                             </p>
                         </div>
                     </div>
-
                     <div class="flex items-start">
                         <div class="flex-shrink-0 mt-0.5">
                             <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
                                 <span class="text-xs font-medium text-purple-600">3</span>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-gray-900">Item Image</h4>
+                            <p class="text-sm text-gray-600 mt-1">
+                                Upload a clear photo of the item. This will be shown to users when browsing requests.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 mt-0.5">
+                            <div class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center">
+                                <span class="text-xs font-medium text-yellow-600">4</span>
                             </div>
                         </div>
                         <div class="ml-3">
@@ -267,13 +302,10 @@
                             </p>
                         </div>
                     </div>
-                </div>
-
-                <div class="space-y-4">
                     <div class="flex items-start">
                         <div class="flex-shrink-0 mt-0.5">
-                            <div class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center">
-                                <span class="text-xs font-medium text-yellow-600">4</span>
+                            <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+                                <span class="text-xs font-medium text-red-600">5</span>
                             </div>
                         </div>
                         <div class="ml-3">
@@ -283,21 +315,6 @@
                             </p>
                         </div>
                     </div>
-
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0 mt-0.5">
-                            <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
-                                <span class="text-xs font-medium text-red-600">5</span>
-                            </div>
-                        </div>
-                        <div class="ml-3">
-                            <h4 class="text-sm font-medium text-gray-900">Description Details</h4>
-                            <p class="text-sm text-gray-600 mt-1">
-                                Include specifications, serial numbers, warranty info, or special handling instructions.
-                            </p>
-                        </div>
-                    </div>
-
                     <div class="flex items-start">
                         <div class="flex-shrink-0 mt-0.5">
                             <div class="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center">
@@ -305,9 +322,9 @@
                             </div>
                         </div>
                         <div class="ml-3">
-                            <h4 class="text-sm font-medium text-gray-900">Minimum Quantity</h4>
+                            <h4 class="text-sm font-medium text-gray-900">Description Details</h4>
                             <p class="text-sm text-gray-600 mt-1">
-                                Must be at least 1. This threshold triggers low stock alerts.
+                                Include specifications, serial numbers, warranty info, or special handling instructions.
                             </p>
                         </div>
                     </div>
@@ -336,16 +353,27 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const description     = document.getElementById('description');
-        const charCount       = document.getElementById('charCount');
-        // FIX: was 'unit' — must match the corrected select id
-        const unitSelect      = document.getElementById('unit_of_measure');
-        const unitDisplay     = document.getElementById('unitDisplay');
-        const quantityInput   = document.getElementById('quantity');
-        const minQtyInput     = document.getElementById('minimum_quantity');
-        const categorySelect  = document.getElementById('category_id');
-        const nameInput       = document.getElementById('name');
+    // ── IMAGE PREVIEW ──────────────────────────────────────────────
+    function previewImg(input) {
+        if (!input.files || !input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('imgPreview').src       = e.target.result;
+            document.getElementById('imgPreviewWrap').style.display = '';
+            document.getElementById('uploadLabelText').textContent  = 'Change Image';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const description    = document.getElementById('description');
+        const charCount      = document.getElementById('charCount');
+        const unitSelect     = document.getElementById('unit_of_measure');
+        const unitDisplay    = document.getElementById('unitDisplay');
+        const quantityInput  = document.getElementById('quantity');
+        const minQtyInput    = document.getElementById('minimum_quantity');
+        const categorySelect = document.getElementById('category_id');
+        const nameInput      = document.getElementById('name');
 
         // Character counter
         if (description && charCount) {
@@ -359,20 +387,20 @@
             }
         }
 
-        // Sync unit display beside minimum quantity
+        // Sync unit display
         if (unitSelect && unitDisplay) {
             unitDisplay.textContent = unitSelect.value || '-';
-            unitSelect.addEventListener('change', function() {
+            unitSelect.addEventListener('change', function () {
                 unitDisplay.textContent = this.value || '-';
             });
         }
 
-        // Live preview
+        // Live preview card
         function updatePreview() {
-            const quantity   = parseInt(quantityInput?.value) || 0;
-            const minQty     = parseInt(minQtyInput?.value) || 0;
-            const unit       = unitSelect?.value || '-';
-            const category   = categorySelect?.options[categorySelect.selectedIndex]?.text || '-';
+            const quantity  = parseInt(quantityInput?.value) || 0;
+            const minQty    = parseInt(minQtyInput?.value) || 0;
+            const unit      = unitSelect?.value || '-';
+            const category  = categorySelect?.options[categorySelect.selectedIndex]?.text || '-';
 
             const previewStatus   = document.getElementById('previewStatus');
             const previewReorder  = document.getElementById('previewReorder');
@@ -395,27 +423,22 @@
         }
 
         [quantityInput, minQtyInput, unitSelect, categorySelect].forEach(el => {
-            if (el) {
-                el.addEventListener('input', updatePreview);
-                el.addEventListener('change', updatePreview);
-            }
+            if (el) { el.addEventListener('input', updatePreview); el.addEventListener('change', updatePreview); }
         });
-
         updatePreview();
 
         // Auto-capitalise first letter
         if (nameInput) {
-            nameInput.addEventListener('input', function() {
+            nameInput.addEventListener('input', function () {
                 if (this.value.length === 1) this.value = this.value.toUpperCase();
             });
         }
 
         // Warn if initial qty is below minimum
         if (minQtyInput) {
-            minQtyInput.addEventListener('blur', function() {
+            minQtyInput.addEventListener('blur', function () {
                 const existing = this.parentElement.querySelector('.warn-msg');
                 if (existing) existing.remove();
-
                 if ((parseInt(quantityInput?.value) || 0) < (parseInt(this.value) || 0)) {
                     const warning = document.createElement('p');
                     warning.className = 'mt-1 text-sm text-yellow-600 warn-msg';
@@ -429,12 +452,12 @@
     function resetForm() {
         if (confirm('Are you sure you want to reset the form? All entered data will be lost.')) {
             document.getElementById('inventoryForm').reset();
-            document.getElementById('unitDisplay').textContent  = '-';
-            document.getElementById('charCount').textContent    = '0/1000';
-            // re-run preview after reset
+            document.getElementById('unitDisplay').textContent      = '-';
+            document.getElementById('charCount').textContent        = '0/1000';
+            document.getElementById('imgPreviewWrap').style.display = 'none';
+            document.getElementById('uploadLabelText').textContent  = 'Upload Image';
             setTimeout(() => {
-                const event = new Event('change');
-                document.getElementById('quantity')?.dispatchEvent(event);
+                document.getElementById('quantity')?.dispatchEvent(new Event('change'));
             }, 0);
         }
     }

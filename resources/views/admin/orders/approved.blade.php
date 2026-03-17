@@ -403,10 +403,23 @@ tbody td {
                                         </div>
                                     </div>
                                 </td>
-                                <td>
-                                    <div class="user-name">{{ $request->user->full_name ?? $request->user->name }}</div>
-                                    <div class="user-unit">{{ $request->user->unit ?? 'N/A' }}</div>
-                                    <div class="user-email">{{ $request->user->email }}</div>
+                               <td>
+                                    <div style="display:flex; align-items:center; gap:.75rem;">
+                                        <div style="width:2.5rem;height:2.5rem;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;{{ $request->user->avatar ? '' : 'background:linear-gradient(135deg,#B17457,#8a5a40);' }}">
+                                            @if($request->user->avatar)
+                                                <img src="{{ asset('storage/' . $request->user->avatar) }}"
+                                                    alt="{{ $request->user->first_name }}"
+                                                    style="width:100%;height:100%;object-fit:cover;">
+                                            @else
+                                                {{ strtoupper(substr($request->user->first_name, 0, 1) . substr($request->user->last_name, 0, 1)) }}
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <div class="user-name">{{ $request->user->first_name }} {{ $request->user->last_name }}</div>
+                                            <div class="user-unit">{{ $request->user->unit ?? 'N/A' }}</div>
+                                            <div class="user-email">{{ $request->user->email }}</div>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="item-count">{{ $request->requestItems->count() }} item(s)</div>

@@ -60,16 +60,100 @@
     background: rgba(219,153,108,.08); pointer-events: none;
 }
 
+/* ── Profile Picture ── */
+.avatar-wrap {
+    position: relative;
+    width: 80px; height: 80px;
+    margin: 0 auto 1rem;
+    z-index: 1;
+}
 .id-avatar {
     width: 80px; height: 80px; border-radius: 50%;
     background: linear-gradient(135deg, var(--teal), var(--terra));
     display: flex; align-items: center; justify-content: center;
     font-size: 1.75rem; font-weight: 700; color: #fff;
-    margin: 0 auto 1rem;
     border: 3px solid rgba(255,255,255,.2);
     box-shadow: 0 6px 20px rgba(0,0,0,.2);
-    position: relative; z-index: 1;
+    overflow: hidden;
+    width: 100%; height: 100%;
 }
+.id-avatar img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+/* Camera overlay button */
+.avatar-edit-btn {
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--terra);
+    border: 2px solid rgba(255,255,255,.9);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: background .15s, transform .15s;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+.avatar-edit-btn:hover { background: #c8844f; transform: scale(1.1); }
+.avatar-edit-btn svg { width: 12px; height: 12px; color: #fff; }
+#avatarFileInput { display: none; }
+
+/* Avatar preview modal */
+.avatar-modal-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.55);
+    backdrop-filter: blur(3px);
+    z-index: 100;
+    align-items: center; justify-content: center;
+}
+.avatar-modal-backdrop.open { display: flex; }
+.avatar-modal {
+    background: #fff;
+    border-radius: 20px;
+    padding: 2rem;
+    width: 90%; max-width: 380px;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0,0,0,.2);
+}
+.avatar-modal h3 {
+    font-size: .95rem; font-weight: 700;
+    color: var(--text-dark); margin-bottom: .25rem;
+}
+.avatar-modal p {
+    font-size: .75rem; color: var(--text-soft); margin-bottom: 1.25rem;
+}
+.avatar-preview-ring {
+    width: 120px; height: 120px; border-radius: 50%;
+    margin: 0 auto 1.25rem;
+    border: 3px solid var(--border);
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--teal), var(--terra));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem; font-weight: 700; color: #fff;
+}
+.avatar-preview-ring img {
+    width: 100%; height: 100%; object-fit: cover;
+}
+.avatar-modal-btns { display: flex; gap: .75rem; justify-content: center; }
+.btn-modal-cancel-av {
+    flex: 1; padding: .6rem; border: 1.5px solid var(--border);
+    border-radius: 9px; font-size: .845rem; font-weight: 600;
+    color: var(--text-mid); background: #fff; cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: border-color .15s;
+}
+.btn-modal-cancel-av:hover { border-color: var(--slate); color: var(--slate); }
+.btn-modal-save-av {
+    flex: 1; padding: .6rem; border: none;
+    border-radius: 9px; font-size: .845rem; font-weight: 600;
+    color: #fff; background: var(--slate); cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: background .15s;
+}
+.btn-modal-save-av:hover { background: var(--slate-dark); }
+
 .id-name {
     font-size: 1.05rem; font-weight: 700; color: #fff;
     margin-bottom: .25rem; position: relative; z-index: 1;
@@ -111,9 +195,7 @@
     padding: 1rem 1.25rem .6rem;
     border-bottom: 1px solid var(--border);
 }
-.stats-mini-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-}
+.stats-mini-grid { display: grid; grid-template-columns: 1fr 1fr; }
 .stat-mini-item {
     padding: 1rem 1.1rem;
     border-right: 1px solid var(--border);
@@ -122,14 +204,8 @@
 }
 .stat-mini-item:nth-child(2n) { border-right: none; }
 .stat-mini-item:nth-last-child(-n+2) { border-bottom: none; }
-.stat-mini-num {
-    font-size: 1.5rem; font-weight: 700; line-height: 1;
-    margin-bottom: .25rem;
-}
-.stat-mini-label {
-    font-size: .68rem; font-weight: 600;
-    color: var(--text-soft); text-transform: uppercase; letter-spacing: .04em;
-}
+.stat-mini-num { font-size: 1.5rem; font-weight: 700; line-height: 1; margin-bottom: .25rem; }
+.stat-mini-label { font-size: .68rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .04em; }
 .c-slate  { color: var(--slate); }
 .c-terra  { color: var(--terra); }
 .c-green  { color: #4a8c4a; }
@@ -171,10 +247,7 @@
 .info-row-label { font-size: .68rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .04em; }
 .info-row-value { font-size: .8rem; font-weight: 600; color: var(--text-dark); margin-top: .05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.status-dot {
-    display: inline-flex; align-items: center; gap: .3rem;
-    font-size: .75rem; font-weight: 600;
-}
+.status-dot { display: inline-flex; align-items: center; gap: .3rem; font-size: .75rem; font-weight: 600; }
 .dot { width: 7px; height: 7px; border-radius: 50%; }
 .dot-green { background: #4a8c4a; }
 .dot-red   { background: #c0392b; }
@@ -182,7 +255,6 @@
 /* ══ RIGHT PANEL ══ */
 .profile-right { display: flex; flex-direction: column; gap: 1.25rem; }
 
-/* Section Card */
 .s-card {
     background: #fff;
     border-radius: 18px;
@@ -192,7 +264,6 @@
     transition: box-shadow .2s;
 }
 .s-card:hover { box-shadow: 0 4px 28px rgba(110,125,162,.11); }
-
 .s-card-head {
     display: flex; align-items: center; gap: .9rem;
     padding: 1.1rem 1.5rem;
@@ -206,9 +277,42 @@
 .s-icon svg { width: 18px; height: 18px; }
 .si-blue  { background: rgba(110,125,162,.1); color: var(--slate); }
 .si-teal  { background: rgba(174,218,221,.2); color: var(--teal-dark); }
+.si-terra { background: rgba(219,153,108,.12); color: var(--terra); }
 .s-card-title { font-size: .92rem; font-weight: 700; color: var(--text-dark); }
 .s-card-desc  { font-size: .73rem; color: var(--text-soft); margin-top: .1rem; }
 .s-card-body  { padding: 1.5rem; }
+
+/* Profile picture section inside form */
+.avatar-form-section {
+    display: flex; align-items: center; gap: 1.25rem;
+    padding: 1.1rem 1.25rem;
+    background: var(--cream);
+    border-radius: 12px;
+    border: 1.5px dashed var(--border);
+    margin-bottom: 1.1rem;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+}
+.avatar-form-section:hover { border-color: var(--slate); background: #f0f2f8; }
+.avatar-form-thumb {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal), var(--terra));
+    border: 2.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem; font-weight: 700; color: #fff;
+    overflow: hidden; flex-shrink: 0;
+}
+.avatar-form-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-form-info { flex: 1; }
+.avatar-form-info strong { display: block; font-size: .82rem; font-weight: 700; color: var(--text-dark); margin-bottom: .15rem; }
+.avatar-form-info span { font-size: .72rem; color: var(--text-soft); }
+.avatar-upload-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: var(--slate); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.avatar-upload-icon svg { width: 16px; height: 16px; }
 
 /* Form */
 .f-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem 1.1rem; }
@@ -307,11 +411,7 @@
 .req-table td { padding: .8rem 1rem; font-size: .82rem; color: var(--text-dark); vertical-align: middle; }
 .req-table td.muted { color: var(--text-soft); }
 
-.purpose-cell {
-    max-width: 220px; white-space: nowrap;
-    overflow: hidden; text-overflow: ellipsis;
-    font-weight: 500;
-}
+.purpose-cell { max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
 .tracking-cell { font-family: monospace; font-size: .75rem; color: var(--text-soft); }
 
 .badge {
@@ -341,19 +441,37 @@
 .p-medium { background: rgba(110,125,162,.1);  color: var(--slate-dark); }
 .p-low    { background: rgba(74,140,74,.08);   color: #4a7c4a; }
 
-.empty-state {
-    text-align: center; padding: 3rem 1rem;
-    display: flex; flex-direction: column; align-items: center; gap: .6rem;
-}
-.empty-icon {
-    width: 48px; height: 48px; border-radius: 12px;
-    background: #f4f5f8;
-    display: flex; align-items: center; justify-content: center; color: #c4c8d4;
-    margin-bottom: .25rem;
-}
+.empty-state { text-align: center; padding: 3rem 1rem; display: flex; flex-direction: column; align-items: center; gap: .6rem; }
+.empty-icon { width: 48px; height: 48px; border-radius: 12px; background: #f4f5f8; display: flex; align-items: center; justify-content: center; color: #c4c8d4; margin-bottom: .25rem; }
 .empty-icon svg { width: 22px; height: 22px; }
 .empty-state p { font-size: .83rem; color: var(--text-soft); font-weight: 500; }
 </style>
+
+{{-- ── Avatar Upload Modal ── --}}
+<div class="avatar-modal-backdrop" id="avatarModal">
+    <div class="avatar-modal">
+        <h3>Update Profile Photo</h3>
+        <p>Preview your new profile picture before saving.</p>
+        <div class="avatar-preview-ring" id="avatarPreviewRing">
+            @if($user->avatar)
+                <img src="{{ asset('storage/' . $user->avatar) }}" id="avatarPreviewImg" alt="Preview">
+            @else
+                <span id="avatarPreviewInitials">{{ strtoupper(substr($user->first_name, 0, 1)) }}{{ strtoupper(substr($user->last_name, 0, 1)) }}</span>
+            @endif
+        </div>
+        <div class="avatar-modal-btns">
+            <button type="button" class="btn-modal-cancel-av" id="avatarModalCancel">Cancel</button>
+            <button type="button" class="btn-modal-save-av" id="avatarModalSave">Save Photo</button>
+        </div>
+    </div>
+</div>
+
+{{-- Hidden avatar upload form --}}
+<form id="avatarUploadForm" method="POST" action="{{ route('profile.avatar') }}" enctype="multipart/form-data" style="display:none;">
+    @csrf
+    
+    <input type="file" id="avatarFileInput" name="avatar" accept="image/jpeg,image/png,image/webp">
+</form>
 
 <div class="profile-page">
 
@@ -362,11 +480,24 @@
 
         {{-- Identity Card --}}
         <div class="identity-card">
-            <div class="id-avatar">
-                {{ strtoupper(substr($user->first_name, 0, 1)) }}{{ strtoupper(substr($user->last_name, 0, 1)) }}
+            {{-- Clickable avatar with camera button --}}
+            <div class="avatar-wrap" onclick="triggerAvatarUpload()" title="Change profile photo">
+                <div class="id-avatar">
+                    @if($user->avatar)
+                        <img src="{{ asset('storage/' . $user->avatar) }}" id="sidebarAvatar" alt="{{ $user->first_name }}">
+                    @else
+                        <span id="sidebarAvatarInitials">{{ strtoupper(substr($user->first_name, 0, 1)) }}{{ strtoupper(substr($user->last_name, 0, 1)) }}</span>
+                    @endif
+                </div>
+                <div class="avatar-edit-btn" title="Upload photo">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </div>
             </div>
+
             <div class="id-name">{{ $user->first_name }} {{ $user->last_name }}</div>
-            <div class="id-username">@{{ $user->username }}</div>
             <div class="id-badges">
                 <span class="id-badge id-badge-role">{{ ucfirst($user->type) }}</span>
                 @if($user->unit)
@@ -471,10 +602,32 @@
                 </div>
                 <div>
                     <div class="s-card-title">Personal Information</div>
-                    <div class="s-card-desc">Update your name, email, and contact details.</div>
+                    <div class="s-card-desc">Update your name, email, contact details, and profile photo.</div>
                 </div>
             </div>
             <div class="s-card-body">
+
+                {{-- Profile Picture Row --}}
+                <div class="avatar-form-section" onclick="triggerAvatarUpload()" title="Click to change photo">
+                    <div class="avatar-form-thumb" id="formAvatarThumb">
+                        @if($user->avatar)
+                            <img src="{{ asset('storage/' . $user->avatar) }}" id="formAvatarImg" alt="Profile">
+                        @else
+                            <span id="formAvatarInitials">{{ strtoupper(substr($user->first_name, 0, 1)) }}{{ strtoupper(substr($user->last_name, 0, 1)) }}</span>
+                        @endif
+                    </div>
+                    <div class="avatar-form-info">
+                        <strong>Profile Photo</strong>
+                        <span>Click to upload · JPG, PNG or WebP · Max 2MB</span>
+                    </div>
+                    <div class="avatar-upload-icon">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                </div>
+
                 <form method="POST" action="{{ route('profile.update') }}">
                     @csrf
                     @method('PATCH')
@@ -666,6 +819,81 @@ function togglePill(input) {
     document.querySelectorAll('.radio-pill').forEach(p => p.classList.remove('on'));
     input.closest('.radio-pill').classList.add('on');
 }
+
+// ── Avatar Upload Logic ──
+const fileInput     = document.getElementById('avatarFileInput');
+const modal         = document.getElementById('avatarModal');
+const previewRing   = document.getElementById('avatarPreviewRing');
+const initials      = '{{ strtoupper(substr($user->first_name, 0, 1)) }}{{ strtoupper(substr($user->last_name, 0, 1)) }}';
+let selectedFile    = null;
+
+function triggerAvatarUpload() {
+    fileInput.click();
+}
+
+fileInput.addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    // Validate size (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+        alert('File is too large. Please choose an image under 2MB.');
+        this.value = '';
+        return;
+    }
+
+    selectedFile = file;
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        // Update modal preview
+        previewRing.innerHTML = `<img src="${e.target.result}" alt="Preview" style="width:100%;height:100%;object-fit:cover;">`;
+
+        // Live-update sidebar & form thumb too
+        updateAllAvatars(e.target.result);
+
+        modal.classList.add('open');
+    };
+    reader.readAsDataURL(file);
+});
+
+function updateAllAvatars(src) {
+    // Sidebar
+    const sidebar = document.getElementById('sidebarAvatar');
+    if (sidebar) { sidebar.src = src; }
+    else {
+        const wrap = document.querySelector('.id-avatar');
+        if (wrap) wrap.innerHTML = `<img src="${src}" id="sidebarAvatar" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    }
+
+    // Form thumb
+    const formImg = document.getElementById('formAvatarImg');
+    if (formImg) { formImg.src = src; }
+    else {
+        const thumb = document.getElementById('formAvatarThumb');
+        if (thumb) thumb.innerHTML = `<img src="${src}" id="formAvatarImg" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">`;
+    }
+}
+
+document.getElementById('avatarModalCancel').addEventListener('click', function () {
+    modal.classList.remove('open');
+    fileInput.value = '';
+    selectedFile = null;
+});
+
+document.getElementById('avatarModalSave').addEventListener('click', function () {
+    if (!selectedFile) return;
+    document.getElementById('avatarUploadForm').submit();
+});
+
+// Close on backdrop click
+modal.addEventListener('click', function (e) {
+    if (e.target === modal) {
+        modal.classList.remove('open');
+        fileInput.value = '';
+        selectedFile = null;
+    }
+});
 </script>
 
 @endsection

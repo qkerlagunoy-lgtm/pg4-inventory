@@ -27,7 +27,6 @@
     position: relative;
 }
 
-/* left accent strip */
 .user-header::before {
     content: '';
     position: absolute;
@@ -141,18 +140,35 @@
     border-color: rgba(174,218,221,0.40);
 }
 
+/* ── AVATAR: shared base ── */
 .avatar {
     width: 34px; height: 34px;
-    background: linear-gradient(135deg, var(--teal) 0%, #8ecdd0 100%);
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+/* initials fallback */
+.avatar-initials {
+    background: linear-gradient(135deg, var(--teal) 0%, #8ecdd0 100%);
     color: var(--slate-deep);
     font-size: .72rem;
     font-weight: 800;
-    flex-shrink: 0;
     letter-spacing: .02em;
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px;
+}
+
+/* photo */
+.avatar-photo {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
 }
 
 .profile-text { display: flex; flex-direction: column; gap: 2px; }
@@ -239,7 +255,6 @@
     border-color: var(--slate);
 }
 
-/* list */
 .notif-list { max-height: 340px; overflow-y: auto; }
 .notif-list::-webkit-scrollbar { width: 4px; }
 .notif-list::-webkit-scrollbar-track { background: #f8f9fb; }
@@ -317,7 +332,6 @@
     margin-top: 6px;
 }
 
-/* empty */
 .notif-empty { padding: 3rem 1.5rem; text-align: center; }
 .notif-empty-icon {
     width: 52px; height: 52px;
@@ -336,7 +350,6 @@
     font-weight: 500;
 }
 
-/* footer */
 .notif-footer {
     padding: .75rem 1.25rem;
     border-top: 1px solid #f0f1f5;
@@ -485,18 +498,26 @@
 
             <div class="header-divider"></div>
 
-            {{-- Profile --}}
+            {{-- Profile link with avatar photo or initials fallback --}}
             <a href="{{ route('profile.edit') }}" class="profile-link">
                 <div class="avatar">
-                    {{ Str::upper(substr(Auth::user()->first_name,0,1).substr(Auth::user()->last_name,0,1)) }}
+                    @if(Auth::user()->avatar)
+                        <img class="avatar-photo"
+                             src="{{ asset('storage/' . Auth::user()->avatar) }}"
+                             alt="{{ Auth::user()->first_name }}">
+                    @else
+                        <div class="avatar-initials">
+                            {{ Str::upper(substr(Auth::user()->first_name, 0, 1) . substr(Auth::user()->last_name, 0, 1)) }}
+                        </div>
+                    @endif
                 </div>
                 <div class="profile-text">
                     <span class="profile-name">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span>
                     <span class="profile-role">User</span>
                 </div>
             </a>
-        </div>
 
+        </div>
     </div>
 </header>
 

@@ -67,14 +67,8 @@
     margin-bottom: 1.5rem;
     border-left: 4px solid;
 }
-.flash-success {
-    background: #f0faf0;
-    border-left-color: #6aab6a;
-}
-.flash-error {
-    background: #fff0f0;
-    border-left-color: #d87070;
-}
+.flash-success { background: #f0faf0; border-left-color: #6aab6a; }
+.flash-error   { background: #fff0f0; border-left-color: #d87070; }
 .flash-icon { flex-shrink: 0; width: 1.25rem; height: 1.25rem; }
 .flash-icon-success { color: #4a8c4a; }
 .flash-icon-error   { color: #c0392b; }
@@ -108,9 +102,7 @@
 .stat-icon {
     width: 3rem; height: 3rem;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
 }
 .stat-icon svg { width: 1.5rem; height: 1.5rem; }
@@ -167,14 +159,8 @@
     padding-top: 1rem;
     border-top: 1px solid var(--sand);
 }
-.filter-count {
-    font-size: .85rem;
-    color: #6b6966;
-}
-.filter-count.low-stock {
-    font-weight: 600;
-    color: #c77d11;
-}
+.filter-count { font-size: .85rem; color: #6b6966; }
+.filter-count.low-stock { font-weight: 600; color: #c77d11; }
 .filter-btns { display: flex; gap: .75rem; }
 
 .btn {
@@ -230,10 +216,18 @@ tbody td {
     vertical-align: middle;
 }
 
-/* ── ITEM CELL ── */
-.item-cell { display: flex; align-items: center; gap: 1rem; }
-.item-icon {
-    width: 2.5rem; height: 2.5rem;
+/* ── ITEM IMAGE ── */
+.item-thumb {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--sand);
+    flex-shrink: 0;
+}
+.item-thumb-placeholder {
+    width: 2.75rem;
+    height: 2.75rem;
     background: #d9ebf7;
     border-radius: 8px;
     display: flex;
@@ -241,7 +235,10 @@ tbody td {
     justify-content: center;
     flex-shrink: 0;
 }
-.item-icon svg { width: 1.5rem; height: 1.5rem; color: #4a7fb5; }
+.item-thumb-placeholder svg { width: 1.4rem; height: 1.4rem; color: #4a7fb5; }
+
+/* ── ITEM CELL ── */
+.item-cell { display: flex; align-items: center; gap: 1rem; }
 .item-info .item-name {
     font-size: .875rem;
     font-weight: 600;
@@ -277,24 +274,12 @@ tbody td {
     border-radius: 20px;
     overflow: hidden;
 }
-.stock-bar-fill {
-    height: 100%;
-    border-radius: 20px;
-    transition: width .3s;
-}
+.stock-bar-fill { height: 100%; border-radius: 20px; transition: width .3s; }
 .stock-bar-fill.green  { background: #4a8c4a; }
 .stock-bar-fill.yellow { background: #e6a23c; }
 .stock-bar-fill.red    { background: #c0392b; }
-.stock-qty {
-    font-size: .875rem;
-    font-weight: 600;
-    color: var(--charcoal);
-}
-.stock-min {
-    font-size: .7rem;
-    color: #9a9591;
-    margin-top: .2rem;
-}
+.stock-qty { font-size: .875rem; font-weight: 600; color: var(--charcoal); }
+.stock-min { font-size: .7rem; color: #9a9591; margin-top: .2rem; }
 
 /* ── STATUS BADGE ── */
 .status-badge {
@@ -331,13 +316,8 @@ tbody td {
 .action-btn-delete:hover { background: #ffe6e6; }
 
 /* ── TFOOT NEW ITEM ── */
-tfoot tr {
-    background: #f5f1e8;
-    border-top: 2px dashed var(--sand);
-}
-tfoot td {
-    padding: 1rem 1.2rem;
-}
+tfoot tr { background: #f5f1e8; border-top: 2px dashed var(--sand); }
+tfoot td { padding: 1rem 1.2rem; }
 .new-item-link {
     display: flex;
     align-items: center;
@@ -354,22 +334,14 @@ tfoot td {
     width: 2rem; height: 2rem;
     background: rgba(177,116,87,.15);
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
 }
 .new-item-icon svg { width: 1rem; height: 1rem; color: var(--sienna); }
 
 /* ── PAGINATION ── */
-.pagination-wrap {
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--sand);
-}
+.pagination-wrap { padding: 1rem 1.5rem; border-top: 1px solid var(--sand); }
 .pagination-wrap nav span[aria-current="page"] > span,
-.pagination-wrap nav a {
-    border-color: var(--sand) !important;
-    color: var(--charcoal) !important;
-}
+.pagination-wrap nav a { border-color: var(--sand) !important; color: var(--charcoal) !important; }
 .pagination-wrap nav span[aria-current="page"] > span {
     background: var(--sienna) !important;
     color: #fff !important;
@@ -377,13 +349,10 @@ tfoot td {
 }
 
 /* ── EMPTY STATE ── */
-.empty-state {
-    padding: 3rem 1rem;
-    text-align: center;
-}
+.empty-state { padding: 3rem 1rem; text-align: center; }
 .empty-state svg { color: var(--sand); margin: 0 auto 1rem; }
 .empty-state h3 { font-size: 1rem; font-weight: 600; color: var(--charcoal); margin-bottom: .5rem; }
-.empty-state p { font-size: .875rem; color: #9a9591; margin-bottom: 1.5rem; }
+.empty-state p  { font-size: .875rem; color: #9a9591; margin-bottom: 1.5rem; }
 .empty-state p a { color: var(--sienna); text-decoration: underline; }
 
 /* ── EXPORT SECTION ── */
@@ -397,7 +366,7 @@ tfoot td {
     align-items: center;
 }
 .export-info h4 { font-size: .875rem; font-weight: 600; color: var(--charcoal); margin-bottom: .25rem; }
-.export-info p { font-size: .8rem; color: #6b6966; }
+.export-info p  { font-size: .8rem; color: #6b6966; }
 
 /* ── RESTOCK MODAL ── */
 .modal {
@@ -421,28 +390,14 @@ tfoot td {
     width: 3rem; height: 3rem;
     background: #fff4e6;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     margin: 0 auto 1rem;
 }
 .modal-icon svg { width: 1.5rem; height: 1.5rem; color: #e6a23c; }
-.modal-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--charcoal);
-    text-align: center;
-    margin-bottom: 1rem;
-}
+.modal-title { font-size: 1.1rem; font-weight: 700; color: var(--charcoal); text-align: center; margin-bottom: 1rem; }
 .modal-body { padding: 0 1rem 1rem; }
 .modal-field { margin-bottom: 1rem; }
-.modal-field label {
-    display: block;
-    font-size: .8rem;
-    font-weight: 600;
-    color: var(--charcoal);
-    margin-bottom: .4rem;
-}
+.modal-field label { display: block; font-size: .8rem; font-weight: 600; color: var(--charcoal); margin-bottom: .4rem; }
 .modal-input,
 .modal-textarea {
     width: 100%;
@@ -458,12 +413,7 @@ tfoot td {
 }
 .modal-input:focus,
 .modal-textarea:focus { border-color: #e6a23c; }
-.modal-btns {
-    display: flex;
-    justify-content: center;
-    gap: .75rem;
-    padding-top: .5rem;
-}
+.modal-btns { display: flex; justify-content: center; gap: .75rem; padding-top: .5rem; }
 .modal-btn {
     padding: .6rem 1.25rem;
     font-size: .875rem;
@@ -475,12 +425,12 @@ tfoot td {
     transition: opacity .15s;
 }
 .modal-btn:hover { opacity: .88; }
-.modal-btn-cancel { background: var(--sand); color: var(--charcoal); }
+.modal-btn-cancel  { background: var(--sand); color: var(--charcoal); }
 .modal-btn-confirm { background: #e6a23c; color: #fff; }
 
 @media (max-width: 768px) {
-    .filter-grid { grid-template-columns: 1fr; }
-    .stats-grid { grid-template-columns: 1fr; }
+    .filter-grid  { grid-template-columns: 1fr; }
+    .stats-grid   { grid-template-columns: 1fr; }
 }
 </style>
 
@@ -616,6 +566,7 @@ tfoot td {
                 <table>
                     <thead>
                         <tr>
+                            <th style="width:3.5rem;">Image</th>
                             <th>Item</th>
                             <th>Category</th>
                             <th>Stock</th>
@@ -627,22 +578,33 @@ tfoot td {
                     <tbody>
                         @foreach($items as $item)
                             <tr class="{{ ($item->quantity == 0 || $item->quantity <= $item->minimum_quantity) ? 'low-stock' : '' }}">
+
+                                {{-- Image --}}
                                 <td>
-                                    <div class="item-cell">
-                                        <div class="item-icon">
+                                    @if($item->image)
+                                        <img src="{{ asset('storage/' . $item->image) }}"
+                                             alt="{{ $item->name }}"
+                                             class="item-thumb">
+                                    @else
+                                        <div class="item-thumb-placeholder">
                                             <svg fill="currentColor" viewBox="0 0 20 20">
                                                 <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/>
                                                 <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/>
                                             </svg>
                                         </div>
-                                        <div class="item-info">
-                                            <div class="item-name">{{ $item->name }}</div>
-                                            @if($item->description)
-                                                <div class="item-desc">{{ Str::limit($item->description, 50) }}</div>
-                                            @endif
-                                        </div>
+                                    @endif
+                                </td>
+
+                                {{-- Item name + description --}}
+                                <td>
+                                    <div class="item-info">
+                                        <div class="item-name">{{ $item->name }}</div>
+                                        @if($item->description)
+                                            <div class="item-desc">{{ Str::limit($item->description, 50) }}</div>
+                                        @endif
                                     </div>
                                 </td>
+
                                 <td>
                                     @if($item->category)
                                         <span class="cat-badge">{{ $item->category->name }}</span>
@@ -650,6 +612,7 @@ tfoot td {
                                         <span style="color:#9a9591;">—</span>
                                     @endif
                                 </td>
+
                                 <td>
                                     <div class="stock-bar-wrap">
                                         <div class="stock-bar">
@@ -666,7 +629,9 @@ tfoot td {
                                     </div>
                                     <div class="stock-min">Min: {{ $item->minimum_quantity }}</div>
                                 </td>
+
                                 <td>{{ $item->unit_of_measure }}</td>
+
                                 <td>
                                     @if($item->quantity == 0)
                                         <span class="status-badge status-out-stock">Out of Stock</span>
@@ -676,6 +641,7 @@ tfoot td {
                                         <span class="status-badge status-in-stock">In Stock</span>
                                     @endif
                                 </td>
+
                                 <td>
                                     <div class="actions">
                                         <a href="{{ route('admin.inventory.show', $item) }}"
@@ -721,7 +687,7 @@ tfoot td {
 
                     <tfoot>
                         <tr>
-                            <td colspan="6">
+                            <td colspan="7">
                                 <a href="{{ route('admin.inventory.create') }}" class="new-item-link">
                                     <div class="new-item-icon">
                                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -771,14 +737,12 @@ tfoot td {
             <h4>Export Inventory Data</h4>
             <p>Download inventory data for reporting</p>
         </div>
-        <button type="button"
-                onclick="alert('Export feature coming soon!')"
-                class="btn btn-muted">
-            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            Export to CSV
-        </button>
+       <a href="{{ route('admin.inventory.export-csv', request()->query()) }}" class="btn btn-muted">
+    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+    </svg>
+    Export to CSV
+</a>
     </div>
 
 </div>
@@ -833,8 +797,8 @@ tfoot td {
         const modalTitle  = document.getElementById('modalTitle');
         const restockForm = document.getElementById('restockForm');
 
-        modalTitle.textContent  = `Restock: ${itemName}`;
-        restockForm.action      = `/admin/inventory/${itemId}/restock`;
+        modalTitle.textContent = `Restock: ${itemName}`;
+        restockForm.action     = `/admin/inventory/${itemId}/restock`;
 
         document.getElementById('restockQuantity').value = '';
         document.getElementById('restockNotes').value    = '';

@@ -456,14 +456,21 @@ tbody td {
                             </td>
                             <td>
                                 <div class="user-cell">
-                                    <div class="user-avatar">
-                                        {{ strtoupper(substr($request->user->first_name, 0, 1) . substr($request->user->last_name, 0, 1)) }}
-                                    </div>
-                                    <div class="user-info">
-                                        <div class="user-name">{{ $request->user->first_name }} {{ $request->user->last_name }}</div>
-                                        <div class="user-unit">{{ $request->user->unit ?? 'N/A' }}</div>
-                                    </div>
-                                </div>
+<div class="user-cell">
+    <div class="user-avatar" style="{{ $request->user->avatar ? 'background:none;padding:0;overflow:hidden;' : '' }}">
+        @if($request->user->avatar)
+            <img src="{{ asset('storage/' . $request->user->avatar) }}"
+                 alt="{{ $request->user->first_name }}"
+                 style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+        @else
+            {{ strtoupper(substr($request->user->first_name, 0, 1) . substr($request->user->last_name, 0, 1)) }}
+        @endif
+    </div>
+    <div class="user-info">
+        <div class="user-name">{{ $request->user->first_name }} {{ $request->user->last_name }}</div>
+        <div class="user-unit">{{ $request->user->unit ?? 'N/A' }}</div>
+    </div>
+</div>
                             </td>
                             <td>
                                 <div>{{ Str::limit($request->purpose, 50) }}</div>

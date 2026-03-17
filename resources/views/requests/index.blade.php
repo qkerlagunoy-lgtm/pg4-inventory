@@ -1,6 +1,5 @@
 @extends('layouts.user')
 
-
 @section('title', 'Request Items')
 @section('header-actions')
     @php
@@ -8,271 +7,350 @@
         $cartCount = count($cart);
         $cartTotal = array_sum(array_column($cart, 'quantity'));
     @endphp
-    <a href="{{ route('requests.cart') }}" 
-       style="background:#DB996C;" 
-       class="px-4 py-2 text-white rounded-lg hover:opacity-90 transition flex items-center gap-2">
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+    <a href="{{ route('requests.cart') }}"
+       class="relative px-5 py-2.5 bg-[#1a1a1a] text-white rounded-full text-sm font-semibold hover:bg-[#333] transition-all flex items-center gap-2.5 shadow-md">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
         </svg>
-        View Cart
+        Cart
         @if($cartCount > 0)
-            <span class="px-2 py-1 text-xs font-bold bg-white rounded-full" style="color:#DB996C;">{{ $cartTotal }}</span>
+            <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#DB996C] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow">{{ $cartTotal }}</span>
         @endif
     </a>
 @endsection
 
 @section('content')
 <style>
-    /* focus rings → slate */
-    .f-input:focus {
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
+
+    .shop-wrap { font-family: 'DM Sans', sans-serif; }
+
+    /* Search bar */
+    .search-bar {
+        border: 1.5px solid #e5e7eb;
+        transition: border-color .2s, box-shadow .2s;
+    }
+    .search-bar:focus {
         outline: none;
-        border-color: #6E7DA2 !important;
-        box-shadow: 0 0 0 3px rgba(110,125,162,0.18);
+        border-color: #1a1a1a;
+        box-shadow: 0 0 0 3px rgba(26,26,26,0.08);
     }
 
-    /* quick filter pills */
-    .qf-stock    { background:rgba(174,218,221,0.25); color:#5a9ea0; }
-    .qf-stock:hover { background:rgba(174,218,221,0.45); }
-    .qf-low      { background:rgba(219,153,108,0.18); color:#b07040; }
-    .qf-low:hover { background:rgba(219,153,108,0.32); }
-    .qf-expiring { background:rgba(192,57,43,0.1);   color:#c0392b; }
-    .qf-expiring:hover { background:rgba(192,57,43,0.18); }
-    .qf-clear    { background:#f0f1f5; color:#6b7280; }
-    .qf-clear:hover { background:#e2e4ec; }
-
-    /* category badge → teal */
-    .badge-category { background:rgba(174,218,221,0.25); color:#5a8fa0; }
-
-    /* stock status badges */
-    .badge-instock   { background:rgba(110,125,162,0.15); color:#4a5878; }
-    .badge-lowstock  { background:rgba(219,153,108,0.18); color:#b07040; }
-    .badge-outstock  { background:#f0f1f5;                color:#6b7280; }
-    .badge-expiring  { background:rgba(192,57,43,0.1);   color:#c0392b; }
-    .badge-expired   { background:#f0f1f5;                color:#6b7280; }
-
-    /* add to cart button → terracotta */
-    .btn-add-cart {
-        background: #DB996C;
+    /* Filter pills */
+    .filter-pill {
+        border: 1.5px solid #e5e7eb;
+        color: #555;
+        background: #fff;
+        transition: all .18s;
+        font-size: .75rem;
+        font-weight: 500;
+        letter-spacing: .01em;
+    }
+    .filter-pill:hover, .filter-pill.active {
+        border-color: #1a1a1a;
+        background: #1a1a1a;
         color: #fff;
     }
-    .btn-add-cart:hover { background: #c8844f; }
 
-    /* table thead */
-    .thead-cream { background: #FCF8F3; }
+    /* Product card */
+    .product-card {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: box-shadow .22s, transform .22s;
+        border: 1px solid #f0f0f0;
+        display: flex;
+        flex-direction: column;
+    }
+    .product-card:hover {
+        box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+        transform: translateY(-3px);
+    }
 
-    /* modal icon circle → teal */
-    .modal-icon-bg { background: rgba(174,218,221,0.25); }
-    .modal-icon-bg svg { color: #7bbfc3; }
+    /* Image area */
+    .product-img-wrap {
+        background: #f7f7f7;
+        aspect-ratio: 1 / 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+    }
+    .product-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform .35s ease;
+    }
+    .product-card:hover .product-img-wrap img {
+        transform: scale(1.05);
+    }
 
-    /* modal submit → terracotta */
-    .btn-modal-submit { background: #DB996C; color: #fff; }
+    /* Unavailable overlay */
+    .unavailable-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(255,255,255,0.55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .unavailable-badge {
+        background: #1a1a1a;
+        color: #fff;
+        font-size: .68rem;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        padding: .3rem .8rem;
+        border-radius: 100px;
+    }
+
+    /* Product info */
+    .product-info { padding: 1rem 1rem .85rem; flex: 1; display: flex; flex-direction: column; gap: .25rem; }
+    .product-category { font-size: .68rem; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: .08em; }
+    .product-name { font-size: .92rem; font-weight: 600; color: #1a1a1a; line-height: 1.3; }
+    .product-desc { font-size: .78rem; color: #888; margin-top: .1rem; line-height: 1.4; }
+    .product-qty { font-size: .78rem; color: #555; margin-top: .2rem; }
+
+    /* Add to cart button */
+    .btn-add {
+        display: block;
+        width: 100%;
+        padding: .65rem 1rem;
+        background: #4a5878;
+        color: #fff;
+        font-size: .82rem;
+        font-weight: 600;
+        text-align: center;
+        letter-spacing: .03em;
+        border: none;
+        cursor: pointer;
+        transition: background .18s;
+        border-top: 1px solid #f0f0f0;
+        margin-top: auto;
+    }
+    .btn-add:hover { background: #DB996C; }
+    .btn-add:disabled {
+        background: #e5e7eb;
+        color: #aaa;
+        cursor: not-allowed;
+    }
+
+    /* Section title */
+    .section-title {
+        font-family: 'DM Serif Display', serif;
+        font-size: 1.75rem;
+        color: #1a1a1a;
+        font-weight: 400;
+    }
+    .result-count { font-size: .82rem; color: #999; font-weight: 400; }
+
+    /* Empty state */
+    .empty-state { background: #fafafa; border-radius: 16px; padding: 4rem 2rem; text-align: center; }
+
+    /* Modal */
+    .modal-backdrop {
+        background: rgba(0,0,0,0.45);
+        backdrop-filter: blur(2px);
+    }
+    .modal-box {
+        background: #fff;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 420px;
+        padding: 2rem;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+    }
+    .modal-input {
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        padding: .55rem .9rem;
+        font-size: .9rem;
+        width: 100%;
+        transition: border-color .18s;
+        font-family: 'DM Sans', sans-serif;
+    }
+    .modal-input:focus {
+        outline: none;
+        border-color: #1a1a1a;
+        box-shadow: 0 0 0 3px rgba(26,26,26,0.07);
+    }
+    .btn-modal-cancel {
+        flex: 1; padding: .65rem; border: 1.5px solid #e5e7eb; border-radius: 8px;
+        font-size: .85rem; font-weight: 600; color: #555; background: #fff;
+        cursor: pointer; transition: border-color .18s;
+    }
+    .btn-modal-cancel:hover { border-color: #1a1a1a; color: #1a1a1a; }
+    .btn-modal-submit {
+        flex: 1; padding: .65rem; border: none; border-radius: 8px;
+        font-size: .85rem; font-weight: 600; color: #fff; background: #DB996C;
+        cursor: pointer; transition: background .18s;
+    }
     .btn-modal-submit:hover { background: #c8844f; }
-
-    /* modal cancel */
-    .btn-modal-cancel { background: #f0f1f5; color: #4a5878; }
-    .btn-modal-cancel:hover { background: #e2e4ec; }
-
-    /* flash success */
-    .flash-success { background:#f0faf9; border-left-color:#AEDADD; }
-    .flash-success svg { color:#7bbfc3; }
-    .flash-success p   { color:#4a5878; }
-
-    /* flash error stays red (semantic) */
 </style>
 
+<div class="shop-wrap max-w-7xl mx-auto">
 
+    {{-- Header + Search --}}
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-end gap-4">
+        <div class="flex-1">
+            <p class="result-count" id="resultCount">{{ $items->count() }} items available</p>
+        </div>
+        <div class="flex gap-2 flex-wrap">
+            <div class="relative">
+                <input type="text" id="searchInput" placeholder="Search items…"
+                       class="search-bar pl-9 pr-4 py-2 rounded-full text-sm w-56">
+                <svg class="absolute left-3 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
 
-    <!-- Search and Filter Card -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div class="flex flex-col md:flex-row gap-4">
-            <div class="flex-1">
-                <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-2">Search Items</label>
-                <div class="relative">
-                    <input type="text" id="searchInput" placeholder="Search by name, category, or description..." 
-                           class="f-input w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
+    {{-- Category Filter Pills --}}
+    @php
+        $categories = $items->pluck('category.name')->filter()->unique()->sort()->values();
+    @endphp
+    @if($categories->isNotEmpty())
+    <div class="flex flex-wrap gap-2 mb-6">
+        <button onclick="filterByCategory('all')" id="pill-all" class="filter-pill active px-4 py-2 rounded-full">All</button>
+        @foreach($categories as $cat)
+            <button onclick="filterByCategory('{{ addslashes($cat) }}')"
+                    id="pill-cat-{{ Str::slug($cat) }}"
+                    class="filter-pill px-4 py-2 rounded-full">{{ $cat }}</button>
+        @endforeach
+    </div>
+    @endif
+
+    {{-- Product Grid --}}
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" id="productGrid">
+        @forelse($items as $item)
+            @php
+                $isAvailable = $item->quantity > 0;
+                $isLow = $item->quantity > 0 && $item->quantity <= $item->minimum_quantity;
+            @endphp
+            <div class="product-card"
+                 data-category="{{ $item->category->name ?? 'Uncategorized' }}"
+                 data-name="{{ $item->name }}"
+                 data-description="{{ $item->description ?? '' }}"
+                 data-stock="{{ $item->quantity }}"
+                 data-minimum="{{ $item->minimum_quantity }}">
+
+                {{-- Image --}}
+                <div class="product-img-wrap">
+                    @if($item->image)
+                        <img src="{{ asset('storage/'.$item->image) }}" alt="{{ $item->name }}">
+                    @else
+                        <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    @endif
+
+                    @if(!$isAvailable)
+                        <div class="unavailable-overlay">
+                            <span class="unavailable-badge">Unavailable</span>
+                        </div>
+                    @endif
+
+                    @if($isLow && $isAvailable)
+                        <div class="absolute top-2 left-2">
+                            <span class="bg-[#DB996C] text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">Low Stock</span>
+                        </div>
+                    @endif
                 </div>
+
+                {{-- Info --}}
+                <div class="product-info">
+                    <span class="product-category">{{ $item->category->name ?? 'Uncategorized' }}</span>
+                    <span class="product-name">{{ $item->name }}</span>
+                    <span class="product-desc">{{ Str::limit($item->description ?? 'No description available.', 55) }}</span>
+                    <span class="product-qty">
+                        @if($isAvailable)
+                            <span class="text-green-600 font-medium">Available</span>
+                        @else
+                            <span class="text-gray-400 font-medium">Unavailable</span>
+                        @endif
+                    </span>
+                </div>
+
+                {{-- CTA --}}
+                @if($isAvailable)
+                    <button class="btn-add"
+                            onclick="openAddToCartModal({{ $item->id }}, '{{ addslashes($item->name) }}', {{ $item->quantity }}, '{{ $item->unit }}')">
+                        Add to Cart
+                    </button>
+                @else
+                    <button class="btn-add" disabled>Out of Stock</button>
+                @endif
             </div>
-            <div class="flex items-end">
-                <button onclick="resetSearch()" 
-                        class="qf-clear px-6 py-2 rounded-lg transition flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                    </svg>
-                    Reset
-                </button>
+        @empty
+            <div class="col-span-full empty-state">
+                <svg class="w-14 h-14 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                </svg>
+                <p class="text-gray-400 text-sm font-medium">No items available right now.</p>
             </div>
-        </div>
-        
-        <!-- Quick Filters -->
-        <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200">
-            <span class="text-sm text-gray-600 mr-2 py-1">Quick filters:</span>
-            <button onclick="filterByStatus('available')" class="qf-stock px-3 py-1 text-xs rounded-full transition">In Stock</button>
-            <button onclick="filterByStatus('low')"       class="qf-low   px-3 py-1 text-xs rounded-full transition">Low Stock</button>
-            <button onclick="filterByStatus('expiring')"  class="qf-expiring px-3 py-1 text-xs rounded-full transition">Expiring Soon</button>
-            <button onclick="resetSearch()"               class="qf-clear px-3 py-1 text-xs rounded-full transition">Clear All</button>
-        </div>
+        @endforelse
     </div>
 
-    <!-- Items Table -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200" id="itemsTable">
-                <thead class="thead-cream">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Name</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($items as $item)
-                        <tr class="hover:bg-gray-50 transition"
-                            data-category="{{ $item->category->name ?? 'Uncategorized' }}"
-                            data-name="{{ $item->name }}"
-                            data-description="{{ $item->description ?? '' }}"
-                            data-stock="{{ $item->quantity }}"
-                            data-minimum="{{ $item->minimum_quantity }}">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="badge-category px-3 py-1 text-xs font-medium rounded-full">
-                                    {{ $item->category->name ?? 'Uncategorized' }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">{{ $item->name }}</div>
-                                @if($item->storage_location)
-                                    <div class="text-xs text-gray-500">📍 {{ $item->storage_location }}</div>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm text-gray-600 max-w-xs truncate">
-                                    {{ $item->description ?? 'No description' }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900 font-medium">{{ $item->quantity }} {{ $item->unit }}</div>
-                                <div class="text-xs text-gray-500">Min: {{ $item->minimum_quantity }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="space-y-1">
-                                    @if($item->quantity == 0)
-                                        <span class="badge-outstock px-2 py-1 text-xs rounded-full">Out of Stock</span>
-                                    @elseif($item->quantity <= $item->minimum_quantity)
-                                        <span class="badge-lowstock px-2 py-1 text-xs rounded-full">Low Stock</span>
-                                    @else
-                                        <span class="badge-instock px-2 py-1 text-xs rounded-full">In Stock</span>
-                                    @endif
-                                    
-                                    @if($item->isExpiringSoon(30))
-                                        <span class="badge-expiring px-2 py-1 text-xs rounded-full">Expiring Soon</span>
-                                    @endif
-                                    @if($item->isExpired())
-                                        <span class="badge-expired px-2 py-1 text-xs rounded-full">Expired</span>
-                                    @endif
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                @if($item->quantity > 0)
-                                    <button onclick="openAddToCartModal({{ $item->id }}, '{{ $item->name }}', {{ $item->quantity }}, '{{ $item->unit }}')" 
-                                            class="btn-add-cart inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition">
-                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                        </svg>
-                                        Add to Cart
-                                    </button>
-                                @else
-                                    <button disabled 
-                                            class="inline-flex items-center px-4 py-2 bg-gray-300 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed">
-                                        Out of Stock
-                                    </button>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="px-6 py-12 text-center">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
-                                </svg>
-                                <h3 class="mt-2 text-sm font-medium text-gray-900">No items available</h3>
-                                <p class="mt-1 text-sm text-gray-500">Check back later for new inventory items.</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        
-        <!-- Pagination (if needed) -->
-        @if(method_exists($items, 'links'))
-            <div class="px-6 py-4 border-t border-gray-200">
-                {{ $items->links() }}
-            </div>
-        @endif
+    {{-- No results (dynamic) --}}
+    <div id="noResults" class="hidden mt-6 empty-state">
+        <svg class="w-14 h-14 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <p class="text-gray-400 text-sm font-medium">No items match your search.</p>
     </div>
+
+    @if(method_exists($items, 'links'))
+        <div class="mt-8">{{ $items->links() }}</div>
+    @endif
+</div>
 @endsection
 
 @push('modals')
-<!-- Add to Cart Modal -->
-<div id="addToCartModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full modal-icon-bg mb-4">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+{{-- Add to Cart Modal --}}
+<div id="addToCartModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop p-4">
+    <div class="modal-box">
+        <div class="flex items-start justify-between mb-5">
+            <div>
+                <h3 class="text-base font-bold text-gray-900" id="modalItemName">Add to Cart</h3>
+                <p class="text-xs text-gray-400 mt-0.5">Specify the quantity you need</p>
+            </div>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-700 transition ml-4 mt-0.5">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
-            </div>
-            <h3 class="text-lg leading-6 font-medium text-gray-900 text-center" id="modalItemName">
-                Add to Cart
-            </h3>
-            <div class="mt-2 px-7 py-3">
-                <form id="addToCartForm" method="POST" action="{{ route('requests.cart.add') }}" class="space-y-4">
-                    @csrf
-                    <input type="hidden" id="modalItemId" name="item_id">
-                    
-                    <div>
-                        <label for="modalQuantity" class="block text-sm font-medium text-gray-700 mb-1">
-                            Quantity *
-                        </label>
-                        <div class="flex items-center space-x-3">
-                            <input type="number" id="modalQuantity" name="quantity" min="1" 
-                                   class="f-input flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                   required>
-                            <div class="w-20 text-center">
-                                <span class="text-sm text-gray-500" id="modalUnit">—</span>
-                            </div>
-                        </div>
-                        <p class="mt-1 text-xs text-gray-500" id="availableStock">Available: <span id="availableQty">0</span></p>
-                    </div>
-                    
-                    <div>
-                        <label for="modalNotes" class="block text-sm font-medium text-gray-700 mb-1">
-                            Notes (Optional)
-                        </label>
-                        <textarea id="modalNotes" name="notes" rows="2"
-                                  class="f-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                  placeholder="Add any specific requirements..."></textarea>
-                    </div>
-                    
-                    <div class="flex justify-center space-x-3 pt-2">
-                        <button type="button" 
-                                onclick="closeModal()"
-                                class="btn-modal-cancel px-4 py-2 text-base font-medium rounded-md shadow-sm">
-                            Cancel
-                        </button>
-                        <button type="submit" 
-                                class="btn-modal-submit px-4 py-2 text-base font-medium rounded-md shadow-sm">
-                            Add to Cart
-                        </button>
-                    </div>
-                </form>
-            </div>
+            </button>
         </div>
+
+        <form id="addToCartForm" method="POST" action="{{ route('requests.cart.add') }}" class="space-y-4">
+            @csrf
+            <input type="hidden" id="modalItemId" name="item_id">
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Quantity</label>
+                <div class="flex items-center gap-3">
+                    <input type="number" id="modalQuantity" name="quantity" min="1"
+                           class="modal-input" required>
+                    <span class="text-sm text-gray-400 whitespace-nowrap" id="modalUnit">—</span>
+                </div>
+                <p class="mt-1.5 text-xs text-gray-400">Stock available: <span id="availableQty" class="font-semibold text-gray-600">0</span></p>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Notes <span class="font-normal text-gray-400">(optional)</span></label>
+                <textarea id="modalNotes" name="notes" rows="2"
+                          class="modal-input resize-none"
+                          placeholder="Any specific requirements…"></textarea>
+            </div>
+
+            <div class="flex gap-2 pt-1">
+                <button type="button" onclick="closeModal()" class="btn-modal-cancel">Cancel</button>
+                <button type="submit" class="btn-modal-submit">Add to Cart</button>
+            </div>
+        </form>
     </div>
 </div>
 @endpush
@@ -280,108 +358,85 @@
 @push('scripts')
 <script>
     const searchInput = document.getElementById('searchInput');
-    const table = document.getElementById('itemsTable');
-    const tbody = table?.getElementsByTagName('tbody')[0];
-    const rows = tbody ? tbody.getElementsByTagName('tr') : [];
+    const grid = document.getElementById('productGrid');
+    const cards = grid ? grid.querySelectorAll('.product-card') : [];
+    const noResults = document.getElementById('noResults');
+    const resultCount = document.getElementById('resultCount');
 
-    // Search functionality
-    if (searchInput) {
-        searchInput.addEventListener('keyup', function() {
-            const filter = searchInput.value.toLowerCase();
-
-            for (let i = 0; i < rows.length; i++) {
-                const category = rows[i].getAttribute('data-category')?.toLowerCase() || '';
-                const name = rows[i].getAttribute('data-name')?.toLowerCase() || '';
-                const description = rows[i].getAttribute('data-description')?.toLowerCase() || '';
-                
-                const found = category.includes(filter) || name.includes(filter) || description.includes(filter);
-                rows[i].style.display = found ? '' : 'none';
-            }
-        });
+    function updateCount() {
+        const visible = [...cards].filter(c => c.style.display !== 'none').length;
+        if (resultCount) resultCount.textContent = `${visible} item${visible !== 1 ? 's' : ''} shown`;
+        if (noResults) noResults.classList.toggle('hidden', visible > 0);
     }
 
-    // Filter by status
-    window.filterByStatus = function(status) {
-        for (let i = 0; i < rows.length; i++) {
-            const stock = parseInt(rows[i].getAttribute('data-stock') || '0');
-            const minimum = parseInt(rows[i].getAttribute('data-minimum') || '0');
-            
-            let show = false;
-            
-            switch(status) {
-                case 'available':
-                    show = stock > minimum;
-                    break;
-                case 'low':
-                    show = stock <= minimum && stock > 0;
-                    break;
-                case 'expiring':
-                    // This would need actual expiring data
-                    show = false;
-                    break;
-                default:
-                    show = true;
-            }
-            
-            rows[i].style.display = show ? '' : 'none';
+    let activeCategory = 'all';
+
+    function applyFilters() {
+        const q = searchInput ? searchInput.value.toLowerCase() : '';
+
+        cards.forEach(card => {
+            const name = (card.dataset.name || '').toLowerCase();
+            const cat  = (card.dataset.category || '').toLowerCase();
+            const desc = (card.dataset.description || '').toLowerCase();
+
+            const matchesSearch = !q || name.includes(q) || cat.includes(q) || desc.includes(q);
+            const matchesCategory = activeCategory === 'all' || cat === activeCategory.toLowerCase();
+
+            card.style.display = (matchesSearch && matchesCategory) ? '' : 'none';
+        });
+
+        updateCount();
+    }
+
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
+
+    window.filterByCategory = function(cat) {
+        activeCategory = cat;
+        document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+        if (cat === 'all') {
+            document.getElementById('pill-all')?.classList.add('active');
+        } else {
+            // find the matching pill by its text content
+            document.querySelectorAll('.filter-pill').forEach(p => {
+                if (p.textContent.trim().toLowerCase() === cat.toLowerCase()) p.classList.add('active');
+            });
         }
+        applyFilters();
     };
 
-    // Reset search
     window.resetSearch = function() {
-        if (searchInput) {
-            searchInput.value = '';
-        }
-        for (let i = 0; i < rows.length; i++) {
-            rows[i].style.display = '';
-        }
+        if (searchInput) searchInput.value = '';
+        activeCategory = 'all';
+        document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+        document.getElementById('pill-all')?.classList.add('active');
+        cards.forEach(c => c.style.display = '');
+        updateCount();
     };
 
-    // Modal functions
+    // Modal
     const modal = document.getElementById('addToCartModal');
-    const modalItemName = document.getElementById('modalItemName');
-    const modalItemId = document.getElementById('modalItemId');
-    const modalQuantity = document.getElementById('modalQuantity');
-    const modalUnit = document.getElementById('modalUnit');
-    const availableQty = document.getElementById('availableQty');
 
     window.openAddToCartModal = function(itemId, itemName, available, unit) {
-        modalItemName.textContent = `Add to Cart: ${itemName}`;
-        modalItemId.value = itemId;
-        modalQuantity.max = available;
-        modalQuantity.value = 1;
-        modalUnit.textContent = unit;
-        availableQty.textContent = `${available} ${unit}`;
-        
+        document.getElementById('modalItemName').textContent = itemName;
+        document.getElementById('modalItemId').value = itemId;
+        const qty = document.getElementById('modalQuantity');
+        qty.max = available;
+        qty.value = 1;
+        document.getElementById('modalUnit').textContent = unit;
+        document.getElementById('availableQty').textContent = `${available} ${unit}`;
         modal.classList.remove('hidden');
-        
-        // Focus on quantity input
-        setTimeout(() => modalQuantity.focus(), 100);
-        
-        // Close modal on background click
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
-        
-        // Validate quantity input
-        modalQuantity.addEventListener('input', function() {
-            let value = parseInt(this.value) || 0;
-            if (value < 1) this.value = 1;
-            if (value > available) this.value = available;
-        });
+        setTimeout(() => qty.focus(), 80);
     };
 
-    window.closeModal = function() {
-        modal.classList.add('hidden');
-    };
+    window.closeModal = function() { modal.classList.add('hidden'); };
 
-    // Close modal with Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-            closeModal();
-        }
+    modal?.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    document.getElementById('modalQuantity')?.addEventListener('input', function() {
+        const max = parseInt(this.max) || 999;
+        if (parseInt(this.value) < 1) this.value = 1;
+        if (parseInt(this.value) > max) this.value = max;
     });
 </script>
 @endpush

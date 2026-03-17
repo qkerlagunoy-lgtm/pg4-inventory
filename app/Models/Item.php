@@ -34,20 +34,20 @@ class Item extends Model
     }
 
     protected $fillable = [
-        'name',
-        'description',
-        'category_id',
-        'quantity',
-        'minimum_quantity',
-        'unit_of_measure',  // actual DB column — controller must use this, not 'unit'
-        'unit_cost',
-        'total_value',
-        'last_restocked',
-        'expiration_date',
-        'is_active',
-        // NOTE: 'storage_location' and 'unit' do NOT exist in your DB.
-        // Either add a migration to create them, or remove them from the controller validation.
-    ];
+   
+    'name',
+    'description',
+    'image',
+    'category_id',
+    'quantity',
+    'minimum_quantity',
+    'unit_of_measure',
+    'unit_cost',
+    'total_value',
+    'last_restocked',
+    'expiration_date',
+    'is_active',
+];
 
     protected $casts = [
         'expiration_date' => 'date',
