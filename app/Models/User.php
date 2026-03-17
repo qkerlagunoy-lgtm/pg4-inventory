@@ -19,7 +19,7 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
-        'email_verified_at', // ADD THIS LINE
+        'email_verified_at',
         // Profile
         'sex',
         'unit',
@@ -27,10 +27,12 @@ class User extends Authenticatable
         'type',
         'is_active',
     ];
+
     protected $hidden = [
         'password',
         'remember_token',
     ];
+
     protected function casts(): array
     {
         return [
@@ -38,68 +40,47 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
     // ==================== MUTATORS ====================
     
-    // Automatically set the type based on email when creating/updating
-    public function setTypeAttribute($value)
-    {
-        // If type is explicitly provided, use it
-        if (!empty($value)) {
-            $this->attributes['type'] = $value;
-            return;
-        }
-        // List of emails that should be auto-set as admin
-        $adminEmails = [
-            'superadmin@gmail.com',
-        ];
-        // Auto-set type based on email
-        if (in_array($this->email, $adminEmails)) {
-            $this->attributes['type'] = 'admin';
-        } else {
-            $this->attributes['type'] = 'user'; // Default for all other emails
-        }
-    }
-    // Automatically lowercase email and set type
+    // REMOVE THIS - It's redundant with setEmailAttribute
+    // public function setTypeAttribute($value)
+    // {
+    //     if (!empty($value)) {
+    //         $this->attributes['type'] = $value;
+    //         return;
+    //     }
+    //     $adminEmails = ['superadmin@gmail.com'];
+    //     if (in_array($this->email, $adminEmails)) {
+    //         $this->attributes['type'] = 'admin';
+    //     } else {
+    //         $this->attributes['type'] = 'user';
+    //     }
+    // }
+
+    // FIX: Don't auto-set type based on email anymore since admins create users
     public function setEmailAttribute($value)
     {
         $this->attributes['email'] = strtolower($value);
-        
-        // If type hasn't been set yet, auto-set it based on email
-        if (!isset($this->attributes['type'])) {
-            $adminEmails = [
-                'superadmin@gmail.com',
-                'admin@afppgmc.com',
-                'pg4admin@afppgmc.com',
-            ];
-            
-            if (in_array($value, $adminEmails)) {
-                $this->attributes['type'] = 'admin';
-            } else {
-                $this->attributes['type'] = 'user';
-            }
-        }
     }
-    // Automatically generate username from email if not provided
+
     public function setUsernameAttribute($value)
     {
-        if (empty($value) && isset($this->attributes['email'])) {
-            // Generate username from email (part before @)
-            $username = strtok($this->attributes['email'], '@');
-            $this->attributes['username'] = $username;
-        } else {
-            $this->attributes['username'] = $value;
-        }
+        $this->attributes['username'] = $value; // Just set as provided
     }
+
     // Automatically capitalize first names
     public function setFirstNameAttribute($value)
     {
         $this->attributes['first_name'] = ucwords(strtolower($value));
     }
+
     // Automatically capitalize last names
     public function setLastNameAttribute($value)
     {
         $this->attributes['last_name'] = ucwords(strtolower($value));
     }
+
     // Automatically capitalize middle names (if provided)
     public function setMiddleNameAttribute($value)
     {
@@ -109,96 +90,160 @@ class User extends Authenticatable
             $this->attributes['middle_name'] = $value;
         }
     }
+
     // Automatically uppercase unit codes
     public function setUnitAttribute($value)
     {
-        $this->attributes['unit'] = strtoupper($value);
+        $this->attributes['unit'] = $value ? strtoupper($value) : null;
     }
+
     // Automatically lowercase sex
     public function setSexAttribute($value)
     {
-        $this->attributes['sex'] = strtolower($value);
+        $this->attributes['sex'] = $value ? strtolower($value) : null;
     }
+
     // ==================== ACCESSORS ====================
+    
     public function getFullNameAttribute(): string
     {
         return trim(
             "{$this->first_name} {$this->middle_name} {$this->last_name} {$this->suffix}"
         );
     }
-     public function category()
+
+    // FIX: Add proper relationship for unit
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class, 'unit', 'code');
+    }
+
+    public function category()
     {
         return $this->belongsTo(Category::class);
     }
+
     public function itemRequests()
     {
         return $this->hasMany(ItemRequest::class);
     }
+
     public function requestItems()
     {
         return $this->hasMany(RequestItem::class);
     }
+
     public function pendingRequests()
     {
         return $this->itemRequests()->where('status', 'pending');
     }
+
     public function approvedRequests()
     {
         return $this->itemRequests()->where('status', 'approved');
     }
+
     public function rejectedRequests()
     {
         return $this->itemRequests()->where('status', 'rejected');
     }
-     public function urgentRequests()
+
+    public function urgentRequests()
     {
         return $this->itemRequests()->where('status', 'urgent');
     }
+
     public function cancelledRequests()
     {
         return $this->itemRequests()->where('status', 'cancelled');
     }
+
     public function isAdmin(): bool
     {
         return $this->type === 'admin';
     }
 
     public function isPg4Admin(): bool
-{
-    return $this->type === 'admin' && strtoupper($this->unit) === 'PG4';
-}
+    {
+        return $this->type === 'admin' && strtoupper($this->unit) === 'PG4';
+    }
+
     public function isUser(): bool
     {
         return $this->type === 'user';
     }
+
     public function isSuperAdmin(): bool
     {
         return $this->type === 'admin' && $this->email === 'superadmin@gmail.com';
     }
+
+    // ==================== SCOPES ====================
+    
     public function scopeAdmins($query)
     {
         return $query->where('type', 'admin');
     }
+
     public function scopeUsers($query)
     {
         return $query->where('type', 'user');
     }
+
     public function scopeFromUnit($query, $unit)
     {
         return $query->where('unit', $unit);
     }
+
+    public function scopeActive($query)
+    {
+        return $query->whereNotNull('email_verified_at');
+    }
+
+    public function scopeInactive($query)
+    {
+        return $query->whereNull('email_verified_at');
+    }
+
+    // ==================== RELATIONSHIPS ====================
+    
     public function notificationPreferences()
     {
         return $this->hasOne(NotificationPreference::class);
     }
+
     public function auditLogs()
     {
         return $this->hasMany(AuditLog::class);
     }
+
     public function loginHistories()
     {
         return $this->hasMany(LoginHistory::class);
     }
+
+    public function issuances()
+    {
+        return $this->hasMany(Issuance::class, 'issued_by');
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function unreadNotifications()
+    {
+        return $this->notifications()->whereNull('read_at');
+    }
+
+    public function requests()
+    {
+        return $this->hasMany(ItemRequest::class);
+    }
+
+    // ==================== ATTRIBUTE HELPERS ====================
+    
     public function getFormattedUnitAttribute(): string
     {
         $unitNames = [
@@ -213,15 +258,17 @@ class User extends Authenticatable
             'PG4' => 'Program Group 4',
             'PG10' => 'Program Group 10',
             'PPBU' => 'Policy and Planning Bureau Unit',
+            'TFD' => 'Technical and Financial Division',
         ];
 
         return $unitNames[$this->unit] ?? $this->unit;
     }
+
     public function getInitialsAttribute(): string
     {
-        $initials = strtoupper(substr($this->first_name, 0, 1) . substr($this->last_name, 0, 1));
-        return $initials;
+        return strtoupper(substr($this->first_name, 0, 1) . substr($this->last_name, 0, 1));
     }
+
     public function getProfileCompletionAttribute(): int
     {
         $fields = ['first_name', 'last_name', 'email', 'username', 'sex', 'unit', 'type'];
@@ -235,48 +282,64 @@ class User extends Authenticatable
         
         return (int) (($filled / count($fields)) * 100);
     }
+
+    public function getUnreadNotificationsCountAttribute(): int
+    {
+        return $this->unreadNotifications()->count();
+    }
+
+    // ==================== PERMISSION HELPERS ====================
+    
     public function canRequestItems(): bool
     {
-        // Add your business logic here
-        // Example: Only users with specific categories can request
-        // return in_array($this->category_id, [1, 2, 3]);
-        
-        return $this->isUser(); // Default: All regular users can request
+        return $this->isUser() && $this->email_verified_at !== null;
     }
+
     public function canApproveRequests(): bool
     {
         return $this->isAdmin();
     }
+
     public function canManageInventory(): bool
     {
         return $this->isAdmin();
     }
+
     public function canManageUsers(): bool
     {
         return $this->isAdmin();
     }
+
     public function canManageCategories(): bool
     {
         return $this->isAdmin();
-    }public function recentActivity()
+    }
+
+    // ==================== STATISTICS HELPERS ====================
+    
+    public function recentActivity()
     {
         return $this->itemRequests()
             ->where('created_at', '>=', now()->subDays(7))
             ->orderBy('created_at', 'desc')
             ->limit(10);
     }
+
     public function getTotalRequestedItemsAttribute(): int
     {
         return $this->itemRequests()->count();
     }
+
     public function getTotalApprovedRequestsAttribute(): int
     {
         return $this->approvedRequests()->count();
     }
+
     public function getTotalPendingRequestsAttribute(): int
     {
         return $this->pendingRequests()->count();
     }
+
     public function getDashboardStatsAttribute(): array
     {
         return [
@@ -288,34 +351,4 @@ class User extends Authenticatable
             'cancelled_requests' => $this->cancelledRequests()->count(),
         ];
     }
-    public function issuances()
-    {
-        return $this->hasMany(Issuance::class, 'issued_by');
-    }
-    public function notifications()
-    {
-        return $this->hasMany(Notification::class);
-    }
-    public function unreadNotifications()
-    {
-        return $this->notifications()->unread();
-    }
-    // Add this method
-    public function getUnreadNotificationsCountAttribute(): int
-    {
-        return $this->unreadNotifications()->count();
-    }
-    // User belongs to a Unit
-public function unit()
-{
-    return $this->belongsTo(Unit::class);
-    
-}
-
-public function requests()
-{
-    return $this->hasMany(Request::class);
-}
-
-
 }

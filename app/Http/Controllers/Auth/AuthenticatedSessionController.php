@@ -14,7 +14,8 @@ class AuthenticatedSessionController extends Controller
 {
     public function create(): View
     {
-        return view('auth.login');
+        // Updated to point to the landing page which now contains the login form
+        return view('auth.landing');
     }
 
     public function store(Request $request): RedirectResponse

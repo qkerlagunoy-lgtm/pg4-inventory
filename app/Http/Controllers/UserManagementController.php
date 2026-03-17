@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class UserManagementController extends Controller
 {
@@ -43,14 +44,12 @@ class UserManagementController extends Controller
 
         $users = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
        
-        // Get distinct units for filter
-        $units = User::select('unit')->distinct()->whereNotNull('unit')->get();
-
-        // ✅ OPTIONAL: Log view action (if you want to track who views the list)
-        // AuditLog::log('viewed_list', 'users', null, [
-        //     'filters' => $request->only(['unit', 'status', 'search']),
-        //     'result_count' => $users->total()
-        // ]);
+        // Get distinct units for filter dropdown
+        $units = User::select('unit')
+            ->distinct()
+            ->whereNotNull('unit')
+            ->orderBy('unit')
+            ->get();
 
         return view('admin.users.index', compact('users', 'units'));
     }
@@ -60,13 +59,8 @@ class UserManagementController extends Controller
      */
     public function create()
     {
-        // Get distinct units for the datalist
-        $units = User::select('unit')
-            ->distinct()
-            ->whereNotNull('unit')
-            ->pluck('unit');
-       
-        return view('admin.users.create', compact('units'));
+        // No need to pass units anymore since we're using hardcoded dropdown
+        return view('admin.users.create');
     }
 
     /**
@@ -79,6 +73,9 @@ class UserManagementController extends Controller
             'email' => 'required|email|max:255|unique:users,email',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'suffix' => 'nullable|string|max:50',
+            'sex' => 'nullable|in:male,female',
             'password' => 'required|string|min:8|confirmed',
             'unit' => 'nullable|string|max:255',
             'role' => 'required|in:admin,user',
@@ -92,13 +89,17 @@ class UserManagementController extends Controller
                 'email' => $validated['email'],
                 'first_name' => $validated['first_name'],
                 'last_name' => $validated['last_name'],
-                'password' => bcrypt($validated['password']),
+                'middle_name' => $validated['middle_name'] ?? null,
+                'suffix' => $validated['suffix'] ?? null,
+                'sex' => $validated['sex'] ?? null,
+                'password' => Hash::make($validated['password']),
                 'unit' => $validated['unit'],
                 'type' => $validated['role'],
                 'email_verified_at' => $validated['status'] === 'active' ? now() : null,
+                'is_active' => $validated['status'] === 'active',
             ]);
 
-            // ✅ AUDIT LOG: User creation
+            // Audit log
             AuditLog::create([
                 'user_id' => auth()->id(),
                 'action' => 'created',
@@ -109,6 +110,9 @@ class UserManagementController extends Controller
                     'email' => $user->email,
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
+                    'middle_name' => $user->middle_name,
+                    'suffix' => $user->suffix,
+                    'sex' => $user->sex,
                     'unit' => $user->unit,
                     'role' => $user->type,
                     'status' => $validated['status'],
@@ -130,7 +134,6 @@ class UserManagementController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
-            // ✅ AUDIT LOG: Failed creation
             AuditLog::create([
                 'user_id' => auth()->id(),
                 'action' => 'create_failed',
@@ -156,12 +159,8 @@ class UserManagementController extends Controller
     {
         $user = User::findOrFail($id);
        
-        $units = User::select('unit')
-            ->distinct()
-            ->whereNotNull('unit')
-            ->pluck('unit');
-       
-        return view('admin.users.edit', compact('user', 'units'));
+        // No need to pass units anymore since we're using hardcoded dropdown
+        return view('admin.users.edit', compact('user'));
     }
 
     /**
@@ -179,6 +178,9 @@ class UserManagementController extends Controller
             'email' => 'required|email|max:255|unique:users,email,' . $id,
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'suffix' => 'nullable|string|max:50',
+            'sex' => 'nullable|in:male,female',
             'password' => 'nullable|string|min:8|confirmed',
             'unit' => 'nullable|string|max:255',
             'role' => 'required|in:admin,user',
@@ -192,38 +194,45 @@ class UserManagementController extends Controller
                 'email' => $validated['email'],
                 'first_name' => $validated['first_name'],
                 'last_name' => $validated['last_name'],
+                'middle_name' => $validated['middle_name'] ?? null,
+                'suffix' => $validated['suffix'] ?? null,
+                'sex' => $validated['sex'] ?? null,
                 'unit' => $validated['unit'],
                 'type' => $validated['role'],
                 'email_verified_at' => $validated['status'] === 'active'
                     ? ($user->email_verified_at ?? now())
                     : null,
+                'is_active' => $validated['status'] === 'active',
             ];
 
             if (!empty($validated['password'])) {
-                $updateData['password'] = bcrypt($validated['password']);
+                $updateData['password'] = Hash::make($validated['password']);
             }
 
             $user->update($updateData);
             
-            // ✅ AUDIT LOG: User update
+            // Get the changes after update
             $changes = $user->getChanges();
-            unset($changes['updated_at']); // Remove timestamp from changes log
+            unset($changes['updated_at']);
             
-            AuditLog::create([
-                'user_id' => auth()->id(),
-                'action' => 'updated',
-                'module' => 'users',
-                'description' => "Updated user: {$user->username}",
-                'old_values' => array_intersect_key($oldValues, $changes), // Only changed fields
-                'new_values' => $changes,
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'url' => $request->fullUrl(),
-                'method' => $request->method(),
-                'model_type' => User::class,
-                'model_id' => $user->id,
-                'performed_at' => now(),
-            ]);
+            // Only log if there are actual changes
+            if (!empty($changes)) {
+                AuditLog::create([
+                    'user_id' => auth()->id(),
+                    'action' => 'updated',
+                    'module' => 'users',
+                    'description' => "Updated user: {$user->username}",
+                    'old_values' => array_intersect_key($oldValues, $changes),
+                    'new_values' => $changes,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'url' => $request->fullUrl(),
+                    'method' => $request->method(),
+                    'model_type' => User::class,
+                    'model_id' => $user->id,
+                    'performed_at' => now(),
+                ]);
+            }
 
             DB::commit();
            
@@ -233,7 +242,6 @@ class UserManagementController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
-            // ✅ AUDIT LOG: Failed update
             AuditLog::create([
                 'user_id' => auth()->id(),
                 'action' => 'update_failed',
@@ -264,7 +272,6 @@ class UserManagementController extends Controller
             $user = User::findOrFail($id);
            
             if ($user->id === auth()->id()) {
-                // ✅ AUDIT LOG: Self-deletion attempt
                 AuditLog::create([
                     'user_id' => auth()->id(),
                     'action' => 'delete_self_attempt',
@@ -280,12 +287,16 @@ class UserManagementController extends Controller
                 return back()->with('error', 'You cannot delete your own account.');
             }
             
+            // Check if user has related records before deletion
+            if ($user->itemRequests()->exists()) {
+                return back()->with('error', 'Cannot delete user with existing requests. Please archive the user instead.');
+            }
+            
             // Store user data before deletion
             $userData = $user->toArray();
             
             $user->delete();
             
-            // ✅ AUDIT LOG: User deletion
             AuditLog::create([
                 'user_id' => auth()->id(),
                 'action' => 'deleted',
@@ -309,7 +320,6 @@ class UserManagementController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
-            // ✅ AUDIT LOG: Failed deletion
             AuditLog::create([
                 'user_id' => auth()->id(),
                 'action' => 'delete_failed',
@@ -357,12 +367,11 @@ class UserManagementController extends Controller
        
         $users = $query->orderBy('created_at', 'desc')->get();
         
-        // ✅ AUDIT LOG: Export action
         AuditLog::create([
             'user_id' => auth()->id(),
             'action' => 'exported',
             'module' => 'users',
-            'description' => "Exported users to CSV",
+            'description' => "Exported " . $users->count() . " users to CSV",
             'old_values' => [
                 'filters' => $request->only(['unit', 'status', 'search']),
                 'count' => $users->count()
@@ -381,8 +390,11 @@ class UserManagementController extends Controller
        
         $callback = function() use ($users) {
             $file = fopen('php://output', 'w');
+            
+            // Add UTF-8 BOM for Excel compatibility
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
            
-            fputcsv($file, ['Username', 'Email', 'First Name', 'Last Name', 'Unit', 'Role', 'Status', 'Created At']);
+            fputcsv($file, ['Username', 'Email', 'First Name', 'Last Name', 'Middle Name', 'Suffix', 'Gender', 'Unit', 'Role', 'Status', 'Created At']);
            
             foreach ($users as $user) {
                 fputcsv($file, [
@@ -390,6 +402,9 @@ class UserManagementController extends Controller
                     $user->email,
                     $user->first_name,
                     $user->last_name,
+                    $user->middle_name ?? '',
+                    $user->suffix ?? '',
+                    ucfirst($user->sex ?? 'Not specified'),
                     $user->unit ?? 'N/A',
                     ucfirst($user->type),
                     $user->email_verified_at ? 'Active' : 'Inactive',
@@ -402,39 +417,99 @@ class UserManagementController extends Controller
        
         return response()->stream($callback, 200, $headers);
     }
+
+    /**
+     * Activate a user account
+     */
     public function activate($id)
-{
-    DB::beginTransaction();
-    try {
-        $user = User::findOrFail($id);
+    {
+        DB::beginTransaction();
+        try {
+            $user = User::findOrFail($id);
 
-        $user->update([
-            'is_active'          => true,
-            'email_verified_at'  => now(),
-        ]);
+            // Don't activate if already active
+            if ($user->email_verified_at !== null) {
+                return back()->with('info', 'User account is already active.');
+            }
 
-        AuditLog::create([
-            'user_id'      => auth()->id(),
-            'action'       => 'activated',
-            'module'       => 'users',
-            'description'  => "Activated user: {$user->username}",
-            'ip_address'   => request()->ip(),
-            'user_agent'   => request()->userAgent(),
-            'url'          => request()->fullUrl(),
-            'method'       => request()->method(),
-            'model_type'   => User::class,
-            'model_id'     => $user->id,
-            'performed_at' => now(),
-        ]);
+            $user->update([
+                'email_verified_at' => now(),
+                'is_active' => true,
+            ]);
 
-        DB::commit();
+            AuditLog::create([
+                'user_id'      => auth()->id(),
+                'action'       => 'activated',
+                'module'       => 'users',
+                'description'  => "Activated user: {$user->username}",
+                'new_values'   => ['email_verified_at' => now()],
+                'ip_address'   => request()->ip(),
+                'user_agent'   => request()->userAgent(),
+                'url'          => request()->fullUrl(),
+                'method'       => request()->method(),
+                'model_type'   => User::class,
+                'model_id'     => $user->id,
+                'performed_at' => now(),
+            ]);
 
-        return redirect()->route('admin.users.index')
-            ->with('success', "{$user->first_name} {$user->last_name}'s account has been activated.");
+            DB::commit();
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return back()->with('error', 'Failed to activate user: ' . $e->getMessage());
+            return redirect()->route('admin.users.index')
+                ->with('success', "{$user->first_name} {$user->last_name}'s account has been activated.");
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Failed to activate user: ' . $e->getMessage());
+        }
     }
-}
+
+    /**
+     * Deactivate a user account (optional method)
+     */
+    public function deactivate($id)
+    {
+        DB::beginTransaction();
+        try {
+            $user = User::findOrFail($id);
+
+            // Don't allow deactivating own account
+            if ($user->id === auth()->id()) {
+                return back()->with('error', 'You cannot deactivate your own account.');
+            }
+
+            // Don't deactivate if already inactive
+            if ($user->email_verified_at === null) {
+                return back()->with('info', 'User account is already inactive.');
+            }
+
+            $user->update([
+                'email_verified_at' => null,
+                'is_active' => false,
+            ]);
+
+            AuditLog::create([
+                'user_id'      => auth()->id(),
+                'action'       => 'deactivated',
+                'module'       => 'users',
+                'description'  => "Deactivated user: {$user->username}",
+                'new_values'   => ['email_verified_at' => null],
+                'ip_address'   => request()->ip(),
+                'user_agent'   => request()->userAgent(),
+                'url'          => request()->fullUrl(),
+                'method'       => request()->method(),
+                'model_type'   => User::class,
+                'model_id'     => $user->id,
+                'performed_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.users.index')
+                ->with('success', "{$user->first_name} {$user->last_name}'s account has been deactivated.");
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Failed to deactivate user: ' . $e->getMessage());
+        }
+    }
 }

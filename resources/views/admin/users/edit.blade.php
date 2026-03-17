@@ -200,6 +200,30 @@
                         <p class="form-error">{{ $message }}</p>
                     @enderror
                 </div>
+
+                <!-- Middle Name (Optional) -->
+                <div class="form-field">
+                    <label for="middle_name" class="form-label">
+                        Middle Name
+                    </label>
+                    <input type="text" id="middle_name" name="middle_name" value="{{ old('middle_name', $user->middle_name) }}"
+                           class="form-input @error('middle_name') error @enderror">
+                    @error('middle_name')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Suffix (Optional) -->
+                <div class="form-field">
+                    <label for="suffix" class="form-label">
+                        Suffix
+                    </label>
+                    <input type="text" id="suffix" name="suffix" value="{{ old('suffix', $user->suffix) }}"
+                           class="form-input @error('suffix') error @enderror" placeholder="Jr., Sr., III">
+                    @error('suffix')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <!-- Password Section -->
@@ -234,18 +258,32 @@
             </div>
 
             <div class="form-grid">
-                <!-- Unit -->
+                <!-- Sex/Gender -->
+                <div class="form-field">
+                    <label for="sex" class="form-label">
+                        Gender
+                    </label>
+                    <select id="sex" name="sex" class="form-select @error('sex') error @enderror">
+                        <option value="">Select Gender</option>
+                        <option value="male" {{ old('sex', $user->sex) == 'male' ? 'selected' : '' }}>Male</option>
+                        <option value="female" {{ old('sex', $user->sex) == 'female' ? 'selected' : '' }}>Female</option>
+                    </select>
+                    @error('sex')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Unit - Dropdown with predefined options -->
                 <div class="form-field">
                     <label for="unit" class="form-label">
                         Unit
                     </label>
-                    <input type="text" id="unit" name="unit" value="{{ old('unit', $user->unit) }}" list="unit-list"
-                           class="form-input @error('unit') error @enderror">
-                    <datalist id="unit-list">
-                        @foreach($units as $unit)
-                            <option value="{{ $unit }}">
+                    <select id="unit" name="unit" class="form-select @error('unit') error @enderror">
+                        <option value="" disabled {{ old('unit', $user->unit) ? '' : 'selected' }}>Select Unit</option>
+                        @foreach(['BDCU','CUI','COMMAND', 'TFD','ISU','LSO','PAU','PG1','PG3','PG4','PG10','PPBU'] as $unit)
+                            <option value="{{ $unit }}" {{ old('unit', $user->unit) == $unit ? 'selected' : '' }}>{{ $unit }}</option>
                         @endforeach
-                    </datalist>
+                    </select>
                     @error('unit')
                         <p class="form-error">{{ $message }}</p>
                     @enderror
@@ -259,8 +297,8 @@
                     <select id="role" name="role" required
                             class="form-select @error('role') error @enderror">
                         <option value="">Select Role</option>
-                        <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>
-                        <option value="user" {{ old('role', $user->role) == 'user' ? 'selected' : '' }}>User</option>
+                        <option value="admin" {{ old('role', $user->type) == 'admin' ? 'selected' : '' }}>Admin</option>
+                        <option value="user" {{ old('role', $user->type) == 'user' ? 'selected' : '' }}>User</option>
                     </select>
                     @error('role')
                         <p class="form-error">{{ $message }}</p>
@@ -275,12 +313,13 @@
                     <select id="status" name="status" required
                             class="form-select @error('status') error @enderror">
                         <option value="">Select Status</option>
-                        <option value="active" {{ old('status', $user->status) == 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ old('status', $user->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                        <option value="active" {{ old('status', $user->email_verified_at ? 'active' : 'inactive') == 'active' ? 'selected' : '' }}>Active</option>
+                        <option value="inactive" {{ old('status', $user->email_verified_at ? 'active' : 'inactive') == 'inactive' ? 'selected' : '' }}>Inactive</option>
                     </select>
                     @error('status')
                         <p class="form-error">{{ $message }}</p>
                     @enderror
+                    <p class="form-hint">Active users can log in</p>
                 </div>
             </div>
 

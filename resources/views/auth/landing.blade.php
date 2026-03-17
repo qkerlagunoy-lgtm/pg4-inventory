@@ -130,34 +130,6 @@ body {
     overflow-y: auto;
 }
 
-/* ── TABS ── */
-.tab-bar {
-    display: flex;
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.07);
-    border-radius: 12px;
-    padding: 4px;
-    margin-bottom: 2rem;
-}
-.tab-btn {
-    flex: 1; padding: .7rem 1rem;
-    background: none; border: none;
-    border-radius: 9px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: .82rem; font-weight: 600;
-    color: rgba(255,255,255,.4);
-    cursor: pointer;
-    transition: all .2s;
-    display: flex; align-items: center; justify-content: center; gap: .45rem;
-}
-.tab-btn svg { width: 15px; height: 15px; }
-.tab-btn:hover { color: rgba(255,255,255,.7); background: rgba(255,255,255,.04); }
-.tab-btn.active {
-    background: #1d4ed8;
-    color: #fff;
-    box-shadow: 0 4px 16px rgba(29,78,216,.4);
-}
-
 /* ── FORM HEADING ── */
 .form-head { margin-bottom: 1.75rem; }
 .form-head h2 {
@@ -185,38 +157,32 @@ body {
 }
 
 /* ── FORM FIELDS ── */
-.f-row { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem 1rem; margin-bottom: .65rem; }
-.f-row.full { grid-template-columns: 1fr; }
-.f-group { display: flex; flex-direction: column; gap: .3rem; margin-bottom: .65rem; }
+.f-group { display: flex; flex-direction: column; gap: .3rem; margin-bottom: 1.25rem; }
 .f-group:last-child { margin-bottom: 0; }
 
 .f-label {
-    font-size: .67rem; font-weight: 700;
+    font-size: .7rem; font-weight: 700;
     letter-spacing: .07em; text-transform: uppercase;
     color: rgba(255,255,255,.45);
 }
-.req { color: #f87171; }
 
-.f-input, .f-select {
-    padding: .65rem .9rem;
+.f-input {
+    padding: .75rem 1rem;
     background: rgba(255,255,255,.05);
     border: 1px solid rgba(255,255,255,.1);
     border-radius: 9px;
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: .84rem; color: #fff;
+    font-size: .9rem; color: #fff;
     outline: none; width: 100%;
     transition: border-color .15s, background .15s, box-shadow .15s;
 }
 .f-input::placeholder { color: rgba(255,255,255,.2); }
-.f-input:focus, .f-select:focus {
+.f-input:focus {
     border-color: #3b82f6;
     background: rgba(59,130,246,.06);
     box-shadow: 0 0 0 3px rgba(59,130,246,.12);
 }
 .f-input.err { border-color: rgba(220,38,38,.5); background: rgba(220,38,38,.05); }
-.f-select option { background: #1f2937; color: #fff; }
-
-.f-err { font-size: .68rem; color: #f87171; margin-top: .15rem; }
 
 /* ── PASSWORD WRAPPER ── */
 .pw-wrap { position: relative; }
@@ -229,83 +195,75 @@ body {
     transition: color .15s;
 }
 .pw-toggle:hover { color: rgba(255,255,255,.7); }
-.pw-toggle svg { width: 16px; height: 16px; display: block; }
+.pw-toggle svg { width: 18px; height: 18px; display: block; }
 
-/* ── STRENGTH BAR ── */
-.strength-wrap { margin-top: .4rem; }
-.strength-bar-bg {
-    height: 3px; background: rgba(255,255,255,.08);
-    border-radius: 2px; overflow: hidden; margin-bottom: .25rem;
-}
-.strength-bar-fill { height: 100%; border-radius: 2px; transition: width .3s, background .3s; }
-.strength-label { font-size: .65rem; color: rgba(255,255,255,.35); }
-
-/* ── RADIO PILLS ── */
-.radio-row { display: flex; gap: .5rem; flex-wrap: wrap; }
-.radio-pill {
-    display: flex; align-items: center; gap: .35rem;
-    padding: .5rem 1rem;
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 8px;
-    font-size: .8rem; font-weight: 500; color: rgba(255,255,255,.5);
-    cursor: pointer; transition: all .15s; user-select: none;
-}
-.radio-pill:hover { border-color: #3b82f6; color: rgba(255,255,255,.8); }
-.radio-pill.on { border-color: #3b82f6; background: rgba(59,130,246,.12); color: #93c5fd; font-weight: 600; }
-.radio-pill input { accent-color: #3b82f6; width: 13px; height: 13px; }
-
-/* ── REMEMBER / TERMS ── */
+/* ── REMEMBER CHECKBOX ── */
 .check-row {
-    display: flex; align-items: flex-start; gap: .5rem;
-    margin-bottom: 1.25rem;
+    display: flex; align-items: center; gap: .5rem;
+    margin: 1.25rem 0 1.5rem;
 }
-.check-row input { accent-color: #3b82f6; width: 14px; height: 14px; flex-shrink: 0; margin-top: .15rem; }
-.check-row label { font-size: .78rem; color: rgba(255,255,255,.4); line-height: 1.5; }
-.check-row label a { color: #60a5fa; text-decoration: none; }
-.check-row label a:hover { text-decoration: underline; }
-
-/* ── DIVIDER ── */
-.form-divider {
-    border: none; border-top: 1px solid rgba(255,255,255,.06);
-    margin: 1.25rem 0;
+.check-row input { 
+    accent-color: #3b82f6; 
+    width: 16px; 
+    height: 16px; 
+    cursor: pointer;
 }
-
-/* ── SUBMIT BUTTON ── */
-.btn-submit {
-    width: 100%; padding: .8rem;
-    background: linear-gradient(135deg, #1d4ed8, #2563eb);
-    border: none; border-radius: 10px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: .875rem; font-weight: 700; color: #fff;
-    cursor: pointer; transition: all .15s;
-    display: flex; align-items: center; justify-content: center; gap: .5rem;
-    box-shadow: 0 4px 20px rgba(29,78,216,.35);
+.check-row label { 
+    font-size: .85rem; 
+    color: rgba(255,255,255,.5); 
+    cursor: pointer;
 }
-.btn-submit:hover { background: linear-gradient(135deg, #1e40af, #1d4ed8); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(29,78,216,.45); }
-.btn-submit.green { background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 4px 20px rgba(16,185,129,.3); }
-.btn-submit.green:hover { background: linear-gradient(135deg, #047857, #059669); box-shadow: 0 6px 24px rgba(16,185,129,.4); }
-.btn-submit svg { width: 16px; height: 16px; }
-
-/* ── SCROLL (register form) ── */
-.scroll-form { max-height: 420px; overflow-y: auto; padding-right: .25rem; }
-.scroll-form::-webkit-scrollbar { width: 3px; }
-.scroll-form::-webkit-scrollbar-track { background: transparent; }
-.scroll-form::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 2px; }
 
 /* ── FORGOT LINK ── */
 .forgot-link {
     display: block; text-align: right;
-    font-size: .75rem; color: #60a5fa;
-    text-decoration: none; margin-top: .35rem;
+    font-size: .8rem; color: #60a5fa;
+    text-decoration: none; margin-top: .5rem;
 }
 .forgot-link:hover { text-decoration: underline; }
+
+/* ── SUBMIT BUTTON ── */
+.btn-submit {
+    width: 100%; padding: .9rem;
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    border: none; border-radius: 10px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: .95rem; font-weight: 700; color: #fff;
+    cursor: pointer; transition: all .15s;
+    display: flex; align-items: center; justify-content: center; gap: .5rem;
+    box-shadow: 0 4px 20px rgba(29,78,216,.35);
+}
+.btn-submit:hover { 
+    background: linear-gradient(135deg, #1e40af, #1d4ed8); 
+    transform: translateY(-1px); 
+    box-shadow: 0 6px 24px rgba(29,78,216,.45); 
+}
+.btn-submit svg { width: 18px; height: 18px; }
+
+/* ── INFO MESSAGE FOR UNAUTHORIZED ACCESS ── */
+.info-message {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(59,130,246,.08);
+    border: 1px solid rgba(59,130,246,.15);
+    border-radius: 8px;
+    font-size: .8rem;
+    color: rgba(255,255,255,.5);
+}
+.info-message a {
+    color: #60a5fa;
+    text-decoration: none;
+    font-weight: 600;
+}
+.info-message a:hover {
+    text-decoration: underline;
+}
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
     .auth-left { display: none; }
     .auth-right { padding: 2rem 1.5rem; }
-    .f-row { grid-template-columns: 1fr; }
     .auth-container { max-width: 460px; border-radius: 18px; }
 }
 </style>
@@ -354,298 +312,88 @@ body {
             </div>
         </div>
 
-        {{-- RIGHT PANEL --}}
+        {{-- RIGHT PANEL - LOGIN ONLY --}}
         <div class="auth-right">
+            <div class="form-head">
+                <h2>Welcome Back</h2>
+                <p>Sign in to your account to access the system</p>
+            </div>
 
-            {{-- TABS --}}
-            <div class="tab-bar">
-                <button id="loginTab" class="tab-btn active" onclick="switchTab('login')">
-                    <svg fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+            @if(session('status'))
+                <div class="alert-success">{{ session('status') }}</div>
+            @endif
+
+            @if($errors->any())
+                <div class="alert-error">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    </svg>
+                    <div class="alert-error-text">
+                        @foreach($errors->all() as $err)<div>{{ $err }}</div>@endforeach
+                    </div>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('login') }}">
+                @csrf
+                <div class="f-group">
+                    <label class="f-label">Email or Username</label>
+                    <input class="f-input {{ $errors->has('login') ? 'err' : '' }}"
+                           type="text" name="login"
+                           value="{{ old('login') }}"
+                           placeholder="Enter your email or username"
+                           required autofocus autocomplete="username">
+                </div>
+                
+                <div class="f-group">
+                    <label class="f-label">Password</label>
+                    <div class="pw-wrap">
+                        <input class="f-input {{ $errors->has('password') ? 'err' : '' }}" 
+                               type="password" name="password"
+                               placeholder="Enter your password"
+                               required autocomplete="current-password" id="loginPw">
+                        <button type="button" class="pw-toggle" onclick="togglePw('loginPw', this)">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <a href="{{ route('password.request') }}" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <div class="check-row">
+                    <input type="checkbox" id="remember_me" name="remember">
+                    <label for="remember_me">Keep me signed in</label>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14"/>
                     </svg>
                     Sign In
                 </button>
-                <button id="registerTab" class="tab-btn" onclick="switchTab('register')">
-                    <svg fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"/>
-                    </svg>
-                    Register
-                </button>
+            </form>
+
+            {{-- Optional: Add a message about account creation --}}
+            <div class="info-message">
+                <svg fill="currentColor" viewBox="0 0 20 20" width="14" height="14" style="display: inline; margin-right: 4px;">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                Accounts are created by system administrators. 
+                <a href="#">Contact support</a> for assistance.
             </div>
-
-            {{-- ══ LOGIN FORM ══ --}}
-            <div id="loginPanel">
-                <div class="form-head">
-                    <h2>Welcome Back</h2>
-                    <p>Sign in to your account to continue</p>
-                </div>
-
-                @if(session('status'))
-                    <div class="alert-success">{{ session('status') }}</div>
-                @endif
-
-                @if($errors->any() && !old('first_name'))
-                    <div class="alert-error">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                        </svg>
-                        <div class="alert-error-text">
-                            @foreach($errors->all() as $err)<div>{{ $err }}</div>@endforeach
-                        </div>
-                    </div>
-                @endif
-
-                <form method="POST" action="{{ route('login') }}">
-                    @csrf
-                    <div class="f-group">
-                        <label class="f-label">Email or Username</label>
-                        <input class="f-input {{ $errors->has('login') && !old('first_name') ? 'err' : '' }}"
-                               type="text" name="login"
-                               value="{{ old('login') }}"
-                               placeholder="Enter your email or username"
-                               required autofocus autocomplete="username">
-                    </div>
-                    <div class="f-group">
-                        <label class="f-label">Password</label>
-                        <div class="pw-wrap">
-                            <input class="f-input" type="password" name="password"
-                                   placeholder="Enter your password"
-                                   required autocomplete="current-password" id="loginPw">
-                            <button type="button" class="pw-toggle" onclick="togglePw('loginPw', this)">
-                                <svg fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
-                            </button>
-                        </div>
-                        <a href="{{ route('password.request') }}" class="forgot-link">Forgot password?</a>
-                    </div>
-                    <div class="check-row">
-                        <input type="checkbox" id="remember_me" name="remember">
-                        <label for="remember_me">Keep me signed in</label>
-                    </div>
-                    <button type="submit" class="btn-submit">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14"/>
-                        </svg>
-                        Sign In
-                    </button>
-                </form>
-            </div>
-
-            {{-- ══ REGISTER FORM ══ --}}
-            <div id="registerPanel" style="display:none;">
-                <div class="form-head">
-                    <h2>Create Account</h2>
-                    <p>Join AFPPGMC Inventory System — pending admin approval</p>
-                </div>
-
-                @if($errors->any() && old('first_name'))
-                    <div class="alert-error">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                        </svg>
-                        <div class="alert-error-text">
-                            @foreach($errors->all() as $err)<div>{{ $err }}</div>@endforeach
-                        </div>
-                    </div>
-                @endif
-
-                <form method="POST" action="{{ route('register') }}">
-                    @csrf
-                    <div class="scroll-form">
-
-                        {{-- Name --}}
-                        <div class="f-row">
-                            <div class="f-group">
-                                <label class="f-label">First Name <span class="req">*</span></label>
-                                <input class="f-input {{ $errors->has('first_name') ? 'err' : '' }}"
-                                       type="text" name="first_name"
-                                       value="{{ old('first_name') }}"
-                                       placeholder="Juan" required>
-                                @error('first_name')<p class="f-err">{{ $message }}</p>@enderror
-                            </div>
-                            <div class="f-group">
-                                <label class="f-label">Last Name <span class="req">*</span></label>
-                                <input class="f-input {{ $errors->has('last_name') ? 'err' : '' }}"
-                                       type="text" name="last_name"
-                                       value="{{ old('last_name') }}"
-                                       placeholder="dela Cruz" required>
-                                @error('last_name')<p class="f-err">{{ $message }}</p>@enderror
-                            </div>
-                        </div>
-                        <div class="f-row">
-                            <div class="f-group">
-                                <label class="f-label">Middle Name</label>
-                                <input class="f-input" type="text" name="middle_name"
-                                       value="{{ old('middle_name') }}" placeholder="Optional">
-                            </div>
-                            <div class="f-group">
-                                <label class="f-label">Suffix</label>
-                                <input class="f-input" type="text" name="suffix"
-                                       value="{{ old('suffix') }}" placeholder="Jr., Sr.">
-                            </div>
-                        </div>
-
-                        {{-- Sex --}}
-                        <div class="f-group">
-                            <label class="f-label">Gender <span class="req">*</span></label>
-                            <div class="radio-row">
-                                <label class="radio-pill {{ old('sex') === 'male' ? 'on' : '' }}">
-                                    <input type="radio" name="sex" value="male" {{ old('sex') === 'male' ? 'checked' : '' }} onchange="togglePill(this)"> Male
-                                </label>
-                                <label class="radio-pill {{ old('sex') === 'female' ? 'on' : '' }}">
-                                    <input type="radio" name="sex" value="female" {{ old('sex') === 'female' ? 'checked' : '' }} onchange="togglePill(this)"> Female
-                                </label>
-                            </div>
-                            @error('sex')<p class="f-err">{{ $message }}</p>@enderror
-                        </div>
-
-                        {{-- Unit --}}
-                        <div class="f-group">
-                            <label class="f-label">Unit / Department <span class="req">*</span></label>
-                            <select class="f-select {{ $errors->has('unit') ? 'err' : '' }}" name="unit" required>
-                                <option value="" disabled {{ old('unit') ? '' : 'selected' }}>Select Unit</option>
-                                @foreach(['BDCU','CUI','COMMAND','ISU','LSO','PAU','PG1','PG3','PG4','PG10','PPBU'] as $u)
-                                    <option value="{{ $u }}" {{ old('unit') === $u ? 'selected' : '' }}>{{ $u }}</option>
-                                @endforeach
-                            </select>
-                            @error('unit')<p class="f-err">{{ $message }}</p>@enderror
-                        </div>
-
-                        <hr class="form-divider">
-
-                        {{-- Credentials --}}
-                        <div class="f-row">
-                            <div class="f-group">
-                                <label class="f-label">Username <span class="req">*</span></label>
-                                <input class="f-input {{ $errors->has('username') ? 'err' : '' }}"
-                                       type="text" name="username"
-                                       value="{{ old('username') }}"
-                                       placeholder="juandelacruz" required>
-                                @error('username')<p class="f-err">{{ $message }}</p>@enderror
-                            </div>
-                            <div class="f-group">
-                                <label class="f-label">Email <span class="req">*</span></label>
-                                <input class="f-input {{ $errors->has('email') ? 'err' : '' }}"
-                                       type="email" name="email"
-                                       value="{{ old('email') }}"
-                                       placeholder="juan@pgmc.com" required>
-                                @error('email')<p class="f-err">{{ $message }}</p>@enderror
-                            </div>
-                        </div>
-                        <div class="f-row">
-                            <div class="f-group">
-                                <label class="f-label">Password <span class="req">*</span></label>
-                                <div class="pw-wrap">
-                                    <input class="f-input {{ $errors->has('password') ? 'err' : '' }}"
-                                           type="password" name="password"
-                                           id="regPw" placeholder="Min. 8 chars" required
-                                           autocomplete="new-password"
-                                           oninput="checkStrength(this.value)">
-                                    <button type="button" class="pw-toggle" onclick="togglePw('regPw', this)">
-                                        <svg fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
-                                    </button>
-                                </div>
-                                <div class="strength-wrap" id="strengthWrap" style="display:none;">
-                                    <div class="strength-bar-bg"><div class="strength-bar-fill" id="strengthFill"></div></div>
-                                    <span class="strength-label" id="strengthLabel"></span>
-                                </div>
-                                @error('password')<p class="f-err">{{ $message }}</p>@enderror
-                            </div>
-                            <div class="f-group">
-                                <label class="f-label">Confirm Password <span class="req">*</span></label>
-                                <div class="pw-wrap">
-                                    <input class="f-input" type="password" name="password_confirmation"
-                                           id="regPwConf" placeholder="Repeat password" required
-                                           autocomplete="new-password">
-                                    <button type="button" class="pw-toggle" onclick="togglePw('regPwConf', this)">
-                                        <svg fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="check-row">
-                            <input type="checkbox" id="terms" name="terms" required>
-                            <label for="terms">
-                                I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a> *
-                            </label>
-                        </div>
-
-                        <button type="submit" class="btn-submit green">
-                            <svg fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            Create Account
-                        </button>
-
-                    </div>
-                </form>
-            </div>
-
-        </div>{{-- end auth-right --}}
+        </div>
     </div>
 </div>
 
 <script>
-// ── TAB SWITCHING ──
-function switchTab(tab) {
-    const loginPanel    = document.getElementById('loginPanel');
-    const registerPanel = document.getElementById('registerPanel');
-    const loginTab      = document.getElementById('loginTab');
-    const registerTab   = document.getElementById('registerTab');
-
-    if (tab === 'login') {
-        loginPanel.style.display    = '';
-        registerPanel.style.display = 'none';
-        loginTab.classList.add('active');
-        registerTab.classList.remove('active');
-    } else {
-        loginPanel.style.display    = 'none';
-        registerPanel.style.display = '';
-        registerTab.classList.add('active');
-        loginTab.classList.remove('active');
-    }
-}
-
-// Auto-open register tab if there are register errors
-@if($errors->any() && old('first_name'))
-    document.addEventListener('DOMContentLoaded', () => switchTab('register'));
-@endif
-
 // ── PASSWORD TOGGLE ──
 function togglePw(id, btn) {
     const input = document.getElementById(id);
     const isText = input.type === 'text';
     input.type = isText ? 'password' : 'text';
     btn.style.color = isText ? 'rgba(255,255,255,.3)' : 'rgba(255,255,255,.7)';
-}
-
-// ── RADIO PILLS ──
-function togglePill(input) {
-    document.querySelectorAll('.radio-pill').forEach(p => p.classList.remove('on'));
-    input.closest('.radio-pill').classList.add('on');
-}
-
-// ── PASSWORD STRENGTH ──
-function checkStrength(val) {
-    const wrap  = document.getElementById('strengthWrap');
-    const fill  = document.getElementById('strengthFill');
-    const label = document.getElementById('strengthLabel');
-    if (!val) { wrap.style.display = 'none'; return; }
-    wrap.style.display = '';
-
-    let s = 0;
-    if (val.length >= 8) s++;
-    if (/[a-z]/.test(val)) s++;
-    if (/[A-Z]/.test(val)) s++;
-    if (/[0-9]/.test(val)) s++;
-    if (/[^A-Za-z0-9]/.test(val)) s++;
-
-    const colors = ['#ef4444','#f97316','#eab308','#3b82f6','#10b981'];
-    const labels = ['Very Weak','Weak','Fair','Good','Strong'];
-    fill.style.width = (s / 5 * 100) + '%';
-    fill.style.background = colors[s - 1] || '#ef4444';
-    label.textContent = labels[s - 1] || 'Very Weak';
-    label.style.color = colors[s - 1] || '#ef4444';
 }
 </script>
 

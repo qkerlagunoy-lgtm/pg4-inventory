@@ -177,6 +177,30 @@
                     @enderror
                 </div>
 
+                <!-- Middle Name (Optional) -->
+                <div class="form-field">
+                    <label for="middle_name" class="form-label">
+                        Middle Name
+                    </label>
+                    <input type="text" id="middle_name" name="middle_name" value="{{ old('middle_name') }}"
+                           class="form-input @error('middle_name') error @enderror">
+                    @error('middle_name')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Suffix (Optional) -->
+                <div class="form-field">
+                    <label for="suffix" class="form-label">
+                        Suffix
+                    </label>
+                    <input type="text" id="suffix" name="suffix" value="{{ old('suffix') }}"
+                           class="form-input @error('suffix') error @enderror" placeholder="Jr., Sr., III">
+                    @error('suffix')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <!-- Password -->
                 <div class="form-field">
                     <label for="password" class="form-label">
@@ -199,18 +223,32 @@
                            class="form-input">
                 </div>
 
-                <!-- Unit -->
+                <!-- Sex/Gender -->
+                <div class="form-field">
+                    <label for="sex" class="form-label">
+                        Gender
+                    </label>
+                    <select id="sex" name="sex" class="form-select @error('sex') error @enderror">
+                        <option value="">Select Gender</option>
+                        <option value="male" {{ old('sex') == 'male' ? 'selected' : '' }}>Male</option>
+                        <option value="female" {{ old('sex') == 'female' ? 'selected' : '' }}>Female</option>
+                    </select>
+                    @error('sex')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Unit - Dropdown with predefined options -->
                 <div class="form-field">
                     <label for="unit" class="form-label">
                         Unit
                     </label>
-                    <input type="text" id="unit" name="unit" value="{{ old('unit') }}" list="unit-list"
-                           class="form-input @error('unit') error @enderror">
-                    <datalist id="unit-list">
-                        @foreach($units as $unit)
-                            <option value="{{ $unit }}">
+                    <select id="unit" name="unit" class="form-select @error('unit') error @enderror">
+                        <option value="" disabled {{ old('unit') ? '' : 'selected' }}>Select Unit</option>
+                        @foreach(['BDCU','CUI','COMMAND', 'TFD','ISU','LSO','PAU','PG1','PG3','PG4','PG10','PPBU'] as $unit)
+                            <option value="{{ $unit }}" {{ old('unit') === $unit ? 'selected' : '' }}>{{ $unit }}</option>
                         @endforeach
-                    </datalist>
+                    </select>
                     @error('unit')
                         <p class="form-error">{{ $message }}</p>
                     @enderror
@@ -246,6 +284,7 @@
                     @error('status')
                         <p class="form-error">{{ $message }}</p>
                     @enderror
+                    <p class="form-hint">Active users can log in immediately</p>
                 </div>
             </div>
 

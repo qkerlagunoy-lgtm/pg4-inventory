@@ -18,19 +18,22 @@ use Illuminate\Support\Facades\Route;
 */
 Route::get('/', function () {
     return view('auth.landing');
-});
+})->name('home'); // Added name for consistency
+
+// REMOVED the /register/pending route since registration is removed
+// If you still need a pending page for admin-created users, keep it, otherwise remove
+
+// Keep this if users are still created by admins and need a pending status page
 Route::get('/register/pending', function () {
     return view('auth.pending');
 })->name('register.pending');
 
-// ADD THIS — redirects /login to landing page
+// Updated login route - redirects to landing page with login form
 Route::get('/login', function () {
     return view('auth.landing');
 })->name('login');
 
-Route::get('/register/pending', function () {
-    return view('auth.pending');
-})->name('register.pending');
+
 /*
 |--------------------------------------------------------------------------
 | NOTIFICATION ROUTES
@@ -97,9 +100,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Users - RESTRICTED for PG4 admins
     Route::prefix('users')->name('users.')->middleware('superadmin.only')->group(function () {
         Route::get('/', [UserManagementController::class, 'index'])->name('index');
-        Route::get('/create', [UserManagementController::class, 'create'])->name('create');
+        Route::get('/create', [UserManagementController::class, 'create'])->name('create'); // Keep this for admin creation
         Route::get('/export', [UserManagementController::class, 'exportCsv'])->name('export');
-        Route::post('/', [UserManagementController::class, 'store'])->name('store');
+        Route::post('/', [UserManagementController::class, 'store'])->name('store'); // Keep this for admin creation
         Route::get('/{id}/edit', [UserManagementController::class, 'edit'])->name('edit');
         Route::put('/{id}', [UserManagementController::class, 'update'])->name('update');
         Route::delete('/{id}', [UserManagementController::class, 'destroy'])->name('destroy');
