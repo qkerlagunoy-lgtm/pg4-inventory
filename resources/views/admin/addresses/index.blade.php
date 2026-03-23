@@ -1,6 +1,18 @@
-{{-- resources/views/admin/addresses/index.blade.php --}}
-
 @extends('layouts.admin')
+
+@section('title', 'IP Address Ranges')
+@section('page-title', 'IP Address Ranges')
+
+@section('breadcrumb')
+<nav class="mb-4">
+    <ol class="flex items-center space-x-2 text-sm">
+        <li><a href="{{ route('admin.dashboard') }}" class="text-gray-500 hover:text-gray-700">Dashboard</a></li>
+        <li><svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+        <li class="text-blue-600 font-medium">IP Address Ranges</li>
+    </ol>
+</nav>
+@endsection
 
 @section('content')
 
@@ -12,499 +24,408 @@
     --charcoal: #4A4947;
 }
 
-/* ── ADDRESS MANAGEMENT CONTAINER ── */
-.address-container {
+.ip-page {
     background: var(--cream);
-    min-height: calc(100vh - 160px);
     padding: 2rem;
     font-family: 'Georgia', serif;
+    min-height: 100vh;
 }
 
-/* ── FILTERS & SEARCH BAR ── */
-.filters-section {
-    background: linear-gradient(135deg, #f5f1e8 0%, #ede9e0 100%);
-    border: 2px solid var(--sand);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 16px rgba(74,73,71,.08);
+/* ── FLASH ── */
+.flash {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .85rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid;
 }
+.flash-success {
+    background: #f0faf0;
+    border-color: #4a8c4a;
+}
+.flash-success svg { color: #4a8c4a; width: 1.15rem; height: 1.15rem; }
+.flash-success p { color: #2e6b2e; font-size: .875rem; font-weight: 600; }
+.flash-error {
+    background: #fff0f0;
+    border-color: #c0392b;
+}
+.flash-error svg { color: #c0392b; width: 1.15rem; height: 1.15rem; }
+.flash-error p { color: #8b2020; font-size: .875rem; font-weight: 600; }
 
-.filters-row {
+/* ── SEARCH CARD ── */
+.search-card {
+    background: #fff;
+    border: 1px solid var(--sand);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.search-form {
     display: flex;
     gap: 1rem;
-    align-items: flex-end;
-    flex-wrap: wrap;
 }
-
-.filter-group {
+.search-input-wrap {
     flex: 1;
-    min-width: 200px;
-}
-
-.filter-label {
-    display: block;
-    font-size: .8rem;
-    font-weight: 600;
-    color: var(--charcoal);
-    margin-bottom: .5rem;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-}
-
-.filter-select {
-    width: 100%;
-    padding: .75rem 1rem;
-    background: white;
-    border: 2px solid var(--sand);
-    border-radius: 8px;
-    color: var(--charcoal);
-    font-size: .9rem;
-    font-family: 'Georgia', serif;
-    transition: all .2s;
-    cursor: pointer;
-}
-
-.filter-select:hover {
-    border-color: var(--sienna);
-}
-
-.filter-select:focus {
-    outline: none;
-    border-color: var(--sienna);
-    box-shadow: 0 0 0 3px rgba(177,116,87,.15);
-}
-
-.search-group {
-    flex: 2;
-    min-width: 300px;
-}
-
-.search-bar {
     position: relative;
 }
-
 .search-input {
     width: 100%;
-    padding: .75rem 3.5rem .75rem 1rem;
-    background: white;
-    border: 2px solid var(--sand);
-    border-radius: 8px;
+    padding: .5rem .75rem .5rem 2.5rem;
+    border: 1px solid var(--sand);
+    border-radius: 7px;
+    background: var(--cream);
     color: var(--charcoal);
-    font-size: .9rem;
-    font-family: 'Georgia', serif;
-    transition: all .2s;
-}
-
-.search-input::placeholder {
-    color: #9a9591;
-    font-style: italic;
-}
-
-.search-input:focus {
+    font-size: .875rem;
+    font-family: inherit;
     outline: none;
-    border-color: var(--sienna);
-    box-shadow: 0 0 0 3px rgba(177,116,87,.15);
 }
-
-.search-btn,
-.reset-btn {
+.search-input:focus { border-color: var(--sienna); }
+.search-icon {
     position: absolute;
+    left: .75rem;
     top: 50%;
     transform: translateY(-50%);
-    padding: .5rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: all .2s;
-    border-radius: 6px;
-}
-
-.search-btn {
-    right: 2.5rem;
-    color: var(--sienna);
-}
-
-.search-btn:hover {
-    background: rgba(177,116,87,.1);
-    color: #8a5a40;
-}
-
-.reset-btn {
-    right: .5rem;
+    width: 1.15rem;
+    height: 1.15rem;
     color: #9a9591;
 }
-
-.reset-btn:hover {
-    background: rgba(154,149,145,.1);
-    color: var(--charcoal);
+.btn {
+    padding: .5rem 1.25rem;
+    font-size: .875rem;
+    font-weight: 600;
+    border-radius: 7px;
+    border: none;
+    cursor: pointer;
+    transition: opacity .15s;
+    text-decoration: none;
+    display: inline-block;
 }
+.btn:hover { opacity: .88; }
+.btn-primary { background: var(--sienna); color: #fff; }
+.btn-muted { background: #f5f1e8; color: var(--charcoal); }
 
-/* ── TABLE SECTION ── */
-.table-section {
-    background: white;
-    border: 2px solid var(--sand);
-    border-radius: 12px;
+/* ── TABLE CARD ── */
+.table-card {
+    background: #fff;
+    border: 1px solid var(--sand);
+    border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 4px 16px rgba(74,73,71,.08);
 }
-
 .table-header {
-    background: linear-gradient(135deg, var(--charcoal) 0%, #3a3937 100%);
     padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--sand);
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    border-bottom: 3px solid var(--sienna);
+    justify-content: space-between;
 }
-
-.table-title {
+.table-header h3 {
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--cream);
-    letter-spacing: .02em;
-}
-
-.address-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-.address-table thead th {
-    background: #f5f1e8;
-    padding: 1rem 1.5rem;
-    text-align: left;
-    font-size: .8rem;
-    font-weight: 700;
     color: var(--charcoal);
-    text-transform: uppercase;
-    letter-spacing: .06em;
+}
+.table-header p {
+    font-size: .85rem;
+    color: #9a9591;
+    margin-top: .2rem;
+}
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+.count-badge {
+    font-size: .85rem;
+    color: #9a9591;
+}
+.btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem 1rem;
+    background: var(--sienna);
+    color: #fff;
+    border-radius: 7px;
+    font-size: .875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity .15s;
+}
+.btn-add:hover { opacity: .88; }
+.btn-add svg { width: 1rem; height: 1rem; }
+
+/* ── TABLE ── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+thead tr {
+    background: var(--cream);
     border-bottom: 2px solid var(--sand);
 }
+thead th {
+    padding: .85rem 1.5rem;
+    text-align: left;
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #6b6966;
+}
+tbody tr { border-bottom: 1px solid #f0ece4; transition: background .15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #fdfbf7; }
+tbody td { padding: 1rem 1.5rem; color: var(--charcoal); }
 
-.address-table tbody td {
-    padding: 1.25rem 1.5rem;
-    color: #4A4947;
+.item-name {
     font-size: .875rem;
-    border-bottom: 1px solid #ede9e0;
-    vertical-align: middle;
+    font-weight: 700;
+    color: var(--charcoal);
+}
+.item-desc {
+    font-size: .75rem;
+    color: #9a9591;
+    margin-top: .2rem;
+}
+.ip-mono {
+    font-family: 'Courier New', monospace;
+    font-size: .85rem;
+    color: var(--charcoal);
+}
+.ip-muted {
+    font-family: 'Courier New', monospace;
+    font-size: .85rem;
+    color: #0b0b0b;
 }
 
-.address-table tbody tr {
-    transition: background .15s;
+/* ── BADGES ── */
+.status-badge {
+    display: inline-block;
+    padding: .25rem .6rem;
+    border-radius: 20px;
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.badge-active {
+    background: rgba(104, 255, 96, 0.15);
+    color: #4a5878;
+    border: 1px solid rgba(110,125,162,0.2);
+}
+.badge-inactive {
+    background: #f0f1f5;
+    color: #6b7280;
+    border: 1px solid #e2e4ec;
 }
 
-.address-table tbody tr:hover {
-    background: #fdfcf9;
+/* ── ACTIONS ── */
+.actions {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
 }
-
-.address-table tbody tr:last-child td {
-    border-bottom: none;
+.action-link {
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity .15s;
+}
+.action-link:hover { opacity: .88; }
+.action-view { color: #2d5f8a; }
+.action-edit { color: #4a8c4a; }
+.action-delete {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: .85rem;
+    font-weight: 600;
+    color: #c0392b;
+    cursor: pointer;
+    transition: opacity .15s;
+}
+.action-delete:hover { opacity: .88; }
+.action-divider {
+    width: 1px;
+    height: 1rem;
+    background: var(--sand);
 }
 
 /* ── EMPTY STATE ── */
 .empty-state {
-    padding: 4rem 2rem;
     text-align: center;
+    padding: 4rem 1rem;
 }
-
 .empty-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 1.5rem;
-    opacity: .3;
+    width: 3.5rem;
+    height: 3.5rem;
+    background: #f5f1e8;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
 }
-
 .empty-icon svg {
-    width: 100%;
-    height: 100%;
-    color: var(--sienna);
+    width: 1.75rem;
+    height: 1.75rem;
+    color: var(--sand);
 }
-
-.empty-title {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--charcoal);
+.empty-state p {
+    font-size: .875rem;
+    color: #9a9591;
     margin-bottom: .5rem;
 }
-
-.empty-message {
-    font-size: .9rem;
-    color: #9a9591;
-    font-style: italic;
-    line-height: 1.6;
-}
-
-/* ── ACTION BUTTONS ── */
-.action-buttons {
-    display: flex;
-    gap: .75rem;
-    margin-top: 1.5rem;
-}
-
-.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: .5rem;
-    padding: .75rem 1.5rem;
-    border: none;
-    border-radius: 8px;
-    font-family: 'Georgia', serif;
-    font-size: .875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .2s;
+.empty-link {
+    display: inline-block;
+    margin-top: .5rem;
+    font-size: .85rem;
+    color: var(--sienna);
     text-decoration: none;
 }
+.empty-link:hover { text-decoration: underline; }
 
-.btn-primary {
-    background: linear-gradient(135deg, var(--sienna) 0%, #9a5f48 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(177,116,87,.25);
-}
-
-.btn-primary:hover {
-    background: linear-gradient(135deg, #9a5f48 0%, var(--sienna) 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(177,116,87,.35);
-}
-
-.btn-secondary {
-    background: var(--sand);
-    color: var(--charcoal);
-    border: 2px solid var(--sand);
-}
-
-.btn-secondary:hover {
-    background: #c5bfaf;
-    border-color: #c5bfaf;
-    transform: translateY(-1px);
-}
-
-.btn svg {
-    width: 1.1rem;
-    height: 1.1rem;
-}
-
-/* ── BADGE ── */
-.unit-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: .35rem .75rem;
-    background: linear-gradient(135deg, #e8dfd0 0%, #ddd5c6 100%);
-    color: var(--charcoal);
-    border-radius: 20px;
-    font-size: .75rem;
-    font-weight: 600;
-    letter-spacing: .03em;
-}
-
-/* ── DEVICE TYPE ── */
-.device-type {
-    display: inline-flex;
-    align-items: center;
-    gap: .4rem;
-    padding: .35rem .75rem;
-    background: #f5f1e8;
-    border-radius: 6px;
-    font-size: .8rem;
-    color: #6b6966;
-}
-
-.device-icon {
-    width: 14px;
-    height: 14px;
-    color: var(--sienna);
-}
-
-/* ── FOOTER ACTIONS ── */
-.table-footer {
-    padding: 1.5rem;
-    background: #f5f1e8;
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    border-top: 2px solid var(--sand);
-}
-
-/* ── ANIMATIONS ── */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.address-table tbody tr {
-    animation: fadeIn .3s ease forwards;
-    opacity: 0;
-}
-
-.address-table tbody tr:nth-child(1) { animation-delay: .05s; }
-.address-table tbody tr:nth-child(2) { animation-delay: .1s; }
-.address-table tbody tr:nth-child(3) { animation-delay: .15s; }
-.address-table tbody tr:nth-child(4) { animation-delay: .2s; }
-.address-table tbody tr:nth-child(5) { animation-delay: .25s; }
-
-/* ── RESPONSIVE ── */
-@media (max-width: 1024px) {
-    .filters-row {
-        flex-direction: column;
-    }
-    
-    .filter-group,
-    .search-group {
-        width: 100%;
-        min-width: auto;
-    }
-}
-
-@media (max-width: 768px) {
-    .address-container {
-        padding: 1rem;
-    }
-    
-    .table-section {
-        border-radius: 8px;
-    }
-    
-    .address-table {
-        font-size: .8rem;
-    }
-    
-    .address-table thead th,
-    .address-table tbody td {
-        padding: .75rem 1rem;
-    }
-    
-    .table-footer {
-        flex-direction: column;
-    }
-    
-    .btn {
-        width: 100%;
-        justify-content: center;
-    }
+/* ── PAGINATION ── */
+.pagination-wrap {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--sand);
 }
 </style>
 
-<div class="address-container">
+<div class="ip-page">
 
-    {{-- TOP BAR --}}
-    <div class="table-header" style="border-radius:12px 12px 0 0;">
-        <div>
-            <h3 class="table-title">Address Management</h3>
-            <small style="color: var(--cream); opacity:.7;">
-                AFPPGMC Logistics Division
-            </small>
+    @if(session('success'))
+        <div class="flash flash-success">
+            <svg fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <p>{{ session('success') }}</p>
         </div>
+    @endif
 
-        <form method="GET" action="{{ route('admin.addresses.index') }}" style="display:flex; gap:.75rem; align-items:center;">
-            
-            <input 
-                type="text" 
-                name="search"
-                class="search-input"
-                placeholder="Search addresses..."
-                value="{{ request('search') }}"
-                style="width:260px;"
-            >
+    @if(session('error'))
+        <div class="flash flash-error">
+            <svg fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+            <p>{{ session('error') }}</p>
+        </div>
+    @endif
 
-            <button type="submit" class="btn btn-secondary" style="padding:.5rem 1rem;">
-                Search
-            </button>
-
-            <a href="{{ route('admin.addresses.index') }}" 
-               class="btn btn-secondary" 
-               style="padding:.5rem 1rem;">
-                Reset
-            </a>
+    {{-- Search Bar --}}
+    <div class="search-card">
+        <form method="GET" class="search-form">
+            <div class="search-input-wrap">
+                <input type="text" name="search" value="{{ request('search') }}"
+                       placeholder="Search by name, IP range, or description..."
+                       class="search-input">
+                <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="{{ route('admin.addresses.index') }}" class="btn btn-muted">Reset</a>
         </form>
     </div>
 
-    {{-- TABLE --}}
-    <div class="table-section" style="border-top:none; border-radius:0 0 12px 12px;">
-        
-        @if(isset($addresses) && count($addresses) > 0)
+    <div class="table-card">
+        {{-- Table Header with Create Button --}}
+        <div class="table-header">
+            <div>
+                <h3>IP Address Ranges</h3>
+                <p>Manage network IP address blocks and ranges</p>
+            </div>
+            <div class="header-right">
+                <span class="count-badge">{{ $ranges->total() }} total</span>
+                <a href="{{ route('admin.addresses.create') }}" class="btn-add">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Add Range
+                </a>
+            </div>
+        </div>
 
-            <table class="address-table">
+        <div class="table-wrap">
+            <table>
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Unit</th>
-                        <th>IP Address</th>
-                        <th>MAC Address</th>
-                        <th>Device</th>
+                        <th>Range Start</th>
+                        <th>Range End</th>
+                        <th>Subnet Mask</th>
+                        <th>Gateway</th>
+                        <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($addresses as $address)
+                    @forelse($ranges as $range)
                         <tr>
-                            <td><strong>{{ $address->name }}</strong></td>
-
                             <td>
-                                <span class="unit-badge">
-                                    {{ $address->unit }}
+                                <div class="item-name">{{ $range->name }}</div>
+                                @if($range->description)
+                                    <div class="item-desc">{{ Str::limit($range->description, 50) }}</div>
+                                @endif
+                            </td>
+                            <td>
+                                <span class="ip-mono">{{ $range->range_start }}</span>
+                            </td>
+                            <td>
+                                <span class="ip-mono">{{ $range->range_end }}</span>
+                            </td>
+                            <td>
+                                <span class="ip-muted">{{ $range->subnet_mask ?? '—' }}</span>
+                            </td>
+                            <td>
+                                <span class="ip-muted">{{ $range->gateway ?? '—' }}</span>
+                            </td>
+                            <td>
+                                <span class="status-badge {{ $range->is_active ? 'badge-active' : 'badge-inactive' }}">
+                                    {{ $range->is_active ? 'Active' : 'Inactive' }}
                                 </span>
                             </td>
-
                             <td>
-                                <code style="font-family: 'Courier New', monospace; color: var(--sienna);">
-                                    {{ $address->ip_address }}
-                                </code>
-                            </td>
-
-                            <td>
-                                <code style="font-family: 'Courier New', monospace;">
-                                    {{ $address->mac_address }}
-                                </code>
-                            </td>
-
-                            <td>
-                                <div class="device-type">
-                                    {{ $address->device_type }}
+                                <div class="actions">
+                                    <a href="{{ route('admin.addresses.show', $range) }}" class="action-link action-view">View</a>
+                                    <div class="action-divider"></div>
+                                    <a href="{{ route('admin.addresses.edit', $range) }}" class="action-link action-edit">Edit</a>
+                                    <div class="action-divider"></div>
+                                    <form method="POST" action="{{ route('admin.addresses.destroy', $range) }}"
+                                          onsubmit="return confirm('Delete this IP range?')" style="display:inline;">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="action-delete">Delete</button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <div class="empty-icon">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/>
+                                        </svg>
+                                    </div>
+                                    <p>No IP ranges defined yet.</p>
+                                    <a href="{{ route('admin.addresses.create') }}" class="empty-link">
+                                        Add first range →
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
+        </div>
 
-            {{-- FOOTER BUTTONS --}}
-            <div class="table-footer">
-                <button type="button" class="btn btn-primary">
-                    New Address
-                </button>
-
-                <button type="button" class="btn btn-secondary">
-                    Update Selection
-                </button>
+        @if($ranges->hasPages())
+            <div class="pagination-wrap">
+                {{ $ranges->appends(request()->query())->links() }}
             </div>
-
-        @else
-
-            {{-- EMPTY STATE --}}
-            <div class="empty-state">
-                <h3 class="empty-title">No addresses found</h3>
-                <p class="empty-message">
-                    Add a new address to begin network management.
-                </p>
-
-                <div class="action-buttons" style="justify-content:center;">
-                    <button type="button" class="btn btn-primary">
-                        Add First Address
-                    </button>
-                </div>
-            </div>
-
         @endif
-
     </div>
 
 </div>
+
 @endsection

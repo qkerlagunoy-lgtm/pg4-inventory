@@ -8,9 +8,12 @@ use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\AddressController;
+use App\Http\Controllers\DeviceRegistryController;
+use App\Http\Controllers\IpAddressRangeController;
+use App\Http\Controllers\OffenseController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminProfileController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -128,10 +131,37 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('destroy');
     });
 
-    // Address Management - RESTRICTED for PG4 admins
-    Route::get('/addresses', [AddressController::class, 'index'])
-        ->name('addresses.index')
-        ->middleware('superadmin.only');
+Route::middleware('superadmin.only')->group(function () {
+
+    // ── Put specific routes BEFORE resource routes ──
+    Route::post('addresses/device/register', [IpAddressRangeController::class, 'registerDevice'])
+         ->name('addresses.device.register');
+    Route::get('addresses/device/{device}/profile', [IpAddressRangeController::class, 'deviceProfile'])
+         ->name('addresses.device-profile');
+    Route::put('addresses/device/{device}/update', [IpAddressRangeController::class, 'updateDevice'])
+         ->name('addresses.device.update');
+    Route::delete('addresses/device/{device}/delete', [IpAddressRangeController::class, 'deleteDevice'])
+         ->name('addresses.device.delete');
+    Route::post('addresses/device/{device}/offense', [IpAddressRangeController::class, 'addOffense'])
+         ->name('addresses.device.offense.store');
+    Route::delete('addresses/offense/{offense}/delete', [IpAddressRangeController::class, 'deleteOffense'])
+         ->name('addresses.device.offense.delete');
+
+    // ── Resource routes AFTER ──
+    Route::resource('device-registry', DeviceRegistryController::class);
+    Route::get('device-registry/user/{user}', [DeviceRegistryController::class, 'userProfile'])
+         ->name('device-registry.user-profile');
+    Route::resource('addresses', IpAddressRangeController::class);
+
+    // Offenses
+    Route::post('offense', [OffenseController::class, 'store'])->name('offenses.store');
+    Route::put('offense/{offense}', [OffenseController::class, 'update'])->name('offenses.update');
+    Route::delete('offense/{offense}', [OffenseController::class, 'destroy'])->name('offenses.destroy');
+    Route::put('addresses/offense/{offense}/update', [IpAddressRangeController::class, 'updateOffense'])
+     ->name('addresses.offense.update');
+
+});
+
 
 });
 

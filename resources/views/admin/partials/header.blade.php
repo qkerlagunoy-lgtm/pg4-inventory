@@ -255,8 +255,12 @@
                     'admin.inventory.index'       => 'Inventory Management',
                     'admin.users.index'           => 'User Management',
                     'admin.categories.index'      => 'Category Management',
-                    'admin.addresses.index'       => 'Address Management',
-                    'profile.edit'                => 'My Profile',
+                    'admin.addresses.index'        => 'Address Management',
+                    'admin.addresses.create'       => 'Address Management',
+                    'admin.addresses.edit'         => 'Address Management',
+                    'admin.addresses.device-profile' => 'Address Management',
+                    'profile.edit'                 => 'My Profile',
+                    'admin.addresses.show' => 'Address Management',
                 ];
                 $currentTitle = $moduleTitles[Route::currentRouteName()] ?? 'Admin Dashboard';
             @endphp
@@ -279,8 +283,15 @@
                     'admin.users.index'           => [['title'=>'Dashboard','url'=>route('admin.dashboard')],['title'=>'User Management','url'=>route('admin.users.index')]],
                     'admin.categories.index'      => [['title'=>'Dashboard','url'=>route('admin.dashboard')],['title'=>'Category Management','url'=>route('admin.categories.index')]],
                     'admin.addresses.index'       => [['title'=>'Dashboard','url'=>route('admin.dashboard')],['title'=>'Address Management','url'=>route('admin.addresses.index')]],
-                ];
-                $currentBreadcrumbs = $breadcrumbs[Route::currentRouteName()] ?? [];
+                    'admin.addresses.show'        => [['title'=>'Dashboard','url'=>route('admin.dashboard')],['title'=>'Address Management','url'=>route('admin.addresses.index')]],
+                    'admin.addresses.create'         => [['title'=>'Dashboard','url'=>route('admin.dashboard')],['title'=>'Address Management','url'=>route('admin.addresses.index')]],
+                    'admin.addresses.edit'           => [['title'=>'Dashboard','url'=>route('admin.dashboard')],['title'=>'Address Management','url'=>route('admin.addresses.index')]],
+                    'admin.addresses.device-profile' => [['title'=>'Dashboard','url'=>route('admin.dashboard')],['title'=>'Address Management','url'=>route('admin.addresses.index')]],
+       
+    ['title'=>'Dashboard','url'=>route('admin.dashboard')],
+    ['title'=>'Address Management','url'=>route('admin.addresses.index')],
+                                    ];
+       $currentBreadcrumbs = $customBreadcrumbs ?? $breadcrumbs[Route::currentRouteName()] ?? [];
             @endphp
 
             @if(count($currentBreadcrumbs) > 0)

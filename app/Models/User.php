@@ -352,5 +352,25 @@ class User extends Authenticatable
             'urgent_requests' => $this->urgentRequests()->count(),
             'cancelled_requests' => $this->cancelledRequests()->count(),
         ];
+    
     }
+    public function personnelCategory()
+{
+    return $this->belongsTo(\App\Models\PersonnelCategory::class);
+}
+
+public function designation()
+{
+    return $this->belongsTo(\App\Models\Designation::class);
+}
+
+public function devices()
+{
+    return $this->hasMany(\App\Models\DeviceRegistry::class);
+}
+
+public function offenses()
+{
+    return $this->hasMany(\App\Models\Offense::class);
+}
 }
