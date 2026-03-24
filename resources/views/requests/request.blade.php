@@ -267,7 +267,7 @@
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-500">
-                                            {{ $requestItem->remarks ?? '—' }}
+                                            {{ $requestItem->rAemarks ?? '—' }}
                                         </td>
                                     </tr>
                                 @endforeach

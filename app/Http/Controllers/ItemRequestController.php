@@ -257,6 +257,7 @@ class ItemRequestController extends Controller
 
     public function submitRequest(Request $request)
     {
+        
         $request->validate([
             'purpose' => 'required|string|max:255',
             'priority' => 'nullable|in:low,medium,high,urgent',

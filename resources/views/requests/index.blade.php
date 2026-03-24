@@ -254,11 +254,7 @@
                         </div>
                     @endif
 
-                    @if($isLow && $isAvailable)
-                        <div class="absolute top-2 left-2">
-                            <span class="bg-[#DB996C] text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">Low Stock</span>
-                        </div>
-                    @endif
+                   
                 </div>
 
                 {{-- Info --}}

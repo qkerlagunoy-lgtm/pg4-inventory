@@ -81,7 +81,7 @@
 .personnel-value { font-size:.88rem; font-weight:600; color:var(--charcoal); }
 .device-body { padding:0 1.5rem 1.5rem; background:#fdfcfa; }
 .device-img-wrap { padding:1.5rem 1.5rem 1rem; background:#fdfcfa; }
-.device-img { width:100%; height:12rem; object-fit:cover; border-radius:10px; border:1px solid #c5bfb3; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+.device-img { width:100%; height:20rem; object-fit:cover; border-radius:10px; border:1px solid #c5bfb3; box-shadow:0 1px 3px rgba(0,0,0,.08); }
 .device-row { padding:1rem 0; border-bottom:1px solid #e8e2d6; display:flex; justify-content:space-between; align-items:center; }
 .device-row:last-child { border-bottom:none; }
 .device-row-label { font-size:.7rem; color:var(--sienna); text-transform:uppercase; font-weight:700; letter-spacing:.05em; }
