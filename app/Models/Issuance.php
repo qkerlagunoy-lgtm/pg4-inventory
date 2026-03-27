@@ -21,7 +21,22 @@ class Issuance extends Model
     protected $casts = [
         'issued_at' => 'datetime',
     ];
+ public function canReturnItems()
+    {
+        $allowedStatuses = ['completed', 'issued'];
+        
+        if (!in_array($this->status, $allowedStatuses)) {
+            return false;
+        }
+        
+       foreach ($this->issuanceItems as $item) {
+    if ($item->quantity_returned < $item->quantity_issued) {
+        return true;
+    }
+}
 
+        return false;
+    }
     // Relationships
     public function itemRequest()
     {
@@ -63,4 +78,18 @@ class Issuance extends Model
     {
         return 'ISS-' . str_pad($this->id, 6, '0', STR_PAD_LEFT);
     }
+    public static function totalItemsIssued()
+{
+    return \App\Models\IssuanceItem::sum('quantity_issued');
+}
+public static function totalItemsReturned()
+{
+    return \App\Models\IssuanceItem::sum('quantity_returned');
+}
+public static function pendingReturnsCount()
+{
+    return self::whereHas('issuanceItems', function ($q) {
+        $q->whereColumn('quantity_returned', '<', 'quantity_issued');
+    })->count();
+}
 }

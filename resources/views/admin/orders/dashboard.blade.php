@@ -298,13 +298,7 @@ tbody td {
                 </a>
 
                 <!-- Expiring Soon -->
-                <a href="#" class="inv-item expiring">
-                    <div class="inv-icon red">🔴</div>
-                    <div class="inv-text">
-                        <p>Expiring Soon</p>
-                        <p>Items expiring in 30 days</p>
-                    </div>
-                    <span class="inv-count">{{ $stats['expiring_soon'] ?? 0 }}</span>
+              
                 </a>
             </div>
         </div>

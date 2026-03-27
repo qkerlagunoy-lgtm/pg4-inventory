@@ -623,8 +623,7 @@ class AdminController extends Controller
                 'module' => 'issuances',
                 'description' => "Failed to process issuance for request #{$id}: " . $e->getMessage(),
                 'model_type' => ItemRequest::class,
-                'model_id' => $id,
-                'old_data' => $validated,
+                'model_id' => is_numeric($id) ? (int)$id : null,'old_data' => $validated,
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
                 'url' => $request->fullUrl(),
@@ -727,8 +726,7 @@ class AdminController extends Controller
             'module' => 'issuances',
             'description' => "Viewed issuance #{$id} details",
             'model_type' => Issuance::class,
-            'model_id' => $id,
-            'ip_address' => request()->ip(),
+            'model_id' => (int) $id, 'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
             'url' => request()->fullUrl(),
             'method' => request()->method(),
@@ -840,8 +838,7 @@ class AdminController extends Controller
                 'module' => 'returns',
                 'description' => "Processed return for item from issuance #{$issuance->id}",
                 'model_type' => IssuanceItem::class,
-                'model_id' => $id,
-                'old_data' => [
+                'model_id' => is_numeric($id) ? (int)$id : null,                'old_data' => [
                     'status' => $oldStatus,
                     'quantity_returned' => $oldQuantityReturned
                 ],
@@ -881,7 +878,7 @@ class AdminController extends Controller
                 'performed_at' => now(),
             ]);
             
-            return back()->with('error', 'Failed to process return: ' . $e->getMessage());
+           return back()->with('error', 'Failed to process return. Please try again.');
         }
     }
 

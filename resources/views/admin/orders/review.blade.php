@@ -1,199 +1,443 @@
-{{-- resources/views/admin/orders/review.blade.php --}}
 @extends('layouts.admin')
 
 @section('title', 'Review Request #' . $request->id)
-
 @section('page-title', 'Review Request')
 
-@section('breadcrumbs')
-    <li class="breadcrumb-item">
-        <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-    </li>
-    <li class="breadcrumb-item">
-        <a href="{{ route('admin.orders.index') }}">Order Management</a>
-    </li>
-    <li class="breadcrumb-item">
-        <a href="{{ route('admin.orders.pending') }}">Pending Requests</a>
-    </li>
-    <li class="breadcrumb-item active">Review Request #{{ $request->id }}</li>
+@section('breadcrumb')
+<nav class="mb-4">
+    <ol class="flex items-center space-x-2 text-sm">
+        <li><a href="{{ route('admin.dashboard') }}" class="text-gray-500 hover:text-gray-700">Dashboard</a></li>
+        <li><svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+        <li><a href="{{ route('admin.orders.pending') }}" class="text-gray-500 hover:text-gray-700">Pending Requests</a></li>
+        <li><svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+        <li class="text-blue-600 font-medium">Review #{{ $request->id }}</li>
+    </ol>
+</nav>
 @endsection
 
 @section('content')
+
+<style>
+:root {
+    --cream:    #FAF7F0;
+    --sand:     #D8D2C2;
+    --sienna:   #B17457;
+    --charcoal: #4A4947;
+}
+
+.review-page {
+    font-family: 'Georgia', serif;
+}
+
+/* Card */
+.card {
+    background: #fff;
+    border: 1px solid var(--sand);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+.card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e8e2d6;
+}
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--charcoal);
+}
+.card-subtitle {
+    font-size: .875rem;
+    color: #9a9591;
+    margin-top: .25rem;
+}
+.card-body {
+    padding: 1.5rem;
+}
+.section-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--charcoal);
+    margin-bottom: 1rem;
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: .4rem .85rem;
+    border-radius: 20px;
+    font-size: .8rem;
+    font-weight: 700;
+}
+.badge-high { background: rgba(192,57,43,0.12); color: #c0392b; }
+.badge-medium { background: rgba(219,153,108,0.12); color: #b07040; }
+.badge-low { background: #f5f1e8; color: #6b6966; }
+.badge-pending { background: rgba(219,153,108,0.12); color: #b07040; }
+.badge-available { background: rgba(74,140,74,0.12); color: #2e6b2e; }
+.badge-insufficient { background: rgba(192,57,43,0.12); color: #c0392b; }
+
+/* Info Grid */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+@media (max-width: 768px) {
+    .info-grid { grid-template-columns: 1fr; }
+}
+.info-item label {
+    display: block;
+    font-size: .8rem;
+    color: #9a9591;
+    margin-bottom: .25rem;
+}
+.info-item p {
+    font-size: .9rem;
+    font-weight: 600;
+    color: var(--charcoal);
+}
+
+/* Alert */
+.alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+}
+.alert-danger {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+}
+.alert svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    color: #c0392b;
+}
+.alert-title {
+    font-weight: 700;
+    color: #991b1b;
+    font-size: .9rem;
+}
+.alert-text {
+    font-size: .85rem;
+    color: #dc2626;
+    margin-top: .25rem;
+}
+
+/* Table */
+.table-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--sand);
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+thead {
+    background: var(--cream);
+}
+th {
+    padding: .85rem 1rem;
+    text-align: left;
+    font-size: .7rem;
+    font-weight: 700;
+    color: var(--charcoal);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    border-bottom: 1px solid var(--sand);
+}
+td {
+    padding: 1rem;
+    border-bottom: 1px solid #f0ece4;
+    font-size: .875rem;
+}
+tbody tr:hover {
+    background: #fdfcfa;
+}
+tbody tr:last-child td {
+    border-bottom: none;
+}
+.row-issue {
+    background: #fef2f2 !important;
+}
+tfoot {
+    background: var(--cream);
+    border-top: 1px solid var(--sand);
+}
+tfoot td {
+    font-weight: 700;
+    color: var(--charcoal);
+    border: none;
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: .85rem;
+}
+.form-label {
+    display: block;
+    font-size: .8rem;
+    font-weight: 600;
+    color: #6b6966;
+    margin-bottom: .4rem;
+}
+.form-control {
+    width: 100%;
+    padding: .65rem .85rem;
+    border: 1px solid var(--sand);
+    border-radius: 7px;
+    background: var(--cream);
+    color: var(--charcoal);
+    font-size: .875rem;
+    font-family: 'Georgia', serif;
+    outline: none;
+    transition: border-color .15s;
+}
+.form-control:focus {
+    border-color: var(--sienna);
+}
+textarea.form-control {
+    resize: vertical;
+}
+.form-note {
+    padding: .75rem;
+    background: rgba(219,153,108,0.08);
+    border: 1px solid rgba(219,153,108,0.2);
+    border-radius: 7px;
+    margin-bottom: .85rem;
+}
+.form-note p {
+    font-size: .8rem;
+    color: #b07040;
+}
+
+/* Actions */
+.actions-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+.actions-main {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.action-box {
+    min-width: 16rem;
+}
+@media (max-width: 768px) {
+    .actions-wrapper {
+        flex-direction: column;
+    }
+    .action-box {
+        width: 100%;
+    }
+}
+
+/* Buttons */
+.btn {
+    padding: .55rem 1.25rem;
+    font-size: .875rem;
+    font-weight: 600;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: opacity .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    border: none;
+    width: 100%;
+    justify-content: center;
+}
+.btn:hover {
+    opacity: .88;
+}
+.btn svg {
+    width: 1rem;
+    height: 1rem;
+}
+.btn-back {
+    background: #f5f1e8;
+    color: var(--charcoal);
+    border: 1px solid var(--sand);
+    width: auto;
+}
+.btn-danger {
+    background: #c0392b;
+    color: #fff;
+}
+.btn-success {
+    background: #4a8c4a;
+    color: #fff;
+}
+
+/* Item details */
+.item-name {
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--charcoal);
+}
+.item-code {
+    font-size: .75rem;
+    color: #9a9591;
+}
+.category-badge {
+    padding: .25rem .6rem;
+    border-radius: 12px;
+    font-size: .75rem;
+    background: #f5f1e8;
+    color: #6b6966;
+}
+.stock-value {
+    font-weight: 600;
+}
+.stock-available { color: #4a8c4a; }
+.stock-low { color: #c0392b; }
+.shortage-badge {
+    margin-left: .5rem;
+    padding: .2rem .5rem;
+    border-radius: 12px;
+    font-size: .7rem;
+    background: rgba(192,57,43,0.12);
+    color: #c0392b;
+    font-weight: 700;
+}
+</style>
+
+<div class="review-page">
+
     <!-- Request Details Card -->
-    <div class="bg-white rounded-lg shadow-md mb-6">
-        <div class="p-6 border-b">
-            <div class="flex justify-between items-center">
+    <div class="card">
+        <div class="card-header">
+            <div class="flex justify-between items-start flex-wrap gap-3">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-800">Request #{{ $request->id }}</h2>
-                    <p class="text-gray-600 mt-1">Submitted {{ $request->created_at->format('M d, Y h:i A') }}</p>
+                    <h2 class="card-title">Request #{{ $request->id }}</h2>
+                    <p class="card-subtitle">Submitted {{ $request->created_at->format('M d, Y h:i A') }}</p>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <span class="px-4 py-2 rounded-full text-sm font-semibold 
-                        @if($request->priority == 'high') bg-red-100 text-red-800
-                        @elseif($request->priority == 'medium') bg-yellow-100 text-yellow-800
-                        @else bg-gray-100 text-gray-800 @endif">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="badge badge-{{ $request->priority }}">
                         {{ ucfirst($request->priority) }} Priority
                     </span>
-                    <span class="px-4 py-2 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-800">
-                        Pending Review
-                    </span>
+                    <span class="badge badge-pending">Pending Review</span>
                 </div>
             </div>
         </div>
 
         <!-- Requester Information -->
-        <div class="p-6 border-b">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Requester Information</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <p class="text-sm text-gray-500">Name</p>
-                    <p class="font-medium text-gray-800">{{ $request->user->full_name }}</p>
+        <div class="card-body" style="border-bottom:1px solid #e8e2d6;">
+            <h3 class="section-title">Requester Information</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Name</label>
+                    <p>{{ $request->user->full_name }}</p>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-500">Email</p>
-                    <p class="font-medium text-gray-800">{{ $request->user->email }}</p>
+                <div class="info-item">
+                    <label>Email</label>
+                    <p>{{ $request->user->email }}</p>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-500">Unit/Department</p>
-                    <p class="font-medium text-gray-800">{{ $request->user->unit ?? 'Not specified' }}</p>
+                <div class="info-item">
+                    <label>Unit/Department</label>
+                    <p>{{ $request->user->unit ?? 'Not specified' }}</p>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-500">Phone</p>
-                    <p class="font-medium text-gray-800">{{ $request->user->phone ?? 'Not provided' }}</p>
+                <div class="info-item">
+                    <label>Phone</label>
+                    <p>{{ $request->user->phone ?? 'Not provided' }}</p>
                 </div>
             </div>
         </div>
 
         <!-- Request Details -->
-        <div class="p-6 border-b">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Request Details</h3>
-            <div class="space-y-3">
-                <div>
-                    <p class="text-sm text-gray-500">Purpose</p>
-                    <p class="font-medium text-gray-800">{{ $request->purpose }}</p>
+        <div class="card-body" style="border-bottom:1px solid #e8e2d6;">
+            <h3 class="section-title">Request Details</h3>
+            <div style="display:flex;flex-direction:column;gap:.85rem;">
+                <div class="info-item">
+                    <label>Purpose</label>
+                    <p>{{ $request->purpose }}</p>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-500">Required Date</p>
-                    <p class="font-medium text-gray-800">
-                        {{ $request->required_date ? $request->required_date->format('M d, Y') : 'Not specified' }}
-                    </p>
+                <div class="info-item">
+                    <label>Required Date</label>
+                    <p>{{ $request->required_date ? $request->required_date->format('M d, Y') : 'Not specified' }}</p>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-500">Special Instructions</p>
-                    <p class="font-medium text-gray-800">{{ $request->notes ?? 'None' }}</p>
+                <div class="info-item">
+                    <label>Special Instructions</label>
+                    <p>{{ $request->notes ?? 'None' }}</p>
                 </div>
             </div>
         </div>
 
         <!-- Requested Items Table -->
-        <div class="p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Requested Items</h3>
+        <div class="card-body">
+            <h3 class="section-title">Requested Items</h3>
             
-            <!-- Stock Availability Warning -->
             @if(count($availabilityIssues) > 0)
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                        </svg>
-                        <span class="font-medium text-red-800">Stock Availability Issues Detected</span>
+                <div class="alert alert-danger">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    <div>
+                        <p class="alert-title">Stock Availability Issues Detected</p>
+                        <p class="alert-text">Some items have insufficient stock. You may need to issue partial quantities or reject the request.</p>
                     </div>
-                    <p class="text-sm text-red-600 mt-1">
-                        Some items have insufficient stock. You may need to issue partial quantities or reject the request.
-                    </p>
                 </div>
             @endif
 
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+            <div class="table-wrap">
+                <table>
+                    <thead>
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Item
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Category
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Requested Qty
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Available Stock
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Remarks
-                            </th>
+                            <th>Item</th>
+                            <th>Category</th>
+                            <th>Requested Qty</th>
+                            <th>Available Stock</th>
+                            <th>Status</th>
+                            <th>Remarks</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody>
                         @foreach($request->requestItems as $item)
                             @php
                                 $available = $item->item->quantity - $item->item->minimum_quantity;
                                 $shortage = max(0, $item->quantity - $available);
                                 $hasIssue = $available < $item->quantity;
                             @endphp
-                            <tr class="{{ $hasIssue ? 'bg-red-50' : 'hover:bg-gray-50' }}">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div>
-                                            <div class="text-sm font-medium text-gray-900">
-                                                {{ $item->item->name }}
-                                            </div>
-                                            <div class="text-sm text-gray-500">
-                                                {{ $item->item->code }}
-                                            </div>
-                                        </div>
-                                    </div>
+                            <tr class="{{ $hasIssue ? 'row-issue' : '' }}">
+                                <td>
+                                    <div class="item-name">{{ $item->item->name }}</div>
+                                    <div class="item-code">{{ $item->item->code }}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">
-                                        {{ $item->item->category->name ?? 'Uncategorized' }}
+                                <td>
+                                    <span class="category-badge">{{ $item->item->category->name ?? 'Uncategorized' }}</span>
+                                </td>
+                                <td class="stock-value">{{ $item->quantity }} {{ $item->item->unit }}</td>
+                                <td>
+                                    <span class="stock-value {{ $available >= $item->quantity ? 'stock-available' : 'stock-low' }}">
+                                        {{ $available }} {{ $item->item->unit }}
+                                    </span>
+                                    @if($hasIssue)
+                                        <span class="shortage-badge">Shortage: {{ $shortage }}</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <span class="badge badge-{{ $hasIssue ? 'insufficient' : 'available' }}">
+                                        {{ $hasIssue ? 'Insufficient Stock' : 'Available' }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $item->quantity }} {{ $item->item->unit }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <span class="text-sm font-medium 
-                                            {{ $available >= $item->quantity ? 'text-green-600' : 'text-red-600' }}">
-                                            {{ $available }} {{ $item->item->unit }}
-                                        </span>
-                                        @if($hasIssue)
-                                            <span class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-800 rounded">
-                                                Shortage: {{ $shortage }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-xs rounded-full 
-                                        @if($hasIssue) bg-red-100 text-red-800
-                                        @else bg-green-100 text-green-800 @endif">
-                                        @if($hasIssue)
-                                            Insufficient Stock
-                                        @else
-                                            Available
-                                        @endif
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $item->notes ?? '-' }}
-                                </td>
+                                <td style="color:#9a9591;">{{ $item->notes ?? '—' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
-                    <tfoot class="bg-gray-50">
+                    <tfoot>
                         <tr>
-                            <td colspan="3" class="px-6 py-3 text-sm font-medium text-gray-900">
-                                Total Items: {{ $request->requestItems->count() }}
-                            </td>
-                            <td colspan="3" class="px-6 py-3 text-right text-sm font-medium text-gray-900">
-                                Total Quantity: {{ $request->requestItems->sum('quantity') }}
-                            </td>
+                            <td colspan="3">Total Items: {{ $request->requestItems->count() }}</td>
+                            <td colspan="3" style="text-align:right;">Total Quantity: {{ $request->requestItems->sum('quantity') }}</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -202,89 +446,62 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <!-- Back Button -->
-            <a href="{{ route('admin.orders.pending') }}" 
-               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
-                </svg>
-                Back to Pending Requests
-            </a>
+    <div class="card">
+        <div class="card-body">
+            <div class="actions-wrapper">
+                <button onclick="history.back()" class="btn btn-back">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
+                    </svg>
+                    Back to Pending
+                </button>
 
-            <div class="flex flex-col md:flex-row gap-4">
-                <!-- Reject Form -->
-                <div class="md:w-64">
-                    <form id="rejectForm" action="{{ route('admin.orders.reject', $request->id) }}" method="POST">
-                        @csrf
-                        <div class="mb-3">
-                            <label for="rejection_reason" class="block text-sm font-medium text-gray-700 mb-1">
-                                Rejection Reason
-                            </label>
-                            <textarea 
-                                id="rejection_reason" 
-                                name="rejection_reason" 
-                                rows="2"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
-                                placeholder="Please provide a reason for rejection..."
-                                required></textarea>
-                        </div>
-                        <button type="submit" 
-                                onclick="return confirm('Are you sure you want to reject this request?')"
-                                class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
-                            Reject Request
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Approve Form -->
-                <div class="md:w-64">
-                    <form id="approveForm" action="{{ route('admin.orders.approve', $request->id) }}" method="POST">
-                        @csrf
-                        <div class="mb-3">
-                            <label for="scheduled_date" class="block text-sm font-medium text-gray-700 mb-1">
-                                Scheduled Issue Date (Optional)
-                            </label>
-                            <input type="date" 
-                                   id="scheduled_date" 
-                                   name="scheduled_date"
-                                   min="{{ date('Y-m-d') }}"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
-                        </div>
-                        <div class="mb-3">
-                            <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
-                                Notes (Optional)
-                            </label>
-                            <textarea 
-                                id="notes" 
-                                name="notes" 
-                                rows="2"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                                placeholder="Add any notes or instructions..."></textarea>
-                        </div>
-                        
-                        @if(count($availabilityIssues) > 0)
-                            <div class="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-                                <p class="text-sm text-yellow-700">
-                                    <strong>Note:</strong> Some items have insufficient stock. 
-                                    You can still approve and issue partial quantities later.
-                                </p>
+                <div class="actions-main">
+                    <!-- Reject Form -->
+                    <div class="action-box">
+                        <form id="rejectForm" action="{{ route('admin.orders.reject', $request->id) }}" method="POST">
+                            @csrf
+                            <div class="form-group">
+                                <label for="rejection_reason" class="form-label">Rejection Reason</label>
+                                <textarea id="rejection_reason" name="rejection_reason" rows="2" class="form-control"
+                                          placeholder="Please provide a reason for rejection..." required></textarea>
                             </div>
-                        @endif
-                        
-                        <button type="submit" 
-                                onclick="return confirm('Are you sure you want to approve this request?')"
-                                class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            Approve Request
-                        </button>
-                    </form>
+                            <button type="submit" onclick="return confirm('Are you sure you want to reject this request?')" class="btn btn-danger">
+                                <svg fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                                Reject Request
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Approve Form -->
+                    <div class="action-box">
+                        <form id="approveForm" action="{{ route('admin.orders.approve', $request->id) }}" method="POST">
+                            @csrf
+                            <div class="form-group">
+                                <label for="scheduled_date" class="form-label">Scheduled Issue Date (Optional)</label>
+                                <input type="date" id="scheduled_date" name="scheduled_date" min="{{ date('Y-m-d') }}" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="notes" class="form-label">Notes (Optional)</label>
+                                <textarea id="notes" name="notes" rows="2" class="form-control" placeholder="Add any notes or instructions..."></textarea>
+                            </div>
+                            
+                            @if(count($availabilityIssues) > 0)
+                                <div class="form-note">
+                                    <p><strong>Note:</strong> Some items have insufficient stock. You can still approve and issue partial quantities later.</p>
+                                </div>
+                            @endif
+                            
+                            <button type="submit" onclick="return confirm('Are you sure you want to approve this request?')" class="btn btn-success">
+                                <svg fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Approve Request
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -292,105 +509,75 @@
 
     <!-- Stock Issues Details -->
     @if(count($availabilityIssues) > 0)
-        <div class="bg-white rounded-lg shadow-md mt-6 p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Stock Availability Details</h3>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-red-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-red-800 uppercase tracking-wider">
-                                Item
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-red-800 uppercase tracking-wider">
-                                Requested
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-red-800 uppercase tracking-wider">
-                                Available
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-red-800 uppercase tracking-wider">
-                                Shortage
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-red-800 uppercase tracking-wider">
-                                Status
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach($availabilityIssues as $issue)
+        <div class="card">
+            <div class="card-body">
+                <h3 class="section-title">Stock Availability Details</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead style="background:#fef2f2;">
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ $issue['item']->name }}</div>
-                                    <div class="text-sm text-gray-500">{{ $issue['item']->code }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $issue['requested'] }} {{ $issue['item']->unit }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $issue['available'] }} {{ $issue['item']->unit }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                                        {{ $issue['shortage'] }} {{ $issue['item']->unit }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                                        Insufficient Stock
-                                    </span>
-                                </td>
+                                <th style="color:#991b1b;">Item</th>
+                                <th style="color:#991b1b;">Requested</th>
+                                <th style="color:#991b1b;">Available</th>
+                                <th style="color:#991b1b;">Shortage</th>
+                                <th style="color:#991b1b;">Status</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            <div class="mt-4 text-sm text-gray-600">
-                <p><strong>Recommendation:</strong> 
-                    @if(count($availabilityIssues) == $request->requestItems->count())
-                        All items have stock issues. Consider rejecting the request or requesting restocking.
-                    @else
-                        Some items can be issued. You can approve the request and issue partial quantities later.
-                    @endif
-                </p>
+                        </thead>
+                        <tbody>
+                            @foreach($availabilityIssues as $issue)
+                                <tr>
+                                    <td>
+                                        <div class="item-name">{{ $issue['item']->name }}</div>
+                                        <div class="item-code">{{ $issue['item']->code }}</div>
+                                    </td>
+                                    <td class="stock-value">{{ $issue['requested'] }} {{ $issue['item']->unit }}</td>
+                                    <td class="stock-value">{{ $issue['available'] }} {{ $issue['item']->unit }}</td>
+                                    <td>
+                                        <span class="badge badge-insufficient">{{ $issue['shortage'] }} {{ $issue['item']->unit }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-insufficient">Insufficient Stock</span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:1rem;font-size:.875rem;color:#6b6966;">
+                    <p><strong>Recommendation:</strong> 
+                        @if(count($availabilityIssues) == $request->requestItems->count())
+                            All items have stock issues. Consider rejecting the request or requesting restocking.
+                        @else
+                            Some items can be issued. You can approve the request and issue partial quantities later.
+                        @endif
+                    </p>
+                </div>
             </div>
         </div>
     @endif
 
-    <!-- JavaScript for form validation -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set minimum date for scheduled date
-            const today = new Date().toISOString().split('T')[0];
-            const scheduledDateInput = document.getElementById('scheduled_date');
-            if (scheduledDateInput) {
-                scheduledDateInput.min = today;
-            }
+</div>
 
-            // Form validation
-            const rejectForm = document.getElementById('rejectForm');
-            const approveForm = document.getElementById('approveForm');
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    const scheduledDateInput = document.getElementById('scheduled_date');
+    if (scheduledDateInput) {
+        scheduledDateInput.min = today;
+    }
 
-            if (rejectForm) {
-                rejectForm.addEventListener('submit', function(e) {
-                    const reason = document.getElementById('rejection_reason').value.trim();
-                    if (!reason) {
-                        e.preventDefault();
-                        alert('Please provide a reason for rejection.');
-                        return false;
-                    }
-                });
+    const rejectForm = document.getElementById('rejectForm');
+    if (rejectForm) {
+        rejectForm.addEventListener('submit', function(e) {
+            const reason = document.getElementById('rejection_reason').value.trim();
+            if (!reason) {
+                e.preventDefault();
+                alert('Please provide a reason for rejection.');
+                return false;
             }
         });
-    </script>
-@endsection
+    }
+});
+</script>
 
-@section('styles')
-<style>
-    .breadcrumb-item + .breadcrumb-item::before {
-        content: ">";
-        color: #6b7280;
-    }
-    .breadcrumb-item a:hover {
-        color: #3b82f6;
-    }
-</style>
 @endsection
