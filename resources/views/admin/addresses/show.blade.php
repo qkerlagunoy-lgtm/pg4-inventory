@@ -155,8 +155,8 @@
     border: 1px solid rgba(101, 241, 25, 0.2);
 }
 .badge-inactive {
-    background: #f0f1f5;
-    color: #6b7280;
+    background: #f36181;
+    color: #000000;
     border: 1px solid #e2e4ec;
 }
 
@@ -637,18 +637,32 @@ tbody td { padding: 1rem 1.25rem; color: var(--charcoal); }
 
     {{-- Table Header --}}
     <div class="table-top">
-        <div>
-            <h3>Registered Devices</h3>
-            <p>{{ $devices->total() }} device(s) within {{ $ipRange->range_start }} — {{ $ipRange->range_end }}</p>
-        </div>
+    <div>
+        <h3>Registered Devices</h3>
+        <p>{{ $devices->total() }} device(s) within {{ $ipRange->range_start }} — {{ $ipRange->range_end }}</p>
+    </div>
+
+    <!-- BUTTON GROUP -->
+    <div style="display: flex; gap: 8px;">
+        <a href="{{ route('admin.addresses.export', $ipRange) }}" 
+           class="btn-register" 
+           style="background:#4a5878;">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            Export CSV
+        </a>
+
         <button onclick="showModal()" class="btn-register">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M12 4v16m8-8H4"/>
             </svg>
             Register Device
         </button>
     </div>
-
+</div>
     {{-- Devices Table --}}
     <div class="devices-card">
         <div class="table-wrap">

@@ -82,7 +82,12 @@ class AdminController extends Controller
             'performed_at' => now(),
         ]);
 
-        return view('admin.dashboard', compact('stats', 'mostRequestedItems', 'recentRequests'));
+       $recentActivities = AuditLog::whereNotIn('action', ['viewed', 'viewed_list', 'viewed_report', 'viewed_create_form'])
+    ->orderByDesc('performed_at')
+    ->limit(10)
+    ->get();
+
+return view('admin.dashboard', compact('stats', 'mostRequestedItems', 'recentRequests', 'recentActivities'));
     }
 
     // ==================== ORDER MANAGEMENT ====================
@@ -623,7 +628,8 @@ class AdminController extends Controller
                 'module' => 'issuances',
                 'description' => "Failed to process issuance for request #{$id}: " . $e->getMessage(),
                 'model_type' => ItemRequest::class,
-                'model_id' => is_numeric($id) ? (int)$id : null,'old_data' => $validated,
+                'model_id' => $id,
+                'old_data' => $validated,
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
                 'url' => $request->fullUrl(),
@@ -726,7 +732,8 @@ class AdminController extends Controller
             'module' => 'issuances',
             'description' => "Viewed issuance #{$id} details",
             'model_type' => Issuance::class,
-            'model_id' => (int) $id, 'ip_address' => request()->ip(),
+            'model_id' => $id,
+            'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
             'url' => request()->fullUrl(),
             'method' => request()->method(),
@@ -739,9 +746,8 @@ class AdminController extends Controller
     // Track returns
     public function returns(Request $request)
     {
-        $query = IssuanceItem::with(['issuance.itemRequest.user', 'item'])
-            ->where('status', 'issued')
-            ->whereNotNull('due_date');
+       $query = IssuanceItem::with(['issuance.itemRequest.user', 'item'])
+    ->where('status', 'issued');
             
         // Filter overdue items
         if ($request->has('overdue')) {
@@ -804,12 +810,19 @@ class AdminController extends Controller
             $oldQuantityReturned = $issuanceItem->quantity_returned;
             
             // Update issuance item
+           $newReturnedQty = ($issuanceItem->quantity_returned ?? 0) + $validated['returned_quantity'];
+            $newStatus = $newReturnedQty >= $issuanceItem->quantity_issued
+                ? (($validated['condition'] === 'lost') ? 'lost' : 'returned')
+                : 'issued';
+
             $issuanceItem->update([
-                'quantity_returned' => $validated['returned_quantity'],
-                'status' => ($validated['condition'] === 'lost') ? 'lost' : 'returned',
-                'notes' => $validated['notes'],
+                'quantity_returned'   => $newReturnedQty,
+                'status'              => $newStatus,
+                'return_date'         => now(),
+                'condition_on_return' => $validated['condition'],
+                'notes'               => $validated['notes'],
             ]);
-            
+                        
             // Restock item if in good condition
             if ($validated['condition'] === 'good') {
                 $issuanceItem->item->increment('quantity', $validated['returned_quantity']);
@@ -838,7 +851,8 @@ class AdminController extends Controller
                 'module' => 'returns',
                 'description' => "Processed return for item from issuance #{$issuance->id}",
                 'model_type' => IssuanceItem::class,
-                'model_id' => is_numeric($id) ? (int)$id : null,                'old_data' => [
+                'model_id' => $id,
+                'old_data' => [
                     'status' => $oldStatus,
                     'quantity_returned' => $oldQuantityReturned
                 ],
@@ -878,7 +892,7 @@ class AdminController extends Controller
                 'performed_at' => now(),
             ]);
             
-           return back()->with('error', 'Failed to process return. Please try again.');
+            return back()->with('error', 'Failed to process return: ' . $e->getMessage());
         }
     }
 

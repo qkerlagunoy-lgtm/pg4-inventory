@@ -670,16 +670,17 @@ tfoot td {
     </div>
 </div>
 
-<script>
-function showReturnModal() {
+<script>function showReturnModal() {
+    const select = document.getElementById('itemSelect');
+    if (!select || !select.value) return;
+    document.getElementById('returnForm').action = `/admin/orders/process-return/${select.value}`;
     document.getElementById('returnModal').classList.add('show');
-    document.getElementById('returnForm').action = "{{ route('admin.orders.process-return', ['id' => '__ITEM_ID__']) }}";
 }
 
 function showItemReturnModal(itemId) {
     document.getElementById('returnModal').classList.add('show');
     document.getElementById('itemSelect').value = itemId;
-    document.getElementById('returnForm').action = "{{ route('admin.orders.process-return', ['id' => '__ITEM_ID__']) }}".replace('__ITEM_ID__', itemId);
+    document.getElementById('returnForm').action = `/admin/orders/process-return/${itemId}`;
 }
 
 function closeReturnModal() {
@@ -687,17 +688,29 @@ function closeReturnModal() {
 }
 
 function showReturnDetails(itemId) {
-    fetch(`/api/issuance-items/${itemId}/return-details`)
-        .then(response => response.json())
-        .then(data => {
-            // Handle return details display
-            alert('Return details functionality');
-        });
+    alert('Return details for item #' + itemId);
 }
 
-document.getElementById('returnModal').addEventListener('click', function(e) {
-    if (e.target === this) closeReturnModal();
+document.addEventListener('DOMContentLoaded', function() {
+    const select = document.getElementById('itemSelect');
+    if (select) {
+        select.addEventListener('change', function() {
+            document.getElementById('returnForm').action = `/admin/orders/process-return/${this.value}`;
+        });
+        // Set initial action
+        if (select.value) {
+            document.getElementById('returnForm').action = `/admin/orders/process-return/${select.value}`;
+        }
+    }
+
+    const modal = document.getElementById('returnModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) closeReturnModal();
+        });
+    }
 });
 </script>
+
 
 @endsection

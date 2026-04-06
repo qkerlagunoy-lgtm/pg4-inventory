@@ -75,23 +75,24 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 
     // Orders
-    Route::prefix('orders')->name('orders.')->group(function () {
-        Route::get('/', [AdminController::class, 'orderDashboard'])->name('index');
-        Route::get('/pending', [AdminController::class, 'pendingOrders'])->name('pending');
-        Route::get('/approved', [AdminController::class, 'approvedOrders'])->name('approved');
-        Route::get('/rejected', [AdminController::class, 'rejectedOrders'])->name('rejected');
-        Route::get('/review/{id}', [AdminController::class, 'reviewOrder'])->name('review');
-        Route::post('/approve/{id}', [AdminController::class, 'approveOrder'])->name('approve');
-        Route::post('/reject/{id}', [AdminController::class, 'rejectOrder'])->name('reject');
-        Route::get('/create-issuance/{id}', [AdminController::class, 'createIssuance'])->name('create-issuance');
-        Route::post('/process-issuance/{id}', [AdminController::class, 'processIssuance'])->name('process-issuance');
-        Route::get('/issuances', [AdminController::class, 'issuances'])->name('issuances');
-        Route::get('/issuances/{id}', [AdminController::class, 'viewIssuance'])->name('issuances.view');
-        Route::get('/returns', [AdminController::class, 'returns'])->name('returns');
-        Route::post('/process-return/{id}', [AdminController::class, 'processReturn'])->name('process-return');
-        Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
-        Route::get('/export', [AdminController::class, 'export'])->name('export');
-    });
+   Route::prefix('orders')->name('orders.')->group(function () {
+    Route::get('/', [AdminController::class, 'orderDashboard'])->name('index');
+    Route::get('/pending', [AdminController::class, 'pendingOrders'])->name('pending');
+    Route::get('/approved', [AdminController::class, 'approvedOrders'])->name('approved');
+    Route::get('/rejected', [AdminController::class, 'rejectedOrders'])->name('rejected');
+    Route::get('/review/{id}', [AdminController::class, 'reviewOrder'])->name('review');
+    Route::post('/approve/{id}', [AdminController::class, 'approveOrder'])->name('approve');
+    Route::post('/reject/{id}', [AdminController::class, 'rejectOrder'])->name('reject');
+    Route::get('/create-issuance/{id}', [AdminController::class, 'createIssuance'])->name('create-issuance');
+    Route::post('/process-issuance/{id}', [AdminController::class, 'processIssuance'])->name('process-issuance');
+    Route::get('/issuances', [AdminController::class, 'issuances'])->name('issuances');
+    Route::get('/issuances/{id}', [AdminController::class, 'viewIssuance'])->name('issuances.view');
+    Route::get('/returns', [AdminController::class, 'returns'])->name('returns');
+    Route::post('/process-return/{id}', [\App\Http\Controllers\ReturnController::class, 'processReturn'])->name('process-return');
+    Route::post('/complete-issuance/{id}', [AdminController::class, 'completeIssuance'])->name('complete-issuance');
+    Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
+    Route::get('/export', [AdminController::class, 'export'])->name('export');
+});
 
   Route::prefix('inventory')->name('inventory.')->group(function () {
     Route::get('/', [InventoryController::class, 'index'])->name('index');
@@ -146,7 +147,8 @@ Route::middleware('superadmin.only')->group(function () {
          ->name('addresses.device.offense.store');
     Route::delete('addresses/offense/{offense}/delete', [IpAddressRangeController::class, 'deleteOffense'])
          ->name('addresses.device.offense.delete');
-
+    Route::get('addresses/{address}/export', [IpAddressRangeController::class, 'exportCsv'])
+     ->name('addresses.export');
     // ── Resource routes AFTER ──
     Route::resource('device-registry', DeviceRegistryController::class);
     Route::get('device-registry/user/{user}', [DeviceRegistryController::class, 'userProfile'])

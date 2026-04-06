@@ -325,29 +325,75 @@ tbody td {
             @endif
         </div>
 
-        <!-- Most Orders by Department -->
-        <div class="section-card">
-            <h3 class="section-title">Most Orders by Department</h3>
-           
-            @if(isset($mostOrdersByDept) && $mostOrdersByDept->count() > 0)
-                <div style="display: flex; align-items: center; justify-content: center; padding: .5rem 0;">
-                    <canvas id="ordersByDeptChart" style="max-width: 200px; max-height: 200px;"></canvas>
+       {{-- ── RECENT ACTIVITIES ───────────────────────────────── --}}
+<div class="section-card">
+    <h3 class="section-title">Recent Activities</h3>
+
+    @if(isset($recentActivities) && $recentActivities->count() > 0)
+       <div style="display:flex;flex-direction:column;gap:0;max-height:380px;overflow-y:auto;">
+            @foreach($recentActivities as $log)
+                @php
+                                    $color = match($log->action) {
+                        'approved', 'item_created', 'restocked' => '#4a8c4a',
+                        'rejected', 'item_deleted'              => '#c0392b',
+                        'issued'                                => '#2d5f8a',
+                        'returned'                              => '#B17457',
+                        'item_updated'                          => '#d97706',
+                        default                                 => '#9a9591',
+                    };
+
+                                        $title = match($log->action) {
+                        'approved'        => 'Request Approved',
+                        'rejected'        => 'Request Rejected',
+                        'issued'          => 'Items Issued',
+                        'returned'        => 'Item Returned',
+                        'approve_failed'  => 'Approval Failed',
+                        'return_failed'   => 'Return Failed',
+                        'item_created'    => 'Item Added',
+                        'item_updated'    => 'Item Updated',
+                        'item_deleted'    => 'Item Removed',
+                        'restocked'       => 'Item Restocked',
+                        'exported'        => 'Data Exported',
+                        default           => ucfirst(str_replace('_', ' ', $log->action)),
+                    };
+                    
+                @endphp
+                <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.8rem 0;border-bottom:1px solid #f0ece4;position:relative;">
+                    {{-- vertical line --}}
+                    @if(!$loop->last)
+                        <span style="position:absolute;left:13px;top:2.2rem;bottom:-.5rem;width:2px;background:#f0ece4;z-index:0;"></span>
+                    @endif
+                    {{-- icon --}}
+                    <div style="width:28px;height:28px;border-radius:50%;background:{{ $color }}20;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1;border:2px solid #fff;">
+                        <svg width="13" height="13" fill="none" stroke="{{ $color }}" stroke-width="2.5" viewBox="0 0 24 24">
+                            @if($log->action === 'approved')
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            @elseif($log->action === 'rejected')
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                            @elseif($log->action === 'issued')
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8 8-4-4"/>
+                            @elseif($log->action === 'returned')
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                            @else
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            @endif
+                        </svg>
+                    </div>
+                    {{-- content --}}
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:.82rem;font-weight:700;color:var(--charcoal);margin-bottom:.15rem;">{{ $title }}</div>
+                        <div style="font-size:.75rem;color:#6b6966;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $log->description }}</div>
+                    </div>
+                    {{-- time --}}
+                    <div style="font-size:.7rem;color:#9a9591;white-space:nowrap;flex-shrink:0;">{{ $log->performed_at->diffForHumans() }}</div>
                 </div>
-                <div class="chart-legend" style="margin-top: .75rem;">
-                    @foreach($mostOrdersByDept->take(3) as $index => $dept)
-                        <div style="display: flex; align-items: center; gap: .4rem; margin-bottom: .4rem;">
-                            <div style="width: .75rem; height: .75rem; border-radius: 3px; background: {{ ['#4a8c4a', '#6aab6a', '#8cc68c'][$index % 3] }}; flex-shrink: 0;"></div>
-                            <span style="font-size: .75rem; color: var(--charcoal); line-height: 1.3;">
-                                <strong>{{ Str::limit($dept['unit'], 20) }}</strong><br>
-                                <span style="font-size: .7rem; color: #6b6966;">{{ $dept['count'] }} orders</span>
-                            </span>
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                <p class="empty-state">No orders yet</p>
-            @endif
+            @endforeach
         </div>
+    @else
+        <p class="empty-state">No recent activities</p>
+    @endif
+</div>
+        
     </div>
 
     <!-- Critical Requests Table -->

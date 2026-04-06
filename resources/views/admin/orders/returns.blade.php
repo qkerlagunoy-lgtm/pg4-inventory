@@ -357,16 +357,36 @@ tbody td {
 
     <!-- Flash Messages -->
     @if(session('success'))
-        <div class="flash flash-success">
-            {{ session('success') }}
-        </div>
-    @endif
+    <div class="flash flash-success" id="flash-success">
+        {{ session('success') }}
+    </div>
+    <script>
+        setTimeout(function() {
+            const el = document.getElementById('flash-success');
+            if (el) {
+                el.style.transition = 'opacity 0.5s ease';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            }
+        }, 5000);
+    </script>
+@endif
 
-    @if(session('error'))
-        <div class="flash flash-error">
-            {{ session('error') }}
-        </div>
-    @endif
+   @if(session('error'))
+    <div class="flash flash-error" id="flash-error">
+        {{ session('error') }}
+    </div>
+    <script>
+        setTimeout(function() {
+            const el = document.getElementById('flash-error');
+            if (el) {
+                el.style.transition = 'opacity 0.5s ease';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            }
+        }, 5000);
+    </script>
+@endif
 
     <!-- Header -->
     <div class="page-header">

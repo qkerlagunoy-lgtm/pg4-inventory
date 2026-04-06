@@ -231,4 +231,56 @@ class IpAddressRangeController extends Controller
         $offense->update($validated);
         return redirect()->back()->with('success', 'Offense updated.');
     }
+
+    public function exportCsv(IpAddressRange $address)
+{
+    $ipRange = $address;
+    $devices = DeviceRegistry::where('ip_address_range_id', $ipRange->id)
+                ->orderByDesc('created_at')
+                ->get();
+
+    $filename = 'devices_' . str_replace(' ', '_', $ipRange->name) . '_' . date('Y-m-d') . '.csv';
+
+    $headers = [
+        'Content-Type'        => 'text/csv',
+        'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+    ];
+
+    $callback = function () use ($devices, $ipRange) {
+        $file = fopen('php://output', 'w');
+
+        // Header row
+        fputcsv($file, [
+            'IP Range',
+            'First Name', 'Middle Name', 'Last Name',
+            'Rank', 'Unit', 'Personnel Category', 'Designation',
+            'Device Name', 'Device Type', 'Serial Number',
+            'IP Address', 'MAC Address', 'Remarks',
+        ]);
+
+        foreach ($devices as $device) {
+            fputcsv($file, [
+                $ipRange->name,
+                $device->assigned_firstname ?? '',
+                $device->assigned_middlename ?? '',
+                $device->assigned_lastname ?? '',
+                $device->assigned_rank ?? '',
+                $device->assigned_unit ?? '',
+                $device->assigned_category ?? '',
+                $device->assigned_designation ?? '',
+                $device->device_name ?? '',
+                $device->device_type ?? '',
+                $device->serial_number ?? '',
+                $device->ip_address ?? '',
+                $device->mac_address ?? '',
+                $device->remarks ?? '',
+            ]);
+        }
+
+        fclose($file);
+    };
+
+    return response()->stream($callback, 200, $headers);
 }
+
+    }

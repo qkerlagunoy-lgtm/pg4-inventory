@@ -348,10 +348,7 @@
             <div id="ordersAccordionContent"
                  class="accordion-content {{ request()->is('admin/orders*') ? 'open' : '' }}">
                 <div class="accordion-submenu">
-                    <a href="{{ route('admin.orders.index') }}"
-                       class="{{ request()->routeIs('admin.orders.index') ? 'active' : '' }}">
-                        Dashboard
-                    </a>
+                
 
                     @php
                         $pendingCount = \App\Models\ItemRequest::where('status', 'pending')->count();
